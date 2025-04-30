@@ -210,18 +210,17 @@
 <div class="search-container">
     <h1 class="text-dark fw-bold" style="font-size: 2.5rem;">Find your perfect stay</h1>
     <div class="search-bar">
-
         <div class="form-group">
-            <input type="text" class="form-control flatpickr-input" placeholder="📅 Check in - Check out" id="date-range" readonly>
+            <input type="text" class="form-control flatpickr-date" placeholder="📅 Date" id="date" readonly>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control flatpickr-time" placeholder="⏰ Start time" id="start_time" readonly>
+            <input type="text" class="form-control flatpickr-time" placeholder="⏰ Check-in hour" id="check_in_hour" readonly>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control flatpickr-time" placeholder="⏰ End time" id="end_time" readonly>
+            <input type="text" class="form-control flatpickr-time" placeholder="⏰ Check-out hour" id="check_out_hour" readonly>
         </div>
         <div class="form-group">
-            <input type="number" class="form-control" placeholder="👥 Guests" id="guests" min="1">
+            <input type="number" class="form-control" placeholder="👥 Number of people" id="people" min="1">
         </div>
         <button type="button" class="btn btn-search" id="searchBtn">
             <i class="fas fa-search"></i> Search
@@ -240,43 +239,44 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 <script>
 $(document).ready(function () {
-    // Date range picker
-    flatpickr("#date-range", {
-        mode: "range",
+    // Single date picker
+    flatpickr("#date", {
         minDate: "today",
         maxDate: new Date().fp_incr(365),
         dateFormat: "d M Y",
         theme: "airbnb",
-        showMonths: 2,
-        maxDays: 30,
         prevArrow: "<span class='flatpickr-prev-month'><i class='fas fa-chevron-left'></i></span>",
         nextArrow: "<span class='flatpickr-next-month'><i class='fas fa-chevron-right'></i></span>",
-        onChange: function(selectedDates, dateStr, instance) {
-            if (selectedDates.length === 2) {
-                const [checkIn, checkOut] = selectedDates;
-                instance.input.value = `${checkIn.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} - ${checkOut.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`;
-                instance.close();
-            }
-        },
     });
 
     // Time pickers
-    flatpickr(".flatpickr-time", {
+    flatpickr("#check_in_hour", {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
         time_24hr: true,
-        defaultHour: 12,
-        minuteIncrement: 15
+        defaultHour: 14,
+        minuteIncrement: 15,
+        placeholder: "⏰ Check-in hour"
+    });
+
+    flatpickr("#check_out_hour", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        defaultHour: 11,
+        minuteIncrement: 15,
+        placeholder: "⏰ Check-out hour"
     });
 
     const dummyRooms = [
-        { id: 1, name: "Udaipur, India", image: "https://images.unsplash.com/photo-1566073771259-6a8506099945", location: "Udaipur, India", description: "City views", price: 21093, rating: 5.0, reviews: 6, favorite: false, max_guests: 4 },
-        { id: 2, name: "Mount Abu, India", image: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9", location: "Mount Abu, India", description: "Mountain and garden views", price: 21927, rating: 4.8, reviews: 10, favorite: true, max_guests: 6 },
-        { id: 3, name: "Beze, India", image: "https://a0.muscache.com/im/pictures/hosting/Hosting-1159240949573806686/original/90e3ce0a-02a5-4031-ae0a-69c709d6c2b0.jpeg?im_w=720", location: "Beze, India", description: "Lake views", price: 72992, rating: 4.85, reviews: 15, favorite: false, max_guests: 2 },
-        { id: 4, name: "Udaipur, India", image: "https://a0.muscache.com/im/pictures/miso/Hosting-1069240107983574498/original/87d37686-5cc2-4a67-85f3-46581492c5e0.jpeg?im_w=720", location: "Udaipur, India", description: "Lake views", price: 11423, rating: 5.0, reviews: 6, favorite: true, max_guests: 3 },
-        { id: 5, name: "Jagtapuri, India", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c", location: "Jagtapuri, India", description: "Mountain and garden views", price: 37213, rating: 4.86, reviews: 6, favorite: false, max_guests: 5 },
-        { id: 6, name: "Karjat, India", image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9", location: "Karjat, India", description: "Mountain and garden views", price: 11921, rating: 4.95, reviews: 10, favorite: true, max_guests: 4 }
+        { id: 1, name: "Udaipur, India", image: "https://images.unsplash.com/photo-1566073771259-6a8506099945", location: "Udaipur, India", description: "City views", price: 21093, rating: 5.0, reviews: 6, favorite: false, max_people: 4 },
+        { id: 2, name: "Mount Abu, India", image: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9", location: "Mount Abu, India", description: "Mountain and garden views", price: 21927, rating: 4.8, reviews: 10, favorite: true, max_people: 6 },
+        { id: 3, name: "Beze, India", image: "https://a0.muscache.com/im/pictures/hosting/Hosting-1159240949573806686/original/90e3ce0a-02a5-4031-ae0a-69c709d6c2b0.jpeg?im_w=720", location: "Beze, India", description: "Lake views", price: 72992, rating: 4.85, reviews: 15, favorite: false, max_people: 2 },
+        { id: 4, name: "Udaipur, India", image: "https://a0.muscache.com/im/pictures/miso/Hosting-1069240107983574498/original/87d37686-5cc2-4a67-85f3-46581492c5e0.jpeg?im_w=720", location: "Udaipur, India", description: "Lake views", price: 11423, rating: 5.0, reviews: 6, favorite: true, max_people: 3 },
+        { id: 5, name: "Jagtapuri, India", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c", location: "Jagtapuri, India", description: "Mountain and garden views", price: 37213, rating: 4.86, reviews: 6, favorite: false, max_people: 5 },
+        { id: 6, name: "Karjat, India", image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9", location: "Karjat, India", description: "Mountain and garden views", price: 11921, rating: 4.95, reviews: 10, favorite: true, max_people: 4 }
     ];
 
     function populateRooms(rooms) {
@@ -308,13 +308,14 @@ $(document).ready(function () {
     populateRooms(dummyRooms);
 
     $('#searchBtn').on('click', function () {
-        const location = $('#location').val().trim().toLowerCase();
-        const guests = parseInt($('#guests').val()) || 0;
+        const date = $('#date').val();
+        const checkInHour = $('#check_in_hour').val();
+        const checkOutHour = $('#check_out_hour').val();
+        const people = parseInt($('#people').val()) || 0;
 
         const filteredRooms = dummyRooms.filter(room => {
-            const matchesLocation = !location || room.location.toLowerCase().includes(location);
-            const matchesGuests = !guests || room.max_guests >= guests;
-            return matchesLocation && matchesGuests;
+            const matchesPeople = !people || room.max_people >= people;
+            return matchesPeople;
         });
 
         populateRooms(filteredRooms);

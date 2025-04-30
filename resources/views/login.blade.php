@@ -5,7 +5,11 @@
 @endsection
 
 @section('content')
-
+@php
+$general_setting = \App\Models\Setting::pluck('option_value', 'option_key')->toArray();
+$category = getCategory();
+$adminNotifications = userNotifications();
+@endphp
 <div class="container mt-5">
     <div class="card p-4 shadow-sm mx-auto" style="max-width: 400px; border-radius: 12px;">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -13,7 +17,13 @@
             <button type="button" class="btn-close" aria-label="Close"></button>
         </div>
 
-        <h3 class="fw-bold mb-4">Welcome to 🐵 MONKEYS Booking</h3>
+        <h3 class="fw-bold mb-4 text-center">
+            <img loading="lazy" class="logo_image d-inline-block"
+                 src="{{ asset($general_setting['app_logo'] ?? '') }}"
+                 srcset="{{ asset($general_setting['app_logo'] ?? '') }}"
+                 alt="Monkeys" width="210" height="47">
+        </h3>
+
 
         <form method="POST" action="{{ url('log') }}">
             @csrf

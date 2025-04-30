@@ -462,7 +462,7 @@
 
     .calendar-inputs {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 16px;
         margin-bottom: 24px;
     }
@@ -641,122 +641,6 @@
         color: #e63946;
     }
 
-    /* Reviews Section */
-    .reviews-section {
-        padding-bottom: 24px;
-        border-bottom: 1px solid var(--airbnb-border);
-    }
-
-    .review-summary {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 24px;
-    }
-
-    .review-score {
-        font-size: 28px;
-        font-weight: 700;
-    }
-
-    .review-count {
-        color: var(--airbnb-gray);
-        font-size: 16px;
-    }
-
-    .review-categories {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-bottom: 32px;
-    }
-
-    .review-category {
-        font-size: 14px;
-    }
-
-    .review-category-name {
-        margin-bottom: 8px;
-        color: var(--airbnb-gray);
-    }
-
-    .review-category-score {
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .review-category-score i {
-        color: var(--airbnb-star);
-        font-size: 12px;
-    }
-
-    .review-card {
-        padding: 24px 0;
-        border-bottom: 1px solid var(--airbnb-border);
-    }
-
-    .reviewer {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-    }
-
-    .reviewer img {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .reviewer-info {
-        flex: 1;
-    }
-
-    .reviewer-name {
-        font-weight: 600;
-        font-size: 16px;
-    }
-
-    .review-date {
-        color: var(--airbnb-gray);
-        font-size: 14px;
-    }
-
-    .review-content {
-        font-size: 16px;
-        line-height: 1.6;
-    }
-
-    /* Location Section */
-    .location-section {
-        padding-bottom: 24px;
-        border-bottom: 1px solid var(--airbnb-border);
-    }
-
-    .location-map {
-        height: 400px;
-        width: 100%;
-        border-radius: 12px;
-        overflow: hidden;
-        margin-bottom: 24px;
-        box-shadow: var(--shadow-sm);
-        transition: var(--transition);
-    }
-
-    .location-map:hover {
-        box-shadow: var(--shadow-md);
-    }
-
-    .location-description {
-        font-size: 16px;
-        line-height: 1.6;
-        margin-bottom: 16px;
-        color: var(--airbnb-dark);
-    }
-
     /* Host Section */
     .host-section {
         padding-bottom: 24px;
@@ -924,24 +808,18 @@
 
     .booking-dates {
         display: flex;
-        border: 1px solid var(--airbnb-dark);
-        border-radius: 8px;
-        overflow: hidden;
+        flex-direction: column;
+        gap: 8px;
         margin-bottom: 16px;
     }
 
     .booking-date-field {
-        flex: 1;
         padding: 12px;
         font-size: 14px;
-        border: none;
-        background: white;
+        border: 1px solid var(--airbnb-dark);
+        border-radius: 8px;
         cursor: pointer;
         text-align: left;
-    }
-
-    .booking-date-field.check-in {
-        border-right: 1px solid var(--airbnb-dark);
     }
 
     .booking-date-field label {
@@ -1210,10 +1088,6 @@
             grid-template-columns: 1fr;
         }
 
-        .review-categories {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
         .things-grid {
             grid-template-columns: 1fr;
         }
@@ -1232,15 +1106,6 @@
             max-width: 100%;
             padding: 0;
         }
-
-        .booking-dates {
-            flex-direction: column;
-        }
-
-        .booking-date-field.check-in {
-            border-right: none;
-            border-bottom: 1px solid var(--airbnb-dark);
-        }
     }
 
     @media (max-width: 480px) {
@@ -1250,10 +1115,6 @@
 
         .section-title {
             font-size: 22px;
-        }
-
-        .review-categories {
-            grid-template-columns: 1fr;
         }
 
         .host-contact {
@@ -1538,115 +1399,23 @@
                 <h2 class="section-title">Select your dates</h2>
                 <div class="calendar-inputs">
                     <div class="calendar-input-group">
-                        <label>Check-in</label>
-                        <input type="text" class="calendar-input" id="check-in" placeholder="Add date" readonly>
+                        <label>Date</label>
+                        <input type="text" class="calendar-input" id="date" placeholder="Select date" readonly>
                     </div>
                     <div class="calendar-input-group">
-                        <label>Check-out</label>
-                        <input type="text" class="calendar-input" id="check-out" placeholder="Add date" readonly>
+                        <label>Check-in hour</label>
+                        <input type="text" class="calendar-input" id="check-in-hour" placeholder="Select time" readonly>
+                    </div>
+                    <div class="calendar-input-group">
+                        <label>Check-out hour</label>
+                        <input type="text" class="calendar-input" id="check-out-hour" placeholder="Select time" readonly>
                     </div>
                 </div>
-                <div class="calendar-container">
-                    <div id="calendar"></div>
-                </div>
-            </div>
-
-            <hr id="reviews">
-
-            <!-- Reviews -->
-            <div class="reviews-section">
-                <h2 class="section-title">★ 4.85 · 167 reviews</h2>
-                <div class="review-summary">
-                    <div class="review-score">4.85</div>
-                    <div class="review-count">(167 reviews)</div>
-                </div>
-
-                <div class="review-categories">
-                    <div class="review-category">
-                        <div class="review-category-name">Cleanliness</div>
-                        <div class="review-category-score">
-                            <i class="fas fa-star"></i> 4.9
-                        </div>
-                    </div>
-                    <div class="review-category">
-                        <div class="review-category-name">Accuracy</div>
-                        <div class="review-category-score">
-                            <i class="fas fa-star"></i> 4.8
-                        </div>
-                    </div>
-                    <div class="review-category">
-                        <div class="review-category-name">Check-in</div>
-                        <div class="review-category-score">
-                            <i class="fas fa-star"></i> 4.8
-                        </div>
-                    </div>
-                    <div class="review-category">
-                        <div class="review-category-name">Communication</div>
-                        <div class="review-category-score">
-                            <i class="fas fa-star"></i> 4.9
-                        </div>
-                    </div>
-                    <div class="review-category">
-                        <div class="review-category-name">Location</div>
-                        <div class="review-category-score">
-                            <i class="fas fa-star"></i> 4.7
-                        </div>
-                    </div>
-                    <div class="review-category">
-                        <div class="review-category-name">Value</div>
-                        <div class="review-category-score">
-                            <i class="fas fa-star"></i> 4.7
-                        </div>
-                    </div>
-                </div>
-
-                <div class="review-card">
-                    <div class="reviewer">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" alt="Reviewer">
-                        <div class="reviewer-info">
-                            <div class="reviewer-name">Sanket</div>
-                            <div class="review-date">1 day ago</div>
-                        </div>
-                    </div>
-                    <div class="review-content">
-                        Great experience! The property was exactly as described and the host was very responsive. The infinity pool was the highlight of our stay. Waking up to that lake view every morning was absolutely breathtaking. The organic farm tour was also a wonderful experience - we got to pick fresh vegetables for our meals!
-                    </div>
-                </div>
-
-                <div class="review-card">
-                    <div class="reviewer">
-                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7" alt="Reviewer">
-                        <div class="reviewer-info">
-                            <div class="reviewer-name">Abhisek</div>
-                            <div class="review-date">1 week ago</div>
-                        </div>
-                    </div>
-                    <div class="review-content">
-                        Perfect for a weekend getaway! The organic farm was amazing and we loved the fresh produce. Would definitely recommend. The host Zabin was incredibly hospitable and gave us great recommendations for local restaurants. The villa was spotless and had everything we needed for a comfortable stay.
-                    </div>
-                </div>
-
-                <button class="read-more">Show all 167 reviews</button>
             </div>
 
             <hr>
 
-            <!-- Location -->
-            <div class="location-section">
-                <h2 class="section-title">Where you'll be</h2>
-                <p>Udaipur, Rajasthan, India</p>
-                <div class="location-map">
-                    <iframe src="https://maps.google.com/maps?q=Udaipur%20India&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                </div>
-                <p class="location-description">
-                    A beautiful farm house situated in a village close to the scenic Bad Lake. The air is fresh, there is no traffic and no light pollution. Some of the famous tourist places of Udaipur such as Bad Lake, Fatehgarh Sagar, and Shripath Sagar are within a 30-minute drive from the villa.
-                </p>
-                <button class="read-more">Show more</button>
-            </div>
-
-            <hr>
-
-            <!-- Host -->
+            <!-- Host Section -->
             <div class="host-section">
                 <h2 class="section-title">Meet your host</h2>
                 <div class="host-card">
@@ -1719,21 +1488,25 @@
                 </div>
 
                 <div class="booking-dates">
-                    <div class="booking-date-field check-in">
-                        <label>Check-in</label>
-                        <span id="check-in-display">5/15/2025</span>
+                    <div class="booking-date-field">
+                        <label>Date</label>
+                        <span id="date-display">Add date</span>
                     </div>
-                    <div class="booking-date-field checkout placeholder">
-                        <label>Checkout</label>
-                        <span id="check-out-display">Add date</span>
+                    <div class="booking-date-field">
+                        <label>Check-in hour</label>
+                        <span id="check-in-hour-display">Add time</span>
+                    </div>
+                    <div class="booking-date-field">
+                        <label>Check-out hour</label>
+                        <span id="check-out-hour-display">Add time</span>
                     </div>
                 </div>
 
                 <div class="booking-guests">
                     <div class="guest-picker">
                         <div>
-                            <label>Guests</label>
-                            <span id="guest-display">1 guest</span>
+                            <label>Number of people</label>
+                            <span id="guest-display">1 person</span>
                         </div>
                         <i class="fas fa-chevron-down"></i>
                     </div>
@@ -1777,9 +1550,10 @@
                     @if(auth()->check())
                         <form method="POST" action="{{ route('booking.submit', ['room' => 1]) }}">
                             @csrf
-                            <input type="hidden" name="check_in" id="check-in-value">
-                            <input type="hidden" name="check_out" id="check-out-value">
-                            <input type="hidden" name="guests" id="guests-value" value="1">
+                            <input type="hidden" name="date" id="date-value">
+                            <input type="hidden" name="check_in_hour" id="check-in-hour-value">
+                            <input type="hidden" name="check_out_hour" id="check-out-hour-value">
+                            <input type="hidden" name="people" id="people-value" value="1">
                             <button type="submit" class="btn btn-sm booking-button">Reserve</button>
                         </form>
                     @else
@@ -1790,8 +1564,8 @@
 
                 <div class="price-breakdown">
                     <div class="price-row">
-                        <span>₹9,471 x 5 nights</span>
-                        <span>₹47,355</span>
+                        <span>₹9,471 x 1 night</span>
+                        <span>₹9,471</span>
                     </div>
                     <div class="price-row">
                         <span>Cleaning fee <span class="price-detail">What's this?</span></span>
@@ -1803,7 +1577,7 @@
                     </div>
                     <div class="price-total price-row">
                         <span>Total before taxes</span>
-                        <span>₹51,223</span>
+                        <span>₹13,339</span>
                     </div>
                 </div>
 
@@ -1835,121 +1609,59 @@ $(document).ready(function () {
         pets: 0
     };
 
-    // Initialize Flatpickr for the calendar section
-    const fp = flatpickr("#calendar", {
-        mode: "range",
+    // Initialize date picker
+    const datePicker = flatpickr("#date", {
         minDate: "today",
         maxDate: new Date().fp_incr(365),
         dateFormat: "d M Y",
-        defaultDate: ["9 May 2025", "15 May 2025"],
-        showMonths: window.innerWidth > 768 ? 2 : 1,
-        inline: true,
-        prevArrow: "<span class='flatpickr-prev-month'><i class='fas fa-chevron-left'></i></span>",
-        nextArrow: "<span class='flatpickr-next-month'><i class='fas fa-chevron-right'></i></span>",
+        theme: "airbnb",
         onChange: function(selectedDates, dateStr, instance) {
-            if (selectedDates.length === 2) {
-                const checkInDate = selectedDates[0];
-                const checkOutDate = selectedDates[1];
-
-                // Format dates for display
-                const formattedCheckIn = checkInDate.toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-
-                const formattedCheckOut = checkOutDate.toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-
-                const numericCheckIn = checkInDate.toLocaleDateString('en-US', {
+            if (selectedDates.length > 0) {
+                const formattedDate = selectedDates[0].toLocaleDateString('en-US', {
                     month: 'numeric',
                     day: 'numeric',
                     year: 'numeric'
                 });
-
-                const numericCheckOut = checkOutDate.toLocaleDateString('en-US', {
-                    month: 'numeric',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-
-                // Update inputs
-                $("#check-in").val(formattedCheckIn);
-                $("#check-out").val(formattedCheckOut);
-                $("#check-in-value").val(checkInDate.toISOString().split('T')[0]);
-                $("#check-out-value").val(checkOutDate.toISOString().split('T')[0]);
-                $("#check-in-display").text(numericCheckIn);
-                $("#check-out-display").text(numericCheckOut);
-
-                // Remove placeholder class
-                $("#check-out-display").parent().removeClass('placeholder');
-
-                // Calculate and update price
-                const nights = Math.round((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
-                const basePrice = 9471;
-                const totalPrice = basePrice * nights;
-                $(".price-row:first span:first").text(`₹${basePrice.toLocaleString()} x ${nights} nights`);
-                $(".price-row:first span:last").text(`₹${totalPrice.toLocaleString()}`);
-                $(".price-total span:last").text(`₹${(totalPrice + 1500 + 2368).toLocaleString()}`);
-
-                // Scroll to booking widget if on mobile
-                if (window.innerWidth <= 768) {
-                    $('html, body').animate({
-                        scrollTop: $(".booking-widget").offset().top - 20
-                    }, 500);
-                }
+                $("#date-display").text(formattedDate);
+                $("#date-value").val(selectedDates[0].toISOString().split('T')[0]);
             }
-        },
-        onReady: function(selectedDates, dateStr, instance) {
-            updateCalendarHeader(instance);
-            addCalendarFooter(instance);
         }
     });
 
-    // Set initial dates
-    $("#check-in").val("9 May 2025");
-    $("#check-out").val("15 May 2025");
-    $("#check-in-value").val("2025-05-09");
-    $("#check-out-value").val("2025-05-15");
-    $("#check-in-display").text("5/15/2025");
-    $("#check-out-display").text("Add date");
-    $("#check-out-display").parent().addClass('placeholder');
-
-    function updateCalendarHeader(instance) {
-        let header = instance.calendarContainer.querySelector('.calendar-header');
-        if (!header) {
-            header = document.createElement('div');
-            header.className = 'calendar-header';
-            instance.calendarContainer.insertBefore(header, instance.calendarContainer.firstChild);
+    // Initialize time pickers
+    flatpickr("#check-in-hour", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        defaultHour: 14,
+        minuteIncrement: 15,
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+                const hours = selectedDates[0].getHours().toString().padStart(2, '0');
+                const minutes = selectedDates[0].getMinutes().toString().padStart(2, '0');
+                $("#check-in-hour-display").text(`${hours}:${minutes}`);
+                $("#check-in-hour-value").val(`${hours}:${minutes}`);
+            }
         }
-        header.innerHTML = `
-            <h3>${activeInput === 'check-out' ? 'Select checkout date' : 'Select check-in date'}</h3>
-            <p>Add your travel dates for exact pricing</p>
-        `;
-    }
+    });
 
-    function addCalendarFooter(instance) {
-        let footer = instance.calendarContainer.querySelector('.calendar-footer');
-        if (!footer) {
-            footer = document.createElement('div');
-            footer.className = 'calendar-footer';
-            footer.innerHTML = '<button type="button" class="clear-dates">Clear dates</button>';
-            instance.calendarContainer.appendChild(footer);
-            footer.querySelector('.clear-dates').addEventListener('click', function() {
-                instance.clear();
-                $("#check-in").val('');
-                $("#check-out").val('');
-                $("#check-in-value").val('');
-                $("#check-out-value").val('');
-                $("#check-in-display").text('Add date');
-                $("#check-out-display").text('Add date');
-                $("#check-out-display").parent().addClass('placeholder');
-            });
+    flatpickr("#check-out-hour", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        defaultHour: 11,
+        minuteIncrement: 15,
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+                const hours = selectedDates[0].getHours().toString().padStart(2, '0');
+                const minutes = selectedDates[0].getMinutes().toString().padStart(2, '0');
+                $("#check-out-hour-display").text(`${hours}:${minutes}`);
+                $("#check-out-hour-value").val(`${hours}:${minutes}`);
+            }
         }
-    }
+    });
 
     // Guest picker functionality
     window.updateGuests = function(type, change) {
@@ -1958,10 +1670,10 @@ $(document).ready(function () {
         // Update display
         $(`#${type}-count`).text(guestCounts[type]);
 
-        // Calculate total guests (adults + children, infants don't count)
-        const totalGuests = guestCounts.adults + guestCounts.children;
-        $("#guest-display").text(totalGuests + " guest" + (totalGuests !== 1 ? "s" : ""));
-        $("#guests-value").val(totalGuests);
+        // Calculate total people (adults + children + infants, pets don't count)
+        const totalPeople = guestCounts.adults + guestCounts.children + guestCounts.infants;
+        $("#guest-display").text(totalPeople + " person" + (totalPeople !== 1 ? "s" : ""));
+        $("#people-value").val(totalPeople);
 
         // Disable minus buttons when count is 0
         $(`button[onclick="updateGuests('${type}', -1)"]`).prop('disabled', guestCounts[type] === 0);
@@ -2030,13 +1742,6 @@ $(document).ready(function () {
         }, 2000);
     });
 
-    // Open calendar on date field click
-    $(".booking-date-field").click(function() {
-        $('html, body').animate({
-            scrollTop: $("#calendar-section").offset().top - 20
-        }, 500);
-    });
-
     // Show all photos lightbox
     $('#show-all-photos').click(function() {
         $('[data-lightbox="property-gallery"]').first().trigger('click');
@@ -2068,15 +1773,6 @@ $(document).ready(function () {
             $('#fab-reserve').addClass('fade-in');
         } else {
             $('#fab-reserve').removeClass('fade-in');
-        }
-    });
-
-    // Responsive calendar months
-    $(window).resize(function() {
-        if (window.innerWidth <= 768) {
-            fp.set('showMonths', 1);
-        } else {
-            fp.set('showMonths', 2);
         }
     });
 });
