@@ -22,9 +22,11 @@ use App\Models\Notification;
 
 use App\Models\Page;
 use App\Models\PasswordReset;
+use App\Models\Property;
 use App\Models\Reaction;
-use App\Models\Sales;
 
+use App\Models\Reservation;
+use App\Models\Sales;
 use App\Models\SupportTicketQuestion;
 use App\Models\User;
 use App\Notifications\NewUserRegisteredNotification;
@@ -71,28 +73,74 @@ class UserController extends Controller
 
     public function home()
     {
-
         $user_session = User::where('id', Session::get('LoggedIn'))->first();
 
         $sliders = Banner::all()->map(function ($slider) {
-            // Split every 4 words into a new line
             $words = explode(' ', $slider->title1);
-            $chunks = array_chunk($words, 4); // Adjust 4 for the desired number of words per line
+            $chunks = array_chunk($words, 4);
             $slider->title1 = implode('<br>', array_map(fn($chunk) => implode(' ', $chunk), $chunks));
             return $slider;
         });
 
-        return view('index', compact('user_session', 'sliders'));
+        // Fetch properties with relevant fields
+        $rooms = Property::limit(25)->get();
+
+        return view('index', compact('user_session', 'sliders', 'rooms'));
     }
 
     public function roomdetails($room)
     {
-
-
         $user_session = User::where('id', Session::get('LoggedIn'))->first();
 
-        return view('roomdetails', compact('user_session'));
+        $property = Property::findOrFail($room);
+
+        // Thumbnail as-is
+        $property->thumbnail = $property->thumbnail ? asset($property->thumbnail) : null;
+
+        // Property Images (gallery)
+        $property->property_images = is_string($property->property_images)
+            ? json_decode($property->property_images, true)
+            : ($property->property_images ?? []);
+
+        // Normalize image paths to ensure they start with 'uploads/property_images/'
+        $property->property_images = array_map(function ($image) {
+            // Remove any leading slashes and normalize path
+            $image = ltrim($image, '/');
+            // Replace 'property_images/' with 'uploads/property_images/' if necessary
+            if (strpos($image, 'uploads/') !== 0) {
+                $image = 'uploads/' . (strpos($image, 'property_images/') === 0 ? $image : 'property_images/' . basename($image));
+            }
+            return asset($image);
+        }, $property->property_images);
+
+        // Bedrooms
+        $property->bedrooms = is_string($property->bedrooms)
+            ? json_decode($property->bedrooms, true)
+            : ($property->bedrooms ?? []);
+
+        $property->bedrooms = array_map(function ($bedroom) {
+            if (isset($bedroom['image'])) {
+                $bedroom['image'] = asset($bedroom['image']);
+            }
+            return $bedroom;
+        }, $property->bedrooms);
+
+        // Amenities
+        $property->amenities = is_string($property->amenities)
+            ? json_decode($property->amenities, true)
+            : ($property->amenities ?? []);
+
+        $property->amenities = array_map(function ($amenity) {
+            if (isset($amenity['image'])) {
+                $amenity['image'] = asset($amenity['image']);
+            }
+            return $amenity;
+        }, $property->amenities);
+
+        return view('roomdetails', compact('user_session', 'property'));
     }
+
+
     public function segundaFase()
     {
 
@@ -175,10 +223,10 @@ class UserController extends Controller
     {
         // Validate input fields
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+
             'email' => 'required|email|unique:users,email',
-            'code' => 'required',
+
             'password' => ['required', 'string', 'min:8', 'max:30'],
             'mobile_number' => 'required|string|max:15',
 
@@ -190,7 +238,7 @@ class UserController extends Controller
         // Create a new user
         $user = User::create([
             'account_type' => 'user',
-            'name' => trim($request->first_name . ' ' . $request->last_name),
+            'name' => trim($request->name),
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'custom_password' => $request->password, // Storing plain password is insecure; reconsider this
@@ -242,7 +290,7 @@ class UserController extends Controller
                 $request->session()->put('user_session', $user);
                 $userId = Session::get('LoggedIn');
 
-                return redirect('news');
+                return redirect('dashboard');
             } else {
                 return back()->with('fail', 'Password does not match');
             }
@@ -290,6 +338,24 @@ class UserController extends Controller
             return Redirect()->with('fail', 'Tienes que iniciar sesión primero');
         }
     }
+    public function reserve()
+{
+    // Check if the user is logged in
+    if (Session::has('LoggedIn')) {
+
+        // Get the pages, the current logged-in user, and all reservations
+        $pages = Page::all();
+        $user_session = User::find(Session::get('LoggedIn'));  // More concise way
+        $reservations = Reservation::all();  // Fetch all reservations
+
+        // Pass data to the view
+        return view('reserve', compact('user_session', 'pages', 'reservations'));
+    } else {
+        // If not logged in, redirect with a failure message
+        return redirect()->route('login')->withErrors(['fail' => 'Tienes que iniciar sesión primero']);
+    }
+}
+
     public function blog_detail(Request $request)
     {
 
@@ -380,19 +446,32 @@ class UserController extends Controller
 
 
     public function dashboard()
-    {
-        if (Session::has('LoggedIn')) {
-            $user_session = User::where('id', Session::get('LoggedIn'))->first();
+{
+    if (Session::has('LoggedIn')) {
+        $user_session = User::find(Session::get('LoggedIn'));
+        $pages = Page::all();
 
-            // dd($sales);
-            $pages = Page::all();
+        // Stats
+        $reservations = Reservation::where('user_id', $user_session->id)->get();
+        $stats = [
+            'total'     => $reservations->count(),
+            'pending'   => $reservations->where('payment_status', 'pending')->count(),
+            'confirmed' => $reservations->where('payment_status', 'confirmed')->count(),
+        ];
 
-            return view('dashboard', compact('user_session', 'pages'));
-        } else {
-            // Redirect to the login page if the user is not logged in
-            return redirect()->route('Userlogin'); // or use 'login' if you have a named route for login
-        }
+        // Data for chart: reservations by date
+        $reservationsByDate = $reservations->groupBy(function($item) {
+            return \Carbon\Carbon::parse($item->date)->format('Y-m-d'); // Ensure consistent date format
+        })->map(function ($dayGroup) {
+            return $dayGroup->count();
+        })->sortKeys(); // Sort by date
+
+        return view('dashboard', compact('user_session', 'pages', 'stats', 'reservationsByDate'));
+    } else {
+        return redirect()->route('Userlogin')->with('fail', 'Tienes que iniciar sesión primero');
     }
+}
+
     public function welcome()
     {
         if (Session::has('LoggedIn')) {

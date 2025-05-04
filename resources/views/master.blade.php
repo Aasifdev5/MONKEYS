@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-US" class="no-js scheme_default">
+<html lang="es" class="no-js scheme_default">
 
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,7 @@
         $adminNotifications = userNotifications();
     @endphp
 
-    <title>{{ $general_setting['app_name'] ?? 'MONKEYS' }} | @yield('title', 'Welcome') </title>
+    <title>{{ $general_setting['app_name'] ?? 'MONOS' }} | @yield('title', 'Bienvenido') </title>
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset($general_setting['app_fav_icon'] ?? '') }}" type="image/x-icon">
@@ -34,12 +34,11 @@
     <link href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
     <style>
-
         body {
-        font-family: 'Nunito', sans-serif;
-        background-color: #fff;
-        color: #222;
-    }
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8f9fa;
+            color: #222;
+        }
         .navbar {
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -84,8 +83,8 @@
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
                 <img loading="lazy" class="logo_image"
-                                                    src="{{ asset($general_setting['app_logo'] ?? '') }}"
-                                                    srcset="{{ asset($general_setting['app_logo'] ?? '') }}" alt="Monkeys" width="210" height="47">
+                     src="{{ asset($general_setting['app_logo'] ?? '') }}"
+                     alt="Monos" width="210" height="47">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -93,62 +92,43 @@
 
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="#">Homes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url('dashboard') }}"><i class="fa-solid fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url('reserve') }}"><i class="fa-solid fa-bed me-2"></i>Reservar habitación</a></li>
 
-                    @auth
+                    @if(!empty($user_session))
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
                                 <div class="position-relative">
-                                    <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1">
-                                        <span class="visually-hidden">New alerts</span>
-                                    </span>
                                     <div class="rounded-circle bg-light text-dark d-flex justify-content-center align-items-center"
                                          style="width: 36px; height: 36px;">
-                                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                        {{ strtoupper(substr($user_session->name, 0, 1)) }}
                                     </div>
                                 </div>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow rounded-4 p-2" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item fw-semibold" href="#">Messages</a></li>
-                                <li><a class="dropdown-item fw-semibold d-flex justify-content-between align-items-center" href="#">
-                                    Notifications <span class="badge bg-danger rounded-circle" style="width: 8px; height: 8px;"></span>
-                                </a></li>
-                                <li><a class="dropdown-item fw-semibold" href="#">Trips</a></li>
-                                <li><a class="dropdown-item fw-semibold" href="#">Wishlists</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">🐵 MONKEYS your home</a></li>
-                                <li><a class="dropdown-item" href="#">Host an experience</a></li>
-                                <li><a class="dropdown-item" href="#">Refer a host</a></li>
-                                <li><a class="dropdown-item" href="#">Account</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Help Centre</a></li>
-                                <li>
-                                    <form action="{{ route('logout') }}" method="POST" class="dropdown-item p-0">
-                                        @csrf
-                                        <button type="submit" class="btn w-100 text-start">Log out</button>
-                                    </form>
-                                </li>
+                                <li><a href="{{ url('logout') }}" class="text-dark text-decoration-none d-flex align-items-center">
+                                    <i class="fa-solid fa-right-from-bracket me-2"></i> {{ __('Cerrar sesión') }}
+                                  </a></li>
                             </ul>
                         </li>
                     @else
-                        <li class="nav-item"><a class="btn btn-outline-light btn-sm ms-2" href="{{ url('Userlogin') }}">Sign In</a></li>
-                    @endauth
+                        <li class="nav-item"><a class="btn btn-outline-light btn-sm ms-2" href="{{ url('Userlogin') }}">Iniciar sesión</a></li>
+                    @endif
                 </ul>
             </div>
         </div>
     </nav>
 
-
     {{-- Content --}}
-    <main class="container mt-5 pt-4">
+    <main class="container mt-5 pt-5">
         @yield('content')
     </main>
 
     {{-- Optional Footer --}}
     <footer class="text-center py-4 mt-5 text-muted small">
         <div class="container">
-            © {{ date('Y') }} ResidentMonkey. All rights reserved.
+            © {{ date('Y') }} MonoResidente. Todos los derechos reservados.
         </div>
     </footer>
 
@@ -156,7 +136,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/1.1.13.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @stack('scripts')

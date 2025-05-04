@@ -119,7 +119,12 @@
                             <span>Noticias</span>
                         </a>
                     </li>
-
+                    <li class="sidebar-list {{ Request::is('properties') ? 'active' : '' }}"><i class="fa fa-thumb-tack"></i>
+                        <a class="sidebar-link sidebar-title link-nav" href="{{ route('properties.index') }}">
+                            <i class="fa fa-building-o text-light"></i>&nbsp;&nbsp;&nbsp;
+                            <span>Properties</span>
+                        </a>
+                    </li>
 
                     <li class="sidebar-list {{ Request::is('blogs*') ? 'active' : '' }}"><i class="fa fa-thumb-tack"></i>
                         <a class="sidebar-link sidebar-title" href="javascript:void(0)">

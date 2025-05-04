@@ -1,7 +1,7 @@
 @extends('master')
 
 @section('title')
-    {{ __('Infinity Pool + Organic Farm House with a Lake View') }}
+{{ $property->name }}
 @endsection
 
 @section('content')
@@ -68,46 +68,6 @@
         gap: 16px;
         margin-bottom: 24px;
         font-size: 14px;
-    }
-
-    .property-rating {
-        display: flex;
-        align-items: center;
-        color: var(--airbnb-dark);
-    }
-
-    .property-rating i {
-        color: var(--airbnb-star);
-        margin-right: 4px;
-        font-size: 12px;
-    }
-
-    .superhost-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background-color: #f8f8f8;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 500;
-    }
-
-    .superhost-badge i {
-        color: var(--airbnb-pink);
-    }
-
-    .property-host {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .property-host img {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
     }
 
     .property-actions {
@@ -232,6 +192,16 @@
         height: 80px;
         background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
         z-index: 1;
+    }
+
+    /* Image Preview Section */
+    .image-preview {
+        margin-bottom: 32px;
+    }
+
+    .image-preview img {
+        margin-right: 8px;
+        margin-bottom: 8px;
     }
 
     /* Main Content */
@@ -453,280 +423,6 @@
         border-color: var(--airbnb-gray);
     }
 
-    /* Calendar Section */
-    .calendar-section {
-        margin-bottom: 48px;
-        padding-bottom: 24px;
-        border-bottom: 1px solid var(--airbnb-border);
-    }
-
-    .calendar-inputs {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .calendar-input-group {
-        position: relative;
-    }
-
-    .calendar-input-group label {
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-        color: var(--airbnb-dark);
-    }
-
-    .calendar-input {
-        width: 100%;
-        padding: 14px;
-        font-size: 16px;
-        border: 2px solid var(--airbnb-border);
-        border-radius: 10px;
-        cursor: pointer;
-        transition: var(--transition);
-        font-family: inherit;
-    }
-
-    .calendar-input:focus {
-        outline: none;
-        border-color: var(--airbnb-dark);
-        box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
-    }
-
-    .calendar-input.active {
-        border-color: var(--airbnb-dark);
-    }
-
-    .calendar-container {
-        border: 1px solid var(--airbnb-border);
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: var(--shadow-sm);
-        transition: var(--transition);
-    }
-
-    .calendar-container:hover {
-        box-shadow: var(--shadow-md);
-    }
-
-    /* Flatpickr Customization */
-    .flatpickr-calendar {
-        width: 100%;
-        max-width: 750px;
-        background: white;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        font-family: inherit;
-    }
-
-    .flatpickr-calendar.showMonths-2 .flatpickr-month {
-        width: 50%;
-        display: inline-block;
-        vertical-align: top;
-    }
-
-    .flatpickr-month {
-        padding: 10px 20px;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-
-    .flatpickr-monthDropdown-months, .numInputWrapper {
-        font-weight: 700;
-        font-size: 16px;
-        color: var(--airbnb-dark);
-    }
-
-    .flatpickr-weekdays {
-        margin-bottom: 10px;
-    }
-
-    .flatpickr-weekday {
-        color: var(--airbnb-dark);
-        font-weight: 500;
-        font-size: 14px;
-    }
-
-    .flatpickr-day {
-        font-size: 14px;
-        color: var(--airbnb-dark);
-        transition: var(--transition);
-        border-radius: 50%;
-        height: 40px;
-        line-height: 40px;
-    }
-
-    .flatpickr-day.today {
-        border-color: var(--airbnb-dark);
-    }
-
-    .flatpickr-day.selected,
-    .flatpickr-day.startRange,
-    .flatpickr-day.endRange {
-        background: var(--airbnb-dark);
-        border-color: var(--airbnb-dark);
-        color: white;
-    }
-
-    .flatpickr-day.inRange {
-        background: rgba(0,0,0,0.05);
-        border: none;
-        color: var(--airbnb-dark);
-        box-shadow: -5px 0 0 rgba(0,0,0,0.05), 5px 0 0 rgba(0,0,0,0.05);
-    }
-
-    .flatpickr-day.disabled,
-    .flatpickr-day.disabled:hover {
-        color: #b0b0b0;
-        background: transparent;
-        border-color: transparent;
-    }
-
-    .flatpickr-prev-month,
-    .flatpickr-next-month {
-        font-size: 18px;
-        color: var(--airbnb-dark);
-        transition: var(--transition);
-        top: 12px;
-    }
-
-    .flatpickr-prev-month:hover,
-    .flatpickr-next-month:hover {
-        color: var(--airbnb-pink);
-    }
-
-    .calendar-header {
-        padding: 15px 20px;
-        border-bottom: 1px solid var(--airbnb-border);
-        margin-bottom: 20px;
-    }
-
-    .calendar-header h3 {
-        font-size: 18px;
-        font-weight: 700;
-        margin: 0;
-        color: var(--airbnb-dark);
-    }
-
-    .calendar-header p {
-        font-size: 14px;
-        color: var(--airbnb-gray);
-        margin: 5px 0 0;
-    }
-
-    .calendar-footer {
-        padding: 15px 20px;
-        text-align: right;
-        border-top: 1px solid var(--airbnb-border);
-    }
-
-    .calendar-footer .clear-dates {
-        background: none;
-        border: none;
-        color: var(--airbnb-pink);
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        padding: 8px 15px;
-        text-decoration: underline;
-        transition: var(--transition);
-    }
-
-    .calendar-footer .clear-dates:hover {
-        color: #e63946;
-    }
-
-    /* Host Section */
-    .host-section {
-        padding-bottom: 24px;
-        border-bottom: 1px solid var(--airbnb-border);
-    }
-
-    .host-card {
-        display: flex;
-        gap: 24px;
-        padding: 24px 0;
-    }
-
-    .host-img {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .host-info {
-        flex: 1;
-    }
-
-    .host-name {
-        font-weight: 700;
-        margin-bottom: 8px;
-        font-size: 20px;
-    }
-
-    .host-meta {
-        color: var(--airbnb-gray);
-        font-size: 14px;
-        margin-bottom: 16px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-
-    .host-meta-item {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .host-meta-item i {
-        font-size: 12px;
-    }
-
-    .host-response-time {
-        color: var(--airbnb-success);
-        font-weight: 500;
-    }
-
-    .host-contact {
-        display: flex;
-        gap: 12px;
-    }
-
-    .host-button {
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 16px;
-        transition: var(--transition);
-    }
-
-    .host-button.primary {
-        background: var(--airbnb-dark);
-        color: white;
-        border: none;
-    }
-
-    .host-button.secondary {
-        background: white;
-        color: var(--airbnb-dark);
-        border: 1px solid var(--airbnb-dark);
-    }
-
-    .host-button:hover {
-        background: var(--airbnb-pink);
-        color: white;
-        border-color: var(--airbnb-pink);
-        transform: translateY(-2px);
-    }
-
     /* Things to Know */
     .things-section {
         padding-bottom: 24px;
@@ -814,30 +510,45 @@
     }
 
     .booking-date-field {
-        padding: 12px;
-        font-size: 14px;
+        position: relative;
         border: 1px solid var(--airbnb-dark);
         border-radius: 8px;
+        padding: 12px;
+        font-size: 14px;
         cursor: pointer;
-        text-align: left;
+        transition: border-color 0.2s ease;
+    }
+
+    .booking-date-field:hover {
+        border-color: var(--airbnb-pink);
     }
 
     .booking-date-field label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         font-size: 10px;
         font-weight: 700;
         color: var(--airbnb-dark);
         text-transform: uppercase;
-        display: block;
         margin-bottom: 4px;
     }
 
-    .booking-date-field span {
+    .booking-date-field label span.emoji {
+        font-size: 16px;
+    }
+
+    .booking-date-field input {
+        border: none;
         font-size: 14px;
         color: var(--airbnb-dark);
         font-weight: 500;
+        width: 100%;
+        outline: none;
+        background: transparent;
     }
 
-    .booking-date-field.placeholder span {
+    .booking-date-field input::placeholder {
         color: var(--airbnb-gray);
         font-weight: 400;
     }
@@ -847,119 +558,48 @@
         margin-bottom: 16px;
     }
 
-    .guest-picker {
+    .guest-input {
         border: 1px solid var(--airbnb-dark);
         border-radius: 8px;
         padding: 12px;
         font-size: 14px;
-        cursor: pointer;
         background: white;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
         transition: var(--transition);
     }
 
-    .guest-picker:hover {
+    .guest-input:hover {
         border-color: var(--airbnb-pink);
     }
 
-    .guest-picker label {
+    .guest-input label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         font-size: 10px;
         font-weight: 700;
         color: var(--airbnb-dark);
         text-transform: uppercase;
         margin-bottom: 4px;
-        display: block;
     }
 
-    .guest-picker span {
+    .guest-input label span.emoji {
+        font-size: 16px;
+    }
+
+    .guest-input input {
+        border: none;
         font-size: 14px;
         color: var(--airbnb-dark);
         font-weight: 500;
+        width: 100%;
+        outline: none;
     }
 
-    .guest-picker i {
-        font-size: 12px;
-        color: var(--airbnb-dark);
-        transition: var(--transition);
-    }
-
-    .guest-picker.active i {
-        transform: rotate(180deg);
-    }
-
-    .guest-counter {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid var(--airbnb-dark);
-        border-radius: 8px;
-        padding: 16px;
-        box-shadow: var(--shadow-lg);
-        z-index: 100;
-        animation: slideDown 0.3s ease;
-    }
-
-    .guest-counter.active {
-        display: block;
-    }
-
-    @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .guest-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-    }
-
-    .guest-label {
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .guest-control {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .guest-control button {
-        width: 32px;
-        height: 32px;
-        border: 1px solid var(--airbnb-dark);
-        border-radius: 50%;
-        background: white;
-        cursor: pointer;
-        font-size: 14px;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .guest-control button:hover {
-        background: var(--airbnb-pink);
-        color: white;
-        border-color: var(--airbnb-pink);
-    }
-
-    .guest-control button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background: var(--airbnb-light-gray);
-    }
-
-    .guest-count {
-        min-width: 20px;
-        text-align: center;
+    .guest-input input::placeholder {
+        color: var(--airbnb-gray);
+        font-weight: 400;
     }
 
     .booking-button {
@@ -1084,10 +724,6 @@
             grid-template-columns: 1fr;
         }
 
-        .calendar-inputs {
-            grid-template-columns: 1fr;
-        }
-
         .things-grid {
             grid-template-columns: 1fr;
         }
@@ -1095,16 +731,6 @@
         .booking-widget {
             position: static;
             margin-top: 32px;
-        }
-
-        .flatpickr-calendar.showMonths-2 .flatpickr-month {
-            width: 100%;
-            display: block;
-        }
-
-        .flatpickr-calendar {
-            max-width: 100%;
-            padding: 0;
         }
     }
 
@@ -1115,14 +741,6 @@
 
         .section-title {
             font-size: 22px;
-        }
-
-        .host-contact {
-            flex-direction: column;
-        }
-
-        .host-button {
-            width: 100%;
         }
     }
 
@@ -1195,66 +813,48 @@
     <div class="property-header">
         <div class="d-flex justify-content-between align-items-start">
             <div>
-                <h1 class="property-title">Infinity Pool + Organic Farm House with a Lake View</h1>
-                <p class="property-subtitle">Entire villa in Udaipur, India · 4 guests · 2 bedrooms · 3 beds · 2 baths</p>
+                <h1 class="property-title">{{ $property->name }}</h1>
+                <p class="property-subtitle">
+                    {{ $property->max_people }} huéspedes ·
+                    {{ count($property->bedrooms) }} habitación{{ count($property->bedrooms) > 1 ? 'es' : '' }} ·
+                    {{ $property->description }}
+                </p>
             </div>
             <div class="property-actions">
-                <button class="tooltip-trigger" data-tooltip="Share this listing">
-                    <i class="fas fa-share-alt"></i> Share
-                    <div class="tooltip">Share this listing</div>
+                <button class="tooltip-trigger" data-tooltip="Compartir este anuncio">
+                    <i class="fas fa-share-alt"></i> Compartir
+                    <div class="tooltip">Compartir este anuncio</div>
                 </button>
-                <button class="save-button tooltip-trigger" data-tooltip="Save to your wishlist">
-                    <i class="far fa-heart"></i> Save
-                    <div class="tooltip">Save to your wishlist</div>
+                <button class="save-button tooltip-trigger {{ $property->favorite ? 'active' : '' }}" data-tooltip="Guardar en tu lista de deseos" data-room-id="{{ $property->id }}">
+                    <i class="fa{{ $property->favorite ? 's' : 'r' }} fa-heart"></i> Guardar
+                    <div class="tooltip">Guardar en tu lista de deseos</div>
                 </button>
             </div>
         </div>
-
         <div class="property-meta">
-            <div class="property-rating">
-                <i class="fas fa-star"></i> 4.85 · <a href="#reviews" style="text-decoration: underline;">167 reviews</a>
-            </div>
-            <div class="superhost-badge">
-                <i class="fas fa-medal"></i> Superhost
-            </div>
-            <div class="property-host">
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2" alt="Host">
-                <span>Hosted by <strong>Zabin</strong></span>
-            </div>
-            <div>7 years hosting</div>
+            @if($property->rating)
+                <span><i class="fas fa-star" style="color: var(--airbnb-star);"></i> {{ number_format($property->rating, 2) }}</span>
+            @endif
         </div>
     </div>
 
     <!-- Property Gallery -->
     <div class="property-gallery">
         <div class="gallery-main">
-            <a href="https://images.unsplash.com/photo-1566073771259-6a8506099945" data-lightbox="property-gallery" data-title="Infinity Pool with Lake View">
-                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945" alt="Main property image">
+            <a href="{{ $property->thumbnail ?? 'https://via.placeholder.com/600' }}" data-lightbox="property-gallery" data-title="{{ $property->name }}">
+                <img src="{{ $property->thumbnail ?? 'https://via.placeholder.com/600' }}" alt="Imagen principal de {{ $property->name }}">
             </a>
             <div class="gallery-overlay"></div>
         </div>
-        <div class="gallery-secondary">
-            <a href="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9" data-lightbox="property-gallery" data-title="Living Area">
-                <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9" alt="Living area">
-            </a>
-        </div>
-        <div class="gallery-secondary">
-            <a href="https://images.unsplash.com/photo-1564013799919-db9952fefbe2" data-lightbox="property-gallery" data-title="Bedroom">
-                <img src="https://images.unsplash.com/photo-1564013799919-db9952fefbe2" alt="Bedroom">
-            </a>
-        </div>
-        <div class="gallery-secondary">
-            <a href="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" data-lightbox="property-gallery" data-title="Kitchen">
-                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Kitchen">
-            </a>
-        </div>
-        <div class="gallery-secondary">
-            <a href="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9" data-lightbox="property-gallery" data-title="Outdoor Seating">
-                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9" alt="Outdoor seating">
-            </a>
-        </div>
+        @foreach(array_slice($property->property_images, 0, 4) as $index => $image)
+            <div class="gallery-secondary">
+                <a href="{{ $image }}" data-lightbox="property-gallery" data-title="{{ $property->name }} - Imagen {{ $index + 1 }}">
+                    <img src="{{ $image }}" alt="{{ $property->name }} - Imagen {{ $index + 1 }}">
+                </a>
+            </div>
+        @endforeach
         <button class="show-all-photos" id="show-all-photos">
-            <i class="fas fa-camera"></i> Show all photos
+            <i class="fas fa-camera"></i> Mostrar todas las fotos
         </button>
     </div>
 
@@ -1267,8 +867,8 @@
                         <i class="fas fa-swimming-pool"></i>
                     </div>
                     <div class="highlight-content">
-                        <h3>Dive right in</h3>
-                        <p>This is one of the few places in the area with a pool.</p>
+                        <h3>Sumérgete de inmediato</h3>
+                        <p>Este lugar cuenta con una piscina para tu disfrute.</p>
                     </div>
                 </div>
                 <div class="highlight-item">
@@ -1276,8 +876,8 @@
                         <i class="fas fa-door-open"></i>
                     </div>
                     <div class="highlight-content">
-                        <h3>Self check-in</h3>
-                        <p>You can check in with the building staff.</p>
+                        <h3>Auto check-in</h3>
+                        <p>Puedes hacer el check-in con el personal del edificio.</p>
                     </div>
                 </div>
                 <div class="highlight-item">
@@ -1285,8 +885,8 @@
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
                     <div class="highlight-content">
-                        <h3>Great location</h3>
-                        <p>100% of recent guests gave the location a 5-star rating.</p>
+                        <h3>Excelente ubicación</h3>
+                        <p>Disfruta de una ubicación privilegiada en la zona.</p>
                     </div>
                 </div>
             </div>
@@ -1294,41 +894,30 @@
             <hr>
 
             <!-- About Section -->
-            <h2 class="section-title">About this place</h2>
+            <h2 class="section-title">Acerca de este lugar</h2>
             <p class="property-description">
-                If you're looking for a memorable vacation filled with serenity, adventure, and luxury, this "Private Farmhouse" is the right pick. Staying at our beautiful Lake Side Villa provides guests with experiences that rejuvenate both body and soul. We welcome couples, solo adventurers, and families.
+                {{ $property->description ?: 'No hay descripción disponible.' }}
             </p>
-            <p class="property-description">
-                It is ideal for travelers visiting Udaipur not only for tourist sightseeing, but who also want to experience the local culture and nature. The property is surrounded by organic farms where we grow seasonal vegetables and fruits.
-            </p>
-            <button class="read-more">Show more</button>
+            <button class="read-more">Mostrar más</button>
 
             <hr>
 
             <!-- Sleeping Arrangements -->
-            <h2 class="section-title">Where you'll sleep</h2>
+            <h2 class="section-title">Dónde dormirás</h2>
             <div class="sleeping-arrangements">
                 <div class="bedroom-slider">
-                    <div class="bedroom-card">
-                        <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92" alt="Bedroom 1">
-                        <h3 class="bedroom-title">Bedroom 1</h3>
-                        <p class="bedroom-desc">1 king bed</p>
-                    </div>
-                    <div class="bedroom-card">
-                        <img src="https://images.unsplash.com/photo-1566669437688-89d01be54b8a" alt="Bedroom 2">
-                        <h3 class="bedroom-title">Bedroom 2</h3>
-                        <p class="bedroom-desc">3 single beds</p>
-                    </div>
-                    <div class="bedroom-card">
-                        <img src="https://images.unsplash.com/photo-1565538810643-b5bdb714032a" alt="Bathroom">
-                        <h3 class="bedroom-title">Bathroom</h3>
-                        <p class="bedroom-desc">Private bathroom with shower</p>
-                    </div>
+                    @foreach($property->bedrooms as $bedroom)
+                        <div class="bedroom-card">
+                            <img src="{{ $bedroom['image'] ?? 'https://via.placeholder.com/280' }}" alt="{{ $bedroom['title'] }}">
+                            <h3 class="bedroom-title">{{ $bedroom['title'] }}</h3>
+                            <p class="bedroom-desc">{{ $bedroom['description'] }}</p>
+                        </div>
+                    @endforeach
                 </div>
                 <div class="pagination-dots">
-                    <span class="dot active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
+                    @foreach($property->bedrooms as $index => $bedroom)
+                        <span class="dot {{ $index == 0 ? 'active' : '' }}"></span>
+                    @endforeach
                 </div>
             </div>
 
@@ -1336,142 +925,52 @@
 
             <!-- Amenities -->
             <div class="amenities-section">
-                <h2 class="section-title">What this place offers</h2>
+                <h2 class="section-title">Qué ofrece este lugar</h2>
                 <div class="amenities-grid">
-                    <div class="amenity-item">
-                        <div class="amenity-icon">
-                            <i class="fas fa-water"></i>
+                    @foreach(array_slice($property->amenities, 0, 10) as $amenity)
+                        <div class="amenity-item">
+                            <div class="amenity-icon">
+                                <img src="{{ $amenity['image'] ?? 'https://via.placeholder.com/24' }}" alt="{{ $amenity['title'] }}" style="width: 24px; height: 24px;">
+                            </div>
+                            <div>{{ $amenity['title'] }}</div>
                         </div>
-                        <div>Lake view</div>
-                    </div>
-                    <div class="amenity-item">
-                        <div class="amenity-icon">
-                            <i class="fas fa-water"></i>
-                        </div>
-                        <div>Waterfront</div>
-                    </div>
-                    <div class="amenity-item">
-                        <div class="amenity-icon">
-                            <i class="fas fa-wifi"></i>
-                        </div>
-                        <div>Wi-Fi</div>
-                    </div>
-                    <div class="amenity-item">
-                        <div class="amenity-icon">
-                            <i class="fas fa-car"></i>
-                        </div>
-                        <div>Free parking on premises</div>
-                    </div>
-                    <div class="amenity-item">
-                        <div class="amenity-icon">
-                            <i class="fas fa-utensils"></i>
-                        </div>
-                        <div>Kitchen</div>
-                    </div>
-                    <div class="amenity-item">
-                        <div class="amenity-icon">
-                            <i class="fas fa-paw"></i>
-                        </div>
-                        <div>Pets allowed</div>
-                    </div>
-                    <div class="amenity-item">
-                        <div class="amenity-icon">
-                            <i class="fas fa-mountain"></i>
-                        </div>
-                        <div>Mountain view</div>
-                    </div>
-                    <div class="amenity-item">
-                        <div class="amenity-icon">
-                            <i class="fas fa-swimming-pool"></i>
-                        </div>
-                        <div>Private outdoor pool</div>
-                    </div>
+                    @endforeach
                 </div>
                 <button class="show-all-amenities">
-                    <i class="fas fa-plus"></i> Show all 40 amenities
+                    <i class="fas fa-plus"></i> Mostrar todas las {{ count($property->amenities) }} comodidades
                 </button>
-            </div>
-
-            <hr>
-
-            <!-- Calendar Section -->
-            <div class="calendar-section" id="calendar-section">
-                <h2 class="section-title">Select your dates</h2>
-                <div class="calendar-inputs">
-                    <div class="calendar-input-group">
-                        <label>Date</label>
-                        <input type="text" class="calendar-input" id="date" placeholder="Select date" readonly>
-                    </div>
-                    <div class="calendar-input-group">
-                        <label>Check-in hour</label>
-                        <input type="text" class="calendar-input" id="check-in-hour" placeholder="Select time" readonly>
-                    </div>
-                    <div class="calendar-input-group">
-                        <label>Check-out hour</label>
-                        <input type="text" class="calendar-input" id="check-out-hour" placeholder="Select time" readonly>
-                    </div>
-                </div>
-            </div>
-
-            <hr>
-
-            <!-- Host Section -->
-            <div class="host-section">
-                <h2 class="section-title">Meet your host</h2>
-                <div class="host-card">
-                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2" alt="Host" class="host-img">
-                    <div class="host-info">
-                        <h3 class="host-name">Zabin</h3>
-                        <div class="host-meta">
-                            <div class="host-meta-item">
-                                <i class="fas fa-medal"></i> Superhost
-                            </div>
-                            <div class="host-meta-item">
-                                <i class="fas fa-calendar-check"></i> 7 years hosting
-                            </div>
-                            <div class="host-response-time">
-                                <i class="fas fa-bolt"></i> Response rate: 100%
-                            </div>
-                        </div>
-                        <p>I'm passionate about organic farming and sustainable living. My farmhouse is my pride and joy, and I love sharing it with guests from around the world.</p>
-                        <div class="host-contact">
-                            <button class="host-button primary">Contact host</button>
-                            <button class="host-button secondary">View profile</button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <hr>
 
             <!-- Things to Know -->
             <div class="things-section">
-                <h2 class="section-title">Things to know</h2>
+                <h2 class="section-title">Cosas que debes saber</h2>
                 <div class="things-grid">
                     <div class="things-category">
-                        <h3 class="things-title">House rules</h3>
+                        <h3 class="things-title">Reglas de la casa</h3>
                         <ul class="things-list">
-                            <li>Check-in after 2:00 PM</li>
-                            <li>Checkout before 11:00 AM</li>
-                            <li>No smoking</li>
-                            <li>8 guests maximum</li>
-                            <li>Pets allowed</li>
+                            <li>Check-in después de las 2:00 PM</li>
+                            <li>Checkout antes de las 11:00 AM</li>
+                            <li>No fumar</li>
+                            <li>Máximo {{ $property->max_people }} huéspedes</li>
+                            <li>Se permiten mascotas</li>
                         </ul>
                     </div>
                     <div class="things-category">
-                        <h3 class="things-title">Safety & property</h3>
+                        <h3 class="things-title">Seguridad y propiedad</h3>
                         <ul class="things-list">
-                            <li>No carbon monoxide alarm</li>
-                            <li>No smoke alarm</li>
-                            <li>Pool/hot tub without a gate or lock</li>
-                            <li>Security camera on property</li>
-                            <li>Must climb stairs</li>
+                            <li>Sin alarma de monóxido de carbono</li>
+                            <li>Sin alarma de humo</li>
+                            <li>Piscina/jacuzzi sin puerta ni cerradura</li>
+                            <li>Cámara de seguridad en la propiedad</li>
+                            <li>Hay que subir escaleras</li>
                         </ul>
                     </div>
                     <div class="things-category">
-                        <h3 class="things-title">Cancellation policy</h3>
-                        <p>Free cancellation for 48 hours. After that, cancel before May 10 and get a 50% refund, minus the first night and service fee.</p>
-                        <button class="read-more">Show more</button>
+                        <h3 class="things-title">Política de cancelación</h3>
+                        <p>Cancelación gratuita durante 48 horas. Después de eso, cancela antes del 10 de mayo y obtén un reembolso del 50%, menos la primera noche y la tarifa de servicio.</p>
+                        <button class="read-more">Mostrar más</button>
                     </div>
                 </div>
             </div>
@@ -1481,109 +980,62 @@
             <!-- Booking Widget -->
             <div class="booking-widget">
                 <div class="booking-header">
-                    <div class="booking-price">₹9,471 <span>/ night</span></div>
-                    <div class="property-rating">
-                        <i class="fas fa-star"></i> 4.85
-                    </div>
+                    <div class="booking-price">Bs{{ number_format($property->price, 2) }} <span>/ hora</span></div>
                 </div>
 
                 <div class="booking-dates">
                     <div class="booking-date-field">
-                        <label>Date</label>
-                        <span id="date-display">Add date</span>
+                        <label><span class="emoji">📅</span> Fecha</label>
+                        <input type="text" id="date-picker" name="date" placeholder="Añadir fecha">
                     </div>
                     <div class="booking-date-field">
-                        <label>Check-in hour</label>
-                        <span id="check-in-hour-display">Add time</span>
+                        <label><span class="emoji">⏰</span> Hora de entrada</label>
+                        <input type="text" id="check-in-hour-picker" name="check_in_hour" placeholder="Añadir hora">
                     </div>
                     <div class="booking-date-field">
-                        <label>Check-out hour</label>
-                        <span id="check-out-hour-display">Add time</span>
+                        <label><span class="emoji">⏰</span> Hora de salida</label>
+                        <input type="text" id="check-out-hour-picker" name="check_out_hour" placeholder="Añadir hora">
                     </div>
                 </div>
 
                 <div class="booking-guests">
-                    <div class="guest-picker">
-                        <div>
-                            <label>Number of people</label>
-                            <span id="guest-display">1 person</span>
-                        </div>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="guest-counter">
-                        <div class="guest-row">
-                            <span class="guest-label">Adults</span>
-                            <div class="guest-control">
-                                <button type="button" onclick="updateGuests('adults', -1)">-</button>
-                                <span id="adults-count" class="guest-count">1</span>
-                                <button type="button" onclick="updateGuests('adults', 1)">+</button>
-                            </div>
-                        </div>
-                        <div class="guest-row">
-                            <span class="guest-label">Children</span>
-                            <div class="guest-control">
-                                <button type="button" onclick="updateGuests('children', -1)">-</button>
-                                <span id="children-count" class="guest-count">0</span>
-                                <button type="button" onclick="updateGuests('children', 1)">+</button>
-                            </div>
-                        </div>
-                        <div class="guest-row">
-                            <span class="guest-label">Infants</span>
-                            <div class="guest-control">
-                                <button type="button" onclick="updateGuests('infants', -1)">-</button>
-                                <span id="infants-count" class="guest-count">0</span>
-                                <button type="button" onclick="updateGuests('infants', 1)">+</button>
-                            </div>
-                        </div>
-                        <div class="guest-row">
-                            <span class="guest-label">Pets</span>
-                            <div class="guest-control">
-                                <button type="button" onclick="updateGuests('pets', -1)">-</button>
-                                <span id="pets-count" class="guest-count">0</span>
-                                <button type="button" onclick="updateGuests('pets', 1)">+</button>
-                            </div>
-                        </div>
+                    <div class="guest-input">
+                        <label><span class="emoji">👥</span> Número de personas</label>
+                        <input type="number" id="guest-count" name="people" min="1" max="{{ $property->max_people }}" value="1" placeholder="1">
                     </div>
                 </div>
 
                 <div class="booking-section">
-                    @if(auth()->check())
-                        <form method="POST" action="{{ route('booking.submit', ['room' => 1]) }}">
-                            @csrf
-                            <input type="hidden" name="date" id="date-value">
-                            <input type="hidden" name="check_in_hour" id="check-in-hour-value">
-                            <input type="hidden" name="check_out_hour" id="check-out-hour-value">
-                            <input type="hidden" name="people" id="people-value" value="1">
-                            <button type="submit" class="btn btn-sm booking-button">Reserve</button>
-                        </form>
+                    @if(!empty($user_session))
+                        <a href="{{ route('booking.form', ['room' => $property->id])}}" id="reserve-button" class="btn btn-sm booking-button" data-room-id="{{ $property->id }}" data-room-name="{{ $property->name }}" data-room-price="{{ $property->price }}">Reservar</a>
                     @else
-                        <a href="{{ route('signup') }}" class="btn btn-sm booking-button">Reserve</a>
+                        <a href="{{ url('Userlogin')}}" class="btn btn-sm booking-button">Reservar</a>
                     @endif
-                    <div class="booking-note">You won't be charged yet</div>
+                    <div class="booking-note">Aún no se te cobrará</div>
                 </div>
 
                 <div class="price-breakdown">
                     <div class="price-row">
-                        <span>₹9,471 x 1 night</span>
-                        <span>₹9,471</span>
+                        <span>Bs{{ number_format($property->price, 2) }} x 1 hora</span>
+                        <span>Bs{{ number_format($property->price, 2) }}</span>
                     </div>
                     <div class="price-row">
-                        <span>Cleaning fee <span class="price-detail">What's this?</span></span>
-                        <span>₹1,500</span>
+                        <span>Tarifa de limpieza <span class="price-detail">¿Qué es esto?</span></span>
+                        <span>Bs1,500</span>
                     </div>
                     <div class="price-row">
-                        <span>Service fee <span class="price-detail">What's this?</span></span>
-                        <span>₹2,368</span>
+                        <span>Tarifa de servicio <span class="price-detail">¿Qué es esto?</span></span>
+                        <span>Bs2,368</span>
                     </div>
                     <div class="price-total price-row">
-                        <span>Total before taxes</span>
-                        <span>₹13,339</span>
+                        <span>Total antes de impuestos</span>
+                        <span>Bs{{ number_format($property->price + 1500 + 2368, 2) }}</span>
                     </div>
                 </div>
 
                 <div class="booking-section">
-                    <a href="#" class="extend-trip">Extend your trip and save <span>Add 7 nights</span></a>
-                    <a href="#" class="report-listing">Report this listing</a>
+                    <a href="#" class="extend-trip">Extiende tu viaje y ahorra <span>Añade 7 horas</span></a>
+                    <a href="#" class="report-listing">Reportar este anuncio</a>
                 </div>
             </div>
         </div>
@@ -1599,103 +1051,86 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
 $(document).ready(function () {
-    // Initialize guest counts
-    let guestCounts = {
-        adults: 1,
-        children: 0,
-        infants: 0,
-        pets: 0
-    };
-
-    // Initialize date picker
-    const datePicker = flatpickr("#date", {
+    // Initialize Flatpickr for date and time pickers
+    flatpickr("#date-picker", {
+        dateFormat: "Y-m-d",
         minDate: "today",
-        maxDate: new Date().fp_incr(365),
-        dateFormat: "d M Y",
-        theme: "airbnb",
-        onChange: function(selectedDates, dateStr, instance) {
+        allowInput: true,
+        onClose: function(selectedDates, dateStr, instance) {
             if (selectedDates.length > 0) {
-                const formattedDate = selectedDates[0].toLocaleDateString('en-US', {
-                    month: 'numeric',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-                $("#date-display").text(formattedDate);
-                $("#date-value").val(selectedDates[0].toISOString().split('T')[0]);
+                instance.input.value = dateStr;
             }
         }
     });
 
-    // Initialize time pickers
-    flatpickr("#check-in-hour", {
+    flatpickr("#check-in-hour-picker", {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
         time_24hr: true,
-        defaultHour: 14,
-        minuteIncrement: 15,
-        onChange: function(selectedDates, dateStr, instance) {
+        allowInput: true,
+        onClose: function(selectedDates, dateStr, instance) {
             if (selectedDates.length > 0) {
-                const hours = selectedDates[0].getHours().toString().padStart(2, '0');
-                const minutes = selectedDates[0].getMinutes().toString().padStart(2, '0');
-                $("#check-in-hour-display").text(`${hours}:${minutes}`);
-                $("#check-in-hour-value").val(`${hours}:${minutes}`);
+                instance.input.value = dateStr;
             }
         }
     });
 
-    flatpickr("#check-out-hour", {
+    flatpickr("#check-out-hour-picker", {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
         time_24hr: true,
-        defaultHour: 11,
-        minuteIncrement: 15,
-        onChange: function(selectedDates, dateStr, instance) {
+        allowInput: true,
+        onClose: function(selectedDates, dateStr, instance) {
             if (selectedDates.length > 0) {
-                const hours = selectedDates[0].getHours().toString().padStart(2, '0');
-                const minutes = selectedDates[0].getMinutes().toString().padStart(2, '0');
-                $("#check-out-hour-display").text(`${hours}:${minutes}`);
-                $("#check-out-hour-value").val(`${hours}:${minutes}`);
+                instance.input.value = dateStr;
             }
         }
     });
 
-    // Guest picker functionality
-    window.updateGuests = function(type, change) {
-        guestCounts[type] = Math.max(0, guestCounts[type] + change);
-
-        // Update display
-        $(`#${type}-count`).text(guestCounts[type]);
-
-        // Calculate total people (adults + children + infants, pets don't count)
-        const totalPeople = guestCounts.adults + guestCounts.children + guestCounts.infants;
-        $("#guest-display").text(totalPeople + " person" + (totalPeople !== 1 ? "s" : ""));
-        $("#people-value").val(totalPeople);
-
-        // Disable minus buttons when count is 0
-        $(`button[onclick="updateGuests('${type}', -1)"]`).prop('disabled', guestCounts[type] === 0);
-    };
-
-    // Initialize minus buttons as disabled
-    $(".guest-control button:first-child").prop('disabled', true);
-
-    $(".guest-picker").click(function(e) {
-        e.stopPropagation();
-        $(".guest-counter").toggleClass("active");
-        $(this).toggleClass("active");
+    // Update people value on input change
+    $("#guest-count").on("input", function() {
+        let value = parseInt($(this).val());
+        if (value < 1) {
+            $(this).val(1);
+        } else if (value > {{ $property->max_people }}) {
+            $(this).val({{ $property->max_people }});
+        }
     });
 
-    $(document).click(function() {
-        $(".guest-counter").removeClass("active");
-        $(".guest-picker").removeClass("active");
-    });
+    // Handle reserve button click to pass chosen values
+    $("#reserve-button").click(function(e) {
+        e.preventDefault();
+        const roomId = $(this).data('room-id');
+        const roomName = encodeURIComponent($(this).data('room-name'));
+        const roomPrice = $(this).data('room-price');
+        const date = $("#date-picker").val();
+        const checkInHour = $("#check-in-hour-picker").val();
+        const checkOutHour = $("#check-out-hour-picker").val();
+        const guestCount = $("#guest-count").val();
 
-    // Prevent guest counter from closing when clicking inside
-    $(".guest-counter").click(function(e) {
-        e.stopPropagation();
+        // Validate inputs
+        if (!date || !checkInHour || !checkOutHour || !guestCount) {
+            alert('Por favor, completa todos los campos (fecha, hora de entrada, hora de salida y número de personas).');
+            return;
+        }
+
+        // Construct URL with query parameters
+        const url = `{{ route('booking.form', ['room' => ':roomId']) }}`
+            .replace(':roomId', roomId) +
+            `?date=${encodeURIComponent(date)}` +
+            `&check_in_hour=${encodeURIComponent(checkInHour)}` +
+            `&check_out_hour=${encodeURIComponent(checkOutHour)}` +
+            `&people=${encodeURIComponent(guestCount)}` +
+            `&room_name=${roomName}` +
+            `&room_price=${encodeURIComponent(roomPrice)}`;
+
+        // Redirect to booking form
+        window.location.href = url;
     });
 
     // Bedroom slider pagination
@@ -1720,26 +1155,55 @@ $(document).ready(function () {
         const section = $(this).prev();
         if (section.hasClass('collapsed')) {
             section.removeClass('collapsed');
-            $(this).text('Show less');
+            $(this).text('Mostrar menos');
         } else {
             section.addClass('collapsed');
-            $(this).text('Show more');
+            $(this).text('Mostrar más');
         }
     });
 
-    // Save button toggle
+    // Save button toggle with AJAX
     $('.save-button').click(function() {
-        $(this).toggleClass('active');
-        $(this).find('i').toggleClass('far fas');
+        const $button = $(this);
+        const roomId = $button.data('room-id');
+        const isActive = !$button.hasClass('active');
+
+        // Update UI
+        $button.toggleClass('active');
+        $button.find('i').toggleClass('far fas');
 
         // Show feedback
-        const tooltip = $(this).find('.tooltip');
-        tooltip.text($(this).hasClass('active') ? 'Saved to wishlist' : 'Removed from wishlist');
+        const tooltip = $button.find('.tooltip');
+        tooltip.text(isActive ? 'Guardado en la lista de deseos' : 'Eliminado de la lista de deseos');
         tooltip.css('opacity', 1);
 
         setTimeout(() => {
             tooltip.css('opacity', 0);
         }, 2000);
+
+        // Send AJAX request to update favorite status
+        $.ajax({
+            url: '/rooms/' + roomId + '/favorite',
+            method: 'POST',
+            data: {
+                favorite: isActive,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                console.log('Favorite updated:', response);
+            },
+            error: function(xhr) {
+                console.error('Error updating favorite:', xhr);
+                // Revert UI change on error
+                $button.toggleClass('active');
+                $button.find('i').toggleClass('far fas');
+                tooltip.text('Error al actualizar');
+                tooltip.css('opacity', 1);
+                setTimeout(() => {
+                    tooltip.css('opacity', 0);
+                }, 2000);
+            }
+        });
     });
 
     // Show all photos lightbox

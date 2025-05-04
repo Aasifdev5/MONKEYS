@@ -71,28 +71,28 @@ class SettingController extends Controller
             $option = Setting::firstOrCreate(['option_key' => $key]);
             if ($request->hasFile('app_logo') && $key == 'app_logo') {
                 $request->validate([
-                    'app_logo' => 'mimes:png,svg,gif'
+                    'app_logo' => 'mimes:png,svg,gif,jpg'
                 ]);
                 $this->deleteFile(get_option('app_logo'));
                 $option->option_value = $this->saveImage('setting', $request->app_logo, null, null);
                 $option->save();
             } elseif ($request->hasFile('app_black_logo') && $key == 'app_black_logo') {
                 $request->validate([
-                    'app_black_logo' => 'mimes:png,svg,gif'
+                    'app_black_logo' => 'mimes:png,svg,gif,jpg'
                 ]);
                 $this->deleteFile(get_option('app_black_logo'));
                 $option->option_value = $this->saveImage('setting', $request->app_black_logo, null, null);
                 $option->save();
             } elseif ($request->hasFile('app_fav_icon') && $key == 'app_fav_icon') {
                 $request->validate([
-                    'app_fav_icon' => 'mimes:png,svg,gif'
+                    'app_fav_icon' => 'mimes:png,svg,gif,jpg'
                 ]);
                 $this->deleteFile(get_option('app_fav_icon'));
                 $option->option_value = $this->saveImage('setting', $request->app_fav_icon, null, null);
                 $option->save();
             } elseif ($request->hasFile('app_footer_payment_image') && $key == 'app_footer_payment_image') {
                 $request->validate([
-                    'app_footer_payment_image' => 'mimes:png,svg,gif'
+                    'app_footer_payment_image' => 'mimes:png,svg,gif,jpg'
                 ]);
                 $this->deleteFile(get_option('app_footer_payment_image'));
                 $option->option_value = $this->saveImage('setting', $request->app_footer_payment_image, null, null);
@@ -106,7 +106,7 @@ class SettingController extends Controller
                 $option->save();
             } elseif ($request->hasFile('app_preloader') && $key == 'app_preloader') {
                 $request->validate([
-                    'app_preloader' => 'mimes:png,svg,gif'
+                    'app_preloader' => 'mimes:png,svg,gif,jpg'
                 ]);
                 $this->deleteFile(get_option('app_preloader'));
                 $option->option_value = $this->saveImage('setting', $request->app_preloader, null, null);

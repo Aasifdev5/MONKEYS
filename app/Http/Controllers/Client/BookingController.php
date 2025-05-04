@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
+use App\Models\Property;
 use App\Models\Reservation;
 use App\Models\Room;
 use App\Models\User;
+use App\Notifications\ReservationConfirmed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -74,40 +76,89 @@ class BookingController extends Controller
      * @return \Illuminate\View\View
      */
     // Replace route binding with manual lookup (for testing)
-    public function showForm($room)
+    public function showForm($room, Request $request)
     {
-        $room = Room::findOrFail($room); // will still return 404 if not found
-        return view('client.booking-form', compact('room'));
-    }
+        if (Session::has('LoggedIn')) {
+            $room = Property::findOrFail($room); // will still return 404 if not found
+            $user_session = User::where('id', Session::get('LoggedIn'))->first();
 
+            // Retrieve query parameters
+            $date = $request->query('date');
+            $check_in_hour = $request->query('check_in_hour');
+            $check_out_hour = $request->query('check_out_hour');
+            $people = $request->query('people');
+            $room_name = $request->query('room_name');
+            $room_price = $request->query('room_price');
+
+            return view('client.booking-form', compact(
+                'user_session',
+                'room',
+                'date',
+                'check_in_hour',
+                'check_out_hour',
+                'people',
+                'room_name',
+                'room_price'
+            ));
+        } else {
+            return Redirect()->with('fail', 'Tienes que iniciar sesión primero');
+        }
+    }
 
     /**
      * Submit the booking request for the selected room.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Room $room
+     * @param \App\Models\Property $room
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function submit(Request $request, Room $room)
+    public function submit(Request $request, Property $room)
     {
         // Validate form data
         $request->validate([
-            'guest_name' => 'required|string|max:255',
-            'guest_email' => 'required|email',
-            'check_in' => 'required|date',
-            'check_out' => 'required|date|after:check_in',
+            'date' => 'required|date',
+            'check_in' => 'required',
+            'check_out' => 'required',
+            'guests' => 'required|integer|min:1',
+            'proof' => 'required|file|mimes:jpg,png,pdf',
         ]);
 
-        // Create reservation
-        $reservation = Reservation::create([
+        // Handle proof upload
+        $proofPath = null;
+        if ($request->hasFile('proof')) {
+            $proof = $request->file('proof');
+            $proofFileName = time() . '-' . \Illuminate\Support\Str::random(10) . '.' . $proof->getClientOriginalExtension();
+            $proofPath = $proof->storeAs('uploads/proofs', $proofFileName, 'public');
+        }
+
+        // Create booking
+        $reservation  = Reservation::create([
+            'user_id' => Session::get('LoggedIn'),
             'room_id' => $room->id,
-            'guest_name' => $request->guest_name,
-            'guest_email' => $request->guest_email,
-            'check_in' => $request->check_in,
-            'check_out' => $request->check_out,
-            'status' => 'pending',
+            'full_name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'date' => $request->date,
+            'check_in_time' => $request->check_in,
+            'check_out_time' => $request->check_out,
+            'guests' => $request->guests,
+            'proof_path' => $proofPath,
+            'payment_status' => 'pending',
         ]);
+        // Notify the user
+        $user = $reservation->user; // assuming the reservation has a `user` relationship
+        $user->notify(new ReservationConfirmed($reservation));
+        return redirect()->route('thank.you', ['reservationId' => $reservation->id]);
+    }
+    public function showThankYouPage($reservationId)
+    {
+        if (Session::has('LoggedIn')) {
 
-        return redirect()->route('thank.you');
+            $user_session = User::where('id', Session::get('LoggedIn'))->first();
+            $reservation = Reservation::find($reservationId); // Adjust this based on how you're fetching the reservation
+            return view('client.thank-you', compact('reservation','user_session'));
+        } else {
+            return Redirect()->with('fail', 'Tienes que iniciar sesión primero');
+        }
     }
 }

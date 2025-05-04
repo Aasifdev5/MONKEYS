@@ -59,6 +59,8 @@ use App\Http\Middleware\SetLocale;
 use App\Models\Language;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\PropertyController;
+
 
 
 
@@ -143,11 +145,12 @@ Route::group(['middleware' => ['prevent-back-history', SetLocale::class]], funct
     Route::get('/book/{room}', [BookingController::class, 'showForm'])->name('booking.form');
     Route::post('/book/{room}', [BookingController::class, 'submit'])->name('booking.submit');
 
-    Route::view('/thank-you', 'client.thank-you')->name('thank.you');
+    Route::get('/thank-you/{reservationId}', [BookingController::class, 'showThankYouPage'])->name('thank.you');
+
 
     Route::get('/genTerm', [UserController::class, 'genTerm'])->name('genTerm');
     Route::get('/privacy', [UserController::class, 'privacy'])->name('privacy');
-    Route::get('/book', [UserController::class, 'book'])->name('book');
+
     Route::post('contact_send', [Pages::class, 'contact_send']);
     Route::get('Userlogin', [UserController::class, 'Userlogin'])->name('Userlogin');
     Route::get('newsDetails/{id}', [UserController::class, 'newsDetails'])->name('newsDetails');
@@ -163,6 +166,7 @@ Route::group(['middleware' => ['prevent-back-history', SetLocale::class]], funct
     Route::post('/comments/store', [UserController::class, 'Commentstore'])->name('comments.store');
     Route::post('/reactions', [UserController::class, 'Reactionstore']);
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard')->middleware('isLoggedIn');
+    Route::get('/reserve', [UserController::class, 'reserve'])->name('reserve')->middleware('isLoggedIn');
     Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
     Route::get('/blog_details/{slug}', [UserController::class, 'blog_details'])->name('blog_details');
@@ -170,7 +174,7 @@ Route::group(['middleware' => ['prevent-back-history', SetLocale::class]], funct
     Route::post('blog-comment', [UserController::class, 'blogCommentStore'])->name('blog-comment.store');
     Route::post('blog-comment-reply', [UserController::class, 'blogCommentReplyStore'])->name('blog-comment-reply.store');
     Route::get('search-blog-list', [UserController::class, 'searchBlogList'])->name('search-blog.list');
-    Route::get('/signup', [UserController::class, 'signup'])->name('signup')->middleware('alreadyLoggedIn');
+    Route::get('/signup', [UserController::class, 'signup'])->name('signup');
     Route::post('/reg', [UserController::class, 'registration']);
     Route::get('/contact', [UserController::class, 'contact'])->name('contact');
     Route::get('/about', [UserController::class, 'about'])->name('about');
@@ -184,6 +188,7 @@ Route::group(['middleware' => ['prevent-back-history', SetLocale::class]], funct
     Route::get('/news', [UserController::class, 'news'])->name('news');
     Route::get('/segundaFase', [UserController::class, 'segundaFase'])->name('segundaFase');
     Route::get('/roomdetails/{room}', [UserController::class, 'roomdetails'])->name('roomdetails');
+    Route::post('/rooms/{id}/favorite', [PropertyController::class, 'updateFavorite']);
     Route::get('/ownership', [UserController::class, 'ownership'])->name('ownership');
     Route::get('/land', [UserController::class, 'land'])->name('land');
     Route::get('/vacancy ', [UserController::class, 'vacancy'])->name('vacancy');
@@ -228,7 +233,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['check.session', 'super.admi
             Route::delete('delete/{id}', [TestimonialController::class, 'destroy'])->name('testimonials.delete');
             Route::post('bulk-delete', [TestimonialController::class, 'bulkDelete'])->name('testimonials.bulk.delete');
         });
-
+        Route::prefix('properties')->group(function () {
+            Route::get('/', [PropertyController::class, 'index'])->name('properties.index');
+            Route::get('create', [PropertyController::class, 'create'])->name('properties.create');
+            Route::post('store', [PropertyController::class, 'store'])->name('properties.store');
+            Route::get('edit/{property}', [PropertyController::class, 'edit'])->name('properties.edit');
+            Route::post('update/{property}', [PropertyController::class, 'update'])->name('properties.update');
+            Route::delete('delete/{property}', [PropertyController::class, 'destroy'])->name('properties.delete');
+            Route::post('bulk-delete', [PropertyController::class, 'bulkDelete'])->name('properties.bulk.delete');
+        });
         // Portfolio routes
         Route::prefix('portfolios')->group(function () {
             Route::get('/', [PortfolioController::class, 'index'])->name('portfolios.index');

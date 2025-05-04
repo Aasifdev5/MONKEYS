@@ -10,7 +10,7 @@ class ReservationConfirmed extends Notification
     protected $reservation;
 
     /**
-     * Create a new notification instance.
+     * Crear una nueva instancia de notificación.
      *
      * @param  mixed  $reservation
      * @return void
@@ -21,7 +21,7 @@ class ReservationConfirmed extends Notification
     }
 
     /**
-     * Determine the channels the notification should be sent on.
+     * Determinar los canales a través de los cuales se enviará la notificación.
      *
      * @param  mixed  $notifiable
      * @return array
@@ -32,32 +32,17 @@ class ReservationConfirmed extends Notification
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Obtener la representación del correo de la notificación.
      *
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
     {
-        // You can customize the email message as needed
         return (new MailMessage)
-            ->subject('Reservation Confirmed')
-            ->line('Your reservation has been confirmed!')
-            ->line('Room: ' . $this->reservation->room->name)
-            ->line('Date: ' . $this->reservation->date->format('F j, Y'))  // Format date
-            ->line('Check-in: ' . $this->reservation->check_in->format('F j, Y, g:i A'))  // Format datetime
-            ->line('Check-out: ' . $this->reservation->check_out->format('F j, Y, g:i A'))  // Format datetime
-            ->action('View Reservation', url('/reservations/' . $this->reservation->id));  // Link to view reservation details
+            ->subject('¡Reserva Confirmada!')
+            ->view('emails.reservation.confirmed', [
+                'reservation' => $this->reservation,
+            ]);
     }
-
-    /**
-     * Optionally, you can use a custom view for the email instead of using the default MailMessage.
-     *
-     * public function toMail($notifiable)
-     * {
-     *     return (new MailMessage)
-     *         ->subject('Reservation Confirmed')
-     *         ->view('emails.reservation.confirmed', ['reservation' => $this->reservation]);
-     * }
-     */
 }
