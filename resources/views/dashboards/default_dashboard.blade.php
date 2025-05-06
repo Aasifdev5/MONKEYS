@@ -1,1168 +1,548 @@
 @extends('layout.master')
-@section('title')
-    {{ __('Dashboard') }}
-@endsection
+
+@section('title', __('Panel'))
+
 @section('css')
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/animate.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/chartist.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/prism.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/vendors/vector-map.css') }}">
+<style>
+
+    /* .card { border-radius: 12px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+    .card-header { background: linear-gradient(90deg, #007bff, #00d4ff); color: white; border-radius: 12px 12px 0 0; }
+    .bg-purple { background: linear-gradient(90deg, #6f42c1, #a855f7); }
+    .circular-progress { position: relative; width: 120px; height: 120px; margin: 0 auto; }
+    .progress-circle { transform: rotate(-90deg); }
+    .progress-circle-bg { stroke-dasharray: 339.292; stroke-dashoffset: 0; }
+    .progress-circle-fill { stroke-dasharray: 339.292; stroke-dashoffset: 339.292; transition: stroke-dashoffset 1.5s ease; }
+    .progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: bold; color: #6f42c1; }
+    .chart-container { position: relative; min-height: 250px; }
+    .loading-spinner { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    .gradient-card { background: linear-gradient(135deg, #ffffff, #f8f9fa); }
+    @media (max-width: 768px) {
+        .card { margin-bottom: 1.5rem; }
+        .circular-progress { width: 100px; height: 100px; }
+        .progress-text { font-size: 1.2rem; }
+        .container { padding-left: 15px; padding-right: 15px; }
+    } */
+</style>
 @endsection
 
 @section('main_content')
-<div class="container-fluid">
-    <div class="page-title">
-      <div class="row">
-        <div class="col-sm-6">
-          <h3>Default</h3>
-        </div>
-        <div class="col-sm-6">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}"><i data-feather="home"></i></a></li>
-            <li class="breadcrumb-item">Dashboard</li>
-            <li class="breadcrumb-item active">Default</li>
-          </ol>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Container-fluid starts-->
-  <div class="container-fluid dashboard-default">
-    <div class="row">
-      <div class="col-xxl-6 col-xl-5 col-lg-6 dash-45 box-col-40">
-        <div class="card profile-greeting">
-          <div class="card-body">
-            <div class="d-sm-flex d-block justify-content-between">
-              <div class="flex-grow-1">
-                <div class="weather d-flex">
-                  <h2 class="f-w-400"> <span>28<sup><i class="fa fa-circle-o f-10"></i></sup>C </span></h2>
-                  <div class="span sun-bg"><i class="icofont icofont-sun font-primary"></i></div>
-                </div><span class="font-primary f-w-700">Sunny Day</span>
-                <p>Beautiful Sunny Day Walk</p>
-              </div>
-              <div class="badge-group">
-                <div class="badge badge-light-primary f-12"> <i class="fa fa-clock-o"></i><span id="txt"></span>
-                </div>
-              </div>
-            </div>
-            <div class="greeting-user">
-              <div class="profile-vector">
-                <ul class="dots-images">
-                  <li class="dot-small bg-info dot-1"></li>
-                  <li class="dot-medium bg-primary dot-2"></li>
-                  <li class="dot-medium bg-info dot-3"></li>
-                  <li class="semi-medium bg-primary dot-4"></li>
-                  <li class="dot-small bg-info dot-5"></li>
-                  <li class="dot-big bg-info dot-6"></li>
-                  <li class="dot-small bg-primary dot-7"></li>
-                  <li class="semi-medium bg-primary dot-8"></li>
-                  <li class="dot-big bg-info dot-9"></li>
-                </ul><img class="img-fluid" src="{{ ('assets/images/dashboard/default/profile.png') }}" alt="">
-                <ul class="vector-image">
-                  <li> <img src="{{ ('assets/images/dashboard/default/ribbon1.png') }}" alt=""></li>
-                  <li> <img src="{{ ('assets/images/dashboard/default/ribbon3.png') }}" alt=""></li>
-                  <li> <img src="{{ ('assets/images/dashboard/default/ribbon4.png') }}" alt=""></li>
-                  <li> <img src="{{ ('assets/images/dashboard/default/ribbon5.png') }}" alt=""></li>
-                  <li> <img src="{{ ('assets/images/dashboard/default/ribbon6.png') }}" alt=""></li>
-                  <li> <img src="{{ ('assets/images/dashboard/default/ribbon7.png') }}" alt=""></li>
-                </ul>
-              </div>
-              <h4><a href="user-profile.html"><span>Welcome Back</span> {{ $user_session->name }} </a><span class="right-circle"><i
-                    class="fa fa-check-circle font-primary f-14 middle"></i></span></h4>
-              <div><span class="badge badge-primary">Your 5</span><span
-                  class="font-primary f-12 middle f-w-500 ms-2"> Task Is Pending</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-3 col-lg-6 col-md-6 box-col-25">
-        <div class="card total-revenue overflow-hidden">
-          <div class="card-header">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">Total Revenue<i class="fa fa-circle"></i>
-                </p>
-                <h4>96.564%</h4>
-              </div>
-              <div class="setting-list">
-                <ul class="list-unstyled setting-option">
-                  <li>
-                    <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                  </li>
-                  <li><i class="view-html fa fa-code font-white"></i></li>
-                  <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                  <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                  <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                  <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card-body p-0">
-            <div class="revenue-chart" id="revenue-chart"></div>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#revenue"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="revenue">&lt;div class="card total-revenue overflow-hidden"&gt;
-&lt;div class="card-header"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt;Total Revenue
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; 96.564%&lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body p-0"&gt;
-&lt;div class="revenue-chart" id="revenue-chart"&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-            </div>
-          </div>
-        </div>
-        <div class="card total-investment">
-          <div class="card-header pb-0">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">Total Investment<i class="fa fa-circle"> </i>
-                </p>
-                <h4>96.564%</h4>
-              </div>
-              <div class="setting-list">
-                <ul class="list-unstyled setting-option">
-                  <li>
-                    <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                  </li>
-                  <li><i class="view-html fa fa-code font-white"></i></li>
-                  <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                  <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                  <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                  <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="progress sm-progress-bar">
-              <div class="progress-colors" role="progressbar" style="width: 100%" aria-valuenow="100"
-                aria-valuemin="0" aria-valuemax="100">
-                <div class="bg-secondary progress-1"></div>
-                <div class="bg-primary progress-2"></div>
-              </div>
-            </div>
-            <div class="bottom-progress"><span class="badge round-badge-primary font-worksans">3.56% <i
-                  class="fa fa-caret-up"></i></span><span
-                class="pull-right font-primary font-worksans f-w-700">75%</span></div>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#investment"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="investment">&lt;div class="card total-investment"&gt;
-&lt;div class="card-header pb-0"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt; Total Investment
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; 96.564%&lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body p-0"&gt;
-&lt;div class="progress sm-progress-bar"&gt;
-&lt;div class="progress-colors" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"&gt;
-  &lt;div class="bg-secondary.progress-1"&gt;&lt;/div&gt;
-  &lt;div class="bg-primary.progress-2"&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xxl-3 col-xl-4 col-md-6 dash-30 box-col-35">
-        <div class="card our-user">
-          <div class="card-header pb-0">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">Our Total Users<i class="fa fa-circle"></i>
-                </p>
-                <h4>96.564%</h4>
-              </div>
-              <div class="setting-list">
-                <ul class="list-unstyled setting-option">
-                  <li>
-                    <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                  </li>
-                  <li><i class="view-html fa fa-code font-white"></i></li>
-                  <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                  <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                  <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                  <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="user-chart">
-              <div id="user-chart"></div>
-              <div class="icon-donut"><i data-feather="arrow-up-circle"></i></div>
-            </div>
-            <ul>
-              <li>
-                <p class="f-w-600 font-primary f-12">Desktop</p><span class="f-w-600">96.564%</span>
-              </li>
-              <li>
-                <p class="f-w-600 font-primary f-12">Mobile </p><span class="f-w-600">92.624%</span>
-              </li>
-              <li>
-                <p class="f-w-600 font-primary f-12">Tablet </p><span class="f-w-600">46.564%</span>
-              </li>
-            </ul>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#users"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="users">&lt;div class="card our-user"&gt;
-&lt;div class="card-header pb-0"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt; Our Total Users
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; 96.564% &lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body"&gt;
-&lt;div class="user-chart"&gt;
-&lt;div id="user-chart"&gt;&lt;/div&gt;
-&lt;div class="icon-donut"&gt;
-  &lt;i class="feather feather-arrow-up-circle"&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;ul&gt;
-&lt;li&gt;
-  &lt;p class="f-w-600 font-primary f-12"&gt; Desktop &lt;/p&gt;
-  &lt;span class="f-w-600"&gt; 96.564% &lt;/span&gt;
-&lt;/li&gt;
-&lt;li&gt;
-  &lt;p class="f-w-600 font-primary f-12"&gt; Mobile &lt;/p&gt;
-  &lt;span class="f-w-600"&gt; 92.624% &lt;/span&gt;
-&lt;/li&gt;
-&lt;li&gt;
-  &lt;p class="f-w-600 font-primary f-12"&gt; Tablet &lt;/p&gt;
-  &lt;span class="f-w-600"&gt; 46.564% &lt;/span&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-4 col-lg-6 box-col-30 xl-30">
-        <div class="card our-earning">
-          <div class="card-header pb-0">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">Our Total Earning<i class="fa fa-circle"> </i>
-                </p>
-                <h4>96.564%</h4>
-                <div class="setting-list">
-                  <ul class="list-unstyled setting-option">
-                    <li>
-                      <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                    </li>
-                    <li><i class="view-html fa fa-code font-white"></i></li>
-                    <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                    <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                    <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                    <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card-body p-0">
-            <div class="earning-chart">
-              <div id="earning-chart"></div>
-            </div>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#earning"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="earning">&lt;div class="card our-earning"&gt;
-&lt;div class="card-header pb-0"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt; Our Total Earning
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; 96.564% &lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body p-0"&gt;
-&lt;div class="earning-chart"&gt;
-&lt;div id="earning-chart"&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-footer"&gt;
-&lt;ul class="d-sm-flex d-block"&gt;
-&lt;li&gt;
-  &lt;p class="f-w-600 font-primary f-12"&gt; Daily Earning
-  &lt;span class="f-w-600"&gt; 96.564% &lt;/span&gt;
-&lt;/li&gt;
-&lt;li&gt;
-  &lt;p class="f-w-600 font-primary f-12"&gt; Monthly Earning
-  &lt;span class="f-w-600"&gt; 96.564% &lt;/span&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-            </div>
-          </div>
-          <div class="card-footer">
-            <ul class="d-sm-flex d-block">
-              <li>
-                <p class="f-w-600 font-primary f-12">Daily Earning</p><span class="f-w-600">96.564%</span>
-              </li>
-              <li>
-                <p class="f-w-600 font-primary f-12">Monthly Earning </p><span class="f-w-600">96.564%</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-4 col-md-6 box-col-40 xl-40">
-        <div class="card appointment-detail">
-          <div class="card-header pb-0">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">total appointment<i class="fa fa-circle"> </i>
-                </p>
-                <h4>12 meet</h4>
-              </div>
-              <div class="setting-list">
-                <ul class="list-unstyled setting-option">
-                  <li>
-                    <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                  </li>
-                  <li><i class="view-html fa fa-code font-white"></i></li>
-                  <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                  <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                  <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                  <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive theme-scrollbar">
-              <table class="table">
-                <tbody>
-                  <tr>
-                    <td>
-                      <div class="d-flex"><img class="img-fluid align-top circle"
-                          src="{{ asset("assets/images/dashboard/default/01.png") }}" alt="">
-                        <div class="flex-grow-1"><a href="#"><span>Ossim keter</span></a>
-                          <p class="mb-0">1 Hour</p>
-                        </div>
-                        <div class="active-status active-online"></div>
-                      </div>
-                    </td>
-                    <td>16 August </td>
-                    <td class="text-end">
-                      <button class="btn btn-primary" type="button"
-                        onclick="document.location='user-cards.html'">Pending</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex"><img class="img-fluid align-top circle"
-                          src="{{ asset("assets/images/dashboard/default/02.png") }}" alt="">
-                        <div class="flex-grow-1"><a href="#"><span>Venter loren</span></a>
-                          <p class="mb-0">Now</p>
-                        </div>
-                        <div class="active-status active-busy"></div>
-                      </div>
-                    </td>
-                    <td>21 September </td>
-                    <td class="text-end">
-                      <button class="btn btn-secondary" type="button"
-                        onclick="document.location='user-cards.html'">Done<i
-                          class="fa fa-check-circle"></i></button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex"><img class="img-fluid align-top circle"
-                          src="{{ asset("assets/images/dashboard/default/03.png") }}" alt="">
-                        <div class="flex-grow-1"><a href="#"><span>Fran loain</span></a>
-                          <p class="mb-0">2 Day After</p>
-                        </div>
-                        <div class="active-status active-offline"></div>
-                      </div>
-                    </td>
-                    <td>06 March</td>
-                    <td class="text-end">
-                      <button class="btn btn-success" type="button"
-                        onclick="document.location='user-cards.html'">Pending</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex"><img class="img-fluid align-top circle"
-                          src="{{ asset("assets/images/dashboard/default/04.png") }}" alt="">
-                        <div class="flex-grow-1"><a href="#"><span>Loften Horen</span></a>
-                          <p class="mb-0">Day End</p>
-                        </div>
-                        <div class="active-status active-online"></div>
-                      </div>
-                    </td>
-                    <td>12 February</td>
-                    <td class="text-end">
-                      <button class="btn btn-info" type="button"
-                        onclick="document.location='user-cards.html'">Pending</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="d-flex"><img class="img-fluid align-top circle"
-                          src="{{ asset("assets/images/dashboard/default/05.png") }}" alt="">
-                        <div class="flex-grow-1"><a href="#"><span>Loie fenter</span></a>
-                          <p class="mb-0">2 Day After</p>
-                        </div>
-                        <div class="active-status active-offline"></div>
-                      </div>
-                    </td>
-                    <td>06 March</td>
-                    <td class="text-end">
-                      <button class="btn btn-danger" type="button"
-                        onclick="document.location='user-cards.html'">Pending</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#appoinment"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="appoinment">&lt;div class="card appointment-detail"&gt;
-&lt;div class="card-header pb-0"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt; total appointment
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; 12 meet &lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body"&gt;
-&lt;div class="table-responsive theme-scrollbar"&gt;
-&lt;table class="table"&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;
-        &lt;div class="d-flex"&gt;
-          &lt;img class="img-fluid align-top circle" src="../assets/images/dashboard/default/01.png" alt=""&gt;&lt;/img&gt;
-          &lt;div class="flex-grow-1"&gt;
-            &lt;a  href="user-profile.html"&gt;
-              &lt;span&gt;Ossim keter&lt;/span&gt;
-            &lt;/a&gt;
-            &lt;p class="mb-0"&gt; 1 Hour &lt;/p&gt;
-          &lt;/div&gt;
-          &lt;div class="active-status active-online"&gt;&lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/td&gt;
-      &lt;td&gt; 16 august &lt;/td&gt;
-      &lt;td class="text-end"&gt;
-        &lt;button class="btn btn-primary" type="button" onclick="document.location='user-cards.html'"&gt; Pending &lt;/button&gt;
-      &lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;
-        &lt;div class="d-flex"&gt;
-          &lt;img class="img-fluid align-top circle" src="../assets/images/dashboard/default/02.png" alt=""&gt;&lt;/img&gt;
-          &lt;div class="flex-grow-1"&gt;
-            &lt;a href="user-profile.html"&gt;
-              &lt;span&gt;Venter loren&lt;/span&gt;
-            &lt;/a&gt;
-            &lt;p class="mb-0"&gt; Now &lt;/p&gt;
-          &lt;/div&gt;
-          &lt;div class="active-status active-busy"&gt;&lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/td&gt;
-      &lt;td&gt; 21 September &lt;/td&gt;
-      &lt;td class="text-end"&gt;
-        &lt;button class="btn btn-secondary" type="button" onclick="document.location='user-cards.html'"&gt; Done
-          &lt;i class="fa fa-check-circle"&gt;
-        &lt;/button&gt;
-      &lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;
-        &lt;div class="d-flex"&gt;
-          &lt;img class="img-fluid align-top circle" src="../assets/images/dashboard/default/03.png" alt=""&gt;&lt;/img&gt;
-          &lt;div class="flex-grow-1"&gt;
-            &lt;a href="user-profile.html"&gt;
-              &lt;span&gt;Fran loain&lt;/span&gt;
-            &lt;/a&gt;
-            &lt;p class="mb-0"&gt; 2 Day After &lt;/p&gt;
-          &lt;/div&gt;
-          &lt;div class="active-status active-online"&gt;&lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/td&gt;
-      &lt;td&gt; 06 March &lt;/td&gt;
-      &lt;td class="text-end"&gt;
-        &lt;button class="btn btn-success" type="button" onclick="document.location='user-cards.html'"&gt; Pending &lt;/button&gt;
-      &lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;
-        &lt;div class="d-flex"&gt;
-          &lt;img class="img-fluid align-top circle" src="../assets/images/dashboard/default/04.png" alt=""&gt;&lt;/img&gt;
-          &lt;div class="flex-grow-1"&gt;
-            &lt;a href="user-profile.html"&gt;
-              &lt;span&gt;Loften Horen&lt;/span&gt;
-            &lt;/a&gt;
-            &lt;p class="mb-0"&gt; Day End &lt;/p&gt;
-          &lt;/div&gt;
-          &lt;div class="active-status active-online"&gt;&lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/td&gt;
-      &lt;td&gt; 12 February &lt;/td&gt;
-      &lt;td class="text-end"&gt;
-        &lt;button class="btn btn-info" type="button" onclick="document.location='user-cards.html'"&gt; Pending &lt;/button&gt;
-      &lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;
-        &lt;div class="d-flex"&gt;
-          &lt;img class="img-fluid align-top circle" src="../assets/images/dashboard/default/05.png" alt=""&gt;&lt;/img&gt;
-          &lt;div class="flex-grow-1"&gt;
-            &lt;a href="user-profile.html"&gt;
-              &lt;span&gt;Loie fenter&lt;/span&gt;
-            &lt;/a&gt;
-            &lt;p class="mb-0"&gt; 2 Day After &lt;/p&gt;
-          &lt;/div&gt;
-          &lt;div class="active-status active-offline"&gt;&lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/td&gt;
-      &lt;td&gt; 06 March &lt;/td&gt;
-      &lt;td class="text-end"&gt;
-        &lt;button class="btn btn-danger" type="button" onclick="document.location='user-cards.html'"&gt; Pending &lt;/button&gt;
-      &lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-4 col-md-6 box-col-30 xl-30">
-        <div class="card use-country">
-          <div class="card-header pb-0">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">User By Country<i class="fa fa-circle"> </i>
-                </p>
-                <h4>96.564%</h4>
-              </div>
-              <div class="setting-list">
-                <ul class="list-unstyled setting-option">
-                  <li>
-                    <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                  </li>
-                  <li><i class="view-html fa fa-code font-white"></i></li>
-                  <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                  <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                  <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                  <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="jvector-map-height" id="asia"></div>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#country"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="country">&lt;div class="card use-country"&gt;
-&lt;div class="card-header pb-0"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt; User By Country
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; 96.564%&lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body p-0"&gt;
-&lt;div class="jvector-map-height" id="asia"&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-12 box-col-12">
-        <div class="card total-growth">
-          <div class="card-header pb-0">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">Our Total Growth<i class="fa fa-circle"> </i>
-                </p>
-                <h4>96.564%</h4>
-              </div>
-              <div class="setting-list">
-                <ul class="list-unstyled setting-option">
-                  <li>
-                    <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                  </li>
-                  <li><i class="view-html fa fa-code font-white"></i></li>
-                  <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                  <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                  <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                  <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card-body pb-0">
-            <div class="growth-chart">
-              <div id="growth-chart"></div>
-            </div>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#growth"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="growth">&lt;div class="card total-growth"&gt;
-&lt;div class="card-header pb-0"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt; Our Total Growth
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; 96.564%&lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body p-0"&gt;
-&lt;div class="growth-chart"&gt;
-&lt;div id="growth-chart"&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-4 col-md-6 box-col-33">
-        <div class="card">
-          <div class="card-header pb-0">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">Recent Activity<i class="fa fa-circle"> </i>
-                </p>
-                <h4>New & Update</h4>
-              </div>
-              <div class="setting-list">
-                <ul class="list-unstyled setting-option">
-                  <li>
-                    <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                  </li>
-                  <li><i class="view-html fa fa-code font-white"></i></li>
-                  <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                  <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                  <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                  <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="activity-timeline">
-              <div class="d-flex">
-                <div class="activity-line"></div>
-                <div class="activity-dot-primary"></div>
-                <div class="flex-grow-1"><span class="f-w-600 d-block">Updated Product</span>
-                  <p class="mb-0">Quisque a consequat ante Sit amet magna at volutapt enim.</p>
-                </div>
-              </div>
-              <div class="d-flex">
-                <div class="activity-dot-primary"></div>
-                <div class="flex-grow-1"><span class="f-w-600 d-block">You liked James products</span>
-                  <p class="mb-0">Aenean sit amet magna vel magna fringilla ferme.</p>
-                </div>
-              </div>
-              <div class="d-flex align-items-start">
-                <div class="activity-dot-secondary"></div>
-                <div class="flex-grow-1"><span class="f-w-600 d-block">James just like your product</span>
-                  <p class="mb-0">Quisque a consequat ante Sit amet magna at volutapt enim.</p>
-                </div><i class="fa fa-circle circle-dot-primary"></i>
-              </div>
-              <div class="d-flex">
-                <div class="activity-dot-primary"></div>
-                <div class="flex-grow-1"><span class="f-w-600 d-block">Jenna commented on your product</span>
-                  <p class="mb-0">Curabitur egestas consequat lorem.</p>
-                </div>
-              </div>
-              <div class="d-flex align-items-start">
-                <div class="activity-dot-secondary"></div>
-                <div class="flex-grow-1"><span class="f-w-600 d-block">Jihan Doe just like your product</span>
-                  <p class="mb-0">Vestibulum nec mi suscipit, dapibus purus a consequat ane.Curabitur egestas
-                    consequat lorem.</p>
-                </div><i class="fa fa-circle circle-dot-secondary"></i>
-              </div>
-            </div>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#activity"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="activity">&lt;div class="card"&gt;
-&lt;div class="card-header pb-0"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt; Recent Activity
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; New & Update &lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body p-0"&gt;
-&lt;div class="activity-timeline"&gt;
-&lt;div class="d-flex"&gt;
-  &lt;div class="activity-line"&gt;&lt;/div&gt;
-  &lt;div class="activity-dot-primary"&gt;&lt;/div&gt;
-  &lt;div class="flex-grow-1"&gt;
-    &lt;span class="f-w-600 d-block"&gt; Updated Product &lt;/span &gt;
-    &lt;p class="mb-0"&gt; Quisque a consequat ante Sit amet magna at volutapt enim.&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="d-flex"&gt;
-  &lt;div class="activity-dot-primary"&gt;&lt;/div&gt;
-  &lt;div class="flex-grow-1"&gt;
-    &lt;span class="f-w-600 d-block"&gt; You liked James products &lt;/span &gt;
-    &lt;p class="mb-0"&gt; Aenean sit amet magna vel magna fringilla ferme.&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="d-flex align-items-start"&gt;
-  &lt;div class="activity-dot-secondary"&gt;&lt;/div&gt;
-  &lt;div class="flex-grow-1"&gt;
-    &lt;span class="f-w-600 d-block"&gt; James just like your product &lt;/span &gt;
-    &lt;p class="mb-0"&gt; Quisque a consequat ante Sit amet magna at volutapt enim.&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="d-flex"&gt;
-  &lt;div class="activity-dot-primary"&gt;&lt;/div&gt;
-  &lt;div class="flex-grow-1"&gt;
-    &lt;span class="f-w-600 d-block"&gt; Jenna commented on your product &lt;/span &gt;
-    &lt;p class="mb-0"&gt;Curabitur egestas consequat lorem.&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="d-flex align-items-start"&gt;
-  &lt;div class="activity-dot-secondary"&gt;&lt;/div&gt;
-  &lt;div class="flex-grow-1"&gt;
-    &lt;span class="f-w-600 d-block"&gt; James just like your product &lt;/span &gt;
-    &lt;p class="mb-0"&gt;Vestibulum nec mi suscipit, dapibus purus a consequat ane.Curabitur egestas consequat lorem.&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt; </code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-4 proorder box-col-33">
-        <div class="card user-chat">
-          <div class="card-header pb-0">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">Chat With Our Users<i class="fa fa-circle">
-                  </i></p>
-                <h4>Chat</h4>
-              </div>
-              <div class="setting-list">
-                <ul class="list-unstyled setting-option">
-                  <li>
-                    <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                  </li>
-                  <li><i class="view-html fa fa-code font-white"></i></li>
-                  <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                  <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                  <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                  <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card-body chat-box">
-            <div class="d-flex left-chat">
-              <div class="flex-grow-1">
-                <div class="message-main">
-                  <p class="mb-0">Hii</p>
-                </div>
-                <div class="sub-message message-main">
-                  <p class="mb-0">Good Evening, My Friend</p>
-                </div>
-              </div>
-              <p class="f-w-500 mb-0 px-0">7:28 PM</p>
-            </div>
-            <div class="d-flex right-chat">
-              <div class="flex-grow-1 text-end">
-                <div class="message-main pull-right">
-                  <p class="text-start mb-0">What can do for you</p>
-                  <div class="clearfix"></div>
-                </div>
-              </div>
-            </div>
-            <div class="d-flex left-chat">
-              <div class="flex-grow-1">
-                <div class="sub-message message-main mt-0">
-                  <p class="mb-0">Can i Borrow some money</p>
-                </div>
-              </div>
-            </div>
-            <div class="input-group">
-              <input class="form-control" id="mail" type="text" placeholder="Type Your Message" name="text">
-              <div class="send-msg"><i data-feather="send"></i></div>
-            </div>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#chat"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="chat">&lt;div class="card user-chat"&gt;
-&lt;div class="card-header pb-0"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt; Chat With Our Users
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; Chat&lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body chat-box"&gt;
-&lt;div class="d-flex left-chat"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;div class="message-main"&gt;
-    &lt;p class="mb-0"&gt; Hii &lt;/p&gt;
-  &lt;/div &gt;
-  &lt;div class="sub-message message-main"&gt;
-    &lt;p class="mb-0"&gt; Good Evening, My Friend &lt;/p&gt;
-  &lt;/div &gt;
-&lt;/div&gt;
-&lt;p class="f-w-500 mb-0 px-0"&gt; 7:28 PM &lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="d-flex right-chat"&gt;
-&lt;div class="flex-grow-1 text-end"&gt;
-  &lt;div class="message-main pull-right"&gt;
-    &lt;p class="text-start mb-0"&gt; What can do for you &lt;/p&gt;
-    &lt;div class="clearfix"&gt;&lt;/div&gt;
-  &lt;/div &gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="d-flex left-chat"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;div class="sub-message message-main mt-0"&gt;
-    &lt;p class="mb-0"&gt; Can i Borrow some money &lt;/p&gt;
-  &lt;/div &gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="input-group"&gt;
-&lt;input id="mail" class="form-control" type="text" placeholder="Type Your Message" name="text"/&gt;
-&lt;div class="send-msg"&gt;
-  &lt;i class="feather feather-send"&gt;&lt;/i&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-4 col-md-6 box-col-33">
-        <div class="card our-todolist">
-          <div class="card-header pb-0">
-            <div class="d-flex justify-content-between">
-              <div class="flex-grow-1">
-                <p class="square-after f-w-600 header-text-primary">Our To-Do List<i class="fa fa-circle"> </i>
-                </p>
-                <h4>Todo List</h4>
-              </div>
-              <div class="setting-list">
-                <ul class="list-unstyled setting-option">
-                  <li>
-                    <div class="setting-light"><i class="icon-layout-grid2"></i></div>
-                  </li>
-                  <li><i class="view-html fa fa-code font-white"></i></li>
-                  <li><i class="icofont icofont-maximize full-card font-white"></i></li>
-                  <li><i class="icofont icofont-minus minimize-card font-white"></i></li>
-                  <li><i class="icofont icofont-refresh reload-card font-white"></i></li>
-                  <li><i class="icofont icofont-error close-card font-white"> </i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="activity-timeline todo-timeline">
-              <div class="d-flex">
-                <div class="activity-line"></div>
-                <div class="activity-dot-primary"></div>
-                <div class="flex-grow-1">
-                  <p class="mt-0 todo-font"><span class="font-primary">20-04-2022 </span>Today</p>
-                  <div class="d-flex mt-0"><img class="img-fluid img-30"
-                      src="{{ asset('assets/images/dashboard/default/todo.png') }}" alt="">
-                    <div class="flex-grow-1"><span class="f-w-600">New Order $2340<i
-                          class="fa fa-circle circle-dot-primary pull-right"></i></span>
-                      <p class="mb-0">Update New Product Pdf And Delivery Product</p>
+<div class="page_content_wrap" style="padding-top: 0 !important; padding-bottom: 0 !important;">
+    <div class="content_wrap">
+        <section class="py-5">
+            <div class="container" style="margin-top: 50px;">
+                {{-- Flash Messages --}}
+                @if(Session::has('success'))
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <p>{{ Session::get('success') }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                  </div>
+                @endif
+                @if(Session::has('fail'))
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <p>{{ Session::get('fail') }}</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                {{-- Date Range Filter --}}
+                <div class="card shadow-sm mb-4 gradient-card">
+                    <div class="card-body">
+                        <form id="dateFilterForm">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-md-3">
+                                    <label for="start_date" class="form-label fw-bold">Desde</label>
+                                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ now('America/La_Paz')->subDays(30)->format('Y-m-d') }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="end_date" class="form-label fw-bold">Hasta</label>
+                                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ now('America/La_Paz')->format('Y-m-d') }}">
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" style="margin-top: 27px;">
+                                      <i data-feather="filter"></i>
+                                      <span>Filtrar</span>
+                                    </button>
+                                  </div>
+
+                                <div class="col-md-3 d-flex align-items-end justify-content-end" style="margin-top: 27px;">
+                                    <div class="text-light">
+                                        <i class="fas fa-calendar-alt me-2"></i>
+                                        {{ now('America/La_Paz')->format('l, j \d\e F, Y') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-              </div>
-              <div class="d-flex">
-                <div class="activity-dot-secondary"></div>
-                <div class="flex-grow-1">
-                  <p class="mt-0 todo-font"><span class="font-primary">20-04-2022 </span>Today<span
-                      class="badge badge-primary ms-2">New</span></p><span class="f-w-600">James just like your
-                    product<i class="fa fa-circle circle-dot-secondary pull-right"></i></span>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="text-light mb-0 fw-bold">{{ __('Panel de Control') }}</h1>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dashboardActions" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-cog me-2"></i>Acciones
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dashboardActions">
+                            <li><a class="dropdown-item" href="#" onclick="alert('Exportación de PDF en desarrollo');"><i class="fas fa-file-pdf me-2"></i>Exportar PDF</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="alert('Exportación de Excel en desarrollo');"><i class="fas fa-file-excel me-2"></i>Exportar Excel</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="loadDashboardData();"><i class="fas fa-sync-alt me-2"></i>Actualizar Datos</a></li>
+                        </ul>
+                    </div>
                 </div>
-              </div>
-              <div class="d-flex">
-                <div class="activity-dot-primary"></div>
-                <div class="flex-grow-1">
-                  <p class="mt-0 todo-font"><span class="font-primary">20-04-2022 </span>Today</p><span
-                    class="f-w-600">Jihan Doe just like your product</span>
-                  <p class="mb-0">Vestibulum nec mi suscipit, dapibus purus a consequat ane.Quisque a consequat
-                    ante.....</p>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        {{-- Welcome Card --}}
+                        <div class="card border-0 shadow-sm mb-4 gradient-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user_session->name) }}&background=random"
+                                             alt="User Avatar" class="rounded-circle" width="60">
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h4 class="text-light mb-1 fw-bold">{{ __('Bienvenido, ') . $user_session->name }}</h4>
+                                        <p class="text-light mb-0">{{ __('Estadísticas actualizadas en tiempo real') }}</p>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <span class="badge bg-primary">Usuario desde: {{ $user_session->created_at->format('M Y') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Quick Stats and Occupancy Rate --}}
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm gradient-card">
+                                    <div class="card-header bg-info text-white">
+                                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Resumen</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span>Reservas Totales:</span>
+                                            <strong id="stat-total">{{ $stats['total'] ?? 0 }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span>Pendientes:</span>
+                                            <strong class="text-warning" id="stat-pending">{{ $stats['pending'] ?? 0 }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span>Confirmadas:</span>
+                                            <strong class="text-success" id="stat-confirmed">{{ $stats['confirmed'] ?? 0 }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Canceladas:</span>
+                                            <strong class="text-danger" id="stat-cancelled">{{ $stats['cancelled'] ?? 0 }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm gradient-card">
+                                    <div class="card-header bg-purple text-white">
+                                        <h5 class="mb-0"><i class="fas fa-percentage me-2"></i>Tasa de Ocupación</h5>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <div class="circular-progress mx-auto" data-value="0">
+                                            <svg class="progress-circle" width="120" height="120" viewBox="0 0 120 120">
+                                                <circle class="progress-circle-bg" cx="60" cy="60" r="54" fill="none" stroke="#e6e6e6" stroke-width="6"></circle>
+                                                <circle class="progress-circle-fill" cx="60" cy="60" r="54" fill="none" stroke="#6f42c1" stroke-width="6" stroke-linecap="round" transform="rotate(-90 60 60)"></circle>
+                                            </svg>
+                                            <div class="progress-text">
+                                                <span id="occupancy-rate">0</span>%
+                                            </div>
+                                        </div>
+                                        <p class="mt-3 mb-0 text-light">Porcentaje de habitaciones ocupadas</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Stats Cards --}}
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-3">
+                                <div class="card text-white bg-primary h-100 shadow-sm border-0 gradient-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="card-subtitle mb-2 opacity-75">Reservas Totales</h6>
+                                                <h3 class="card-title mb-0" id="card-total">{{ $stats['total'] ?? 0 }}</h3>
+                                            </div>
+                                            <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                                                <i class="fas fa-calendar-check fa-lg"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <small class="opacity-75">Total de todas tus reservas</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-warning h-100 shadow-sm border-0 gradient-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="card-subtitle mb-2 opacity-75">Pagos Pendientes</h6>
+                                                <h3 class="card-title mb-0" id="card-pending">{{ $stats['pending'] ?? 0 }}</h3>
+                                            </div>
+                                            <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                                                <i class="fas fa-clock fa-lg"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <small class="opacity-75">Esperando confirmación</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-success h-100 shadow-sm border-0 gradient-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="card-subtitle mb-2 opacity-75">Pagos Confirmados</h6>
+                                                <h3 class="card-title mb-0" id="card-confirmed">{{ $stats['confirmed'] ?? 0 }}</h3>
+                                            </div>
+                                            <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                                                <i class="fas fa-check-circle fa-lg"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <small class="opacity-75">Reservas completadas</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-danger h-100 shadow-sm border-0 gradient-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="card-subtitle mb-2 opacity-75">Canceladas</h6>
+                                                <h3 class="card-title mb-0" id="card-cancelled">{{ $stats['cancelled'] ?? 0 }}</h3>
+                                            </div>
+                                            <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                                                <i class="fas fa-ban fa-lg"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <small class="opacity-75">Reservas canceladas</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Income Card --}}
+                        <div class="card shadow-sm border-0 mb-4 gradient-card">
+                            <div class="card-header bg-primary text-white border-0">
+                                <h5 class="mb-0">Ingresos Totales</h5>
+                            </div>
+                            <div class="card-body chart-container">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <h2 class="display-4 mb-0 text-primary" id="total-income">Bs 0.00</h2>
+                                        <p class="text-light mb-0">Ingresos generados en el período</p>
+                                    </div>
+                                    <div class="col-md-6 position-relative">
+                                        <canvas id="incomeChart" height="150"></canvas>
+                                        <div class="loading-spinner">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Cargando...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Charts Row --}}
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="card shadow-sm h-100 gradient-card">
+                                    <div class="card-header bg-primary text-white border-0">
+                                        <h5 class="mb-0">Reservas por Fecha</h5>
+                                    </div>
+                                    <div class="card-body chart-container position-relative">
+                                        <canvas id="reservationsChart" height="250"></canvas>
+                                        <div class="loading-spinner">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Cargando...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card shadow-sm h-100 gradient-card">
+                                    <div class="card-header bg-primary text-white border-0">
+                                        <h5 class="mb-0">Distribución de Reservas</h5>
+                                    </div>
+                                    <div class="card-body chart-container position-relative">
+                                        <canvas id="reservationsPieChart" height="250"></canvas>
+                                        <div class="loading-spinner">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Cargando...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="d-flex">
-                <div class="activity-dot-primary"></div>
-                <div class="flex-grow-1">
-                  <p class="mt-0 todo-font"><span class="font-primary">20-04-2022 </span>Today</p><span
-                    class="f-w-600">Take Our Client Metting<i
-                      class="fa fa-circle circle-dot-primary pull-right"></i></span>
-                  <p class="mb-0">Vestibulum nec mi suscipit.</p>
-                </div>
-              </div>
             </div>
-            <div class="code-box-copy">
-              <button class="code-box-copy__btn btn-clipboard" data-clipboard-target="#to-do"><i
-                  class="icofont icofont-copy-alt"></i></button>
-              <pre><code class="language-html" id="to-do">&lt;div class="card our-todolist"&gt;
-&lt;div class="card-header pb-0"&gt;
-&lt;div class="d-flex justify-content-between"&gt;
-&lt;div class="flex-grow-1"&gt;
-  &lt;p class="square-after f-w-600 header-text-primary"&gt; Our To-Do List
-    &lt;i class="fa fa-circle"&gt;&lt;/i&gt;
-  &lt;/p&gt;
-  &lt;h4&gt; Todo List &lt;/h4&gt;
-&lt;/div&gt;
-&lt;div class="setting-list"&gt;
-  &lt;ul class="list-unstyled setting-option"&gt;
-    &lt;li&gt;&lt;div class="setting-light"&gt;&lt;i class="icon-layout-grid2"&gt;&lt;/i&gt;&lt;/div&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="view-html fa fa-code font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-maximize full-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-minus minimize-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-refresh reload-card font-white"&gt;&lt;/i&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;i class="icofont icofont-error close-card font-white"&gt; &lt;/i&gt;&lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="card-body p-0"&gt;
-&lt;div class="activity-timeline"&gt;
-&lt;div class="d-flex"&gt;
-  &lt;div class="activity-line"&gt;&lt;/div&gt;
-  &lt;div class="activity-dot-primary"&gt;&lt;/div&gt;
-  &lt;div class="flex-grow-1"&gt;
-    &lt;p class="todo-font mt-0"&gt;
-      &lt;span class="font-primary"&gt; 20-04-2022 &lt;/span&gt;
-      Today
-    &lt;/p &gt;
-    &lt;div class="d-flex mt-0"&gt;
-      &lt;img class="img-fluid img-30" src="../assets/images/dashboard/default/todo.png" alt=""/&gt;
-      &lt;div class="flex-grow-1"&gt;
-        &lt;span class="f-w-600"&gt; New Order $2340
-          New Order $2340
-          &lt;i class="fa fa-circle circle-dot-primary pull-right"&gt;
-        &lt;/span&gt;
-        &lt;p class="mb-0"&gt; Update New Product Pdf And Delivery Product &lt;/p&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="d-flex"&gt;
-  &lt;div class="activity-dot-secondary"&gt;&lt;/div&gt;
-  &lt;div class="flex-grow-1"&gt;
-    &lt;p class="todo-font mt-0"&gt;
-      &lt;span class="font-primary"&gt; 20-04-2022 &lt;/span&gt;
-      Today
-      &lt;span class="badge badge-primary ms-2"&gt; New &lt;/span&gt;
-    &lt;/p &gt;
-    &lt;span class="f-w-600"&gt; James just like your product
-      &lt;i class="fa fa-circle circle-dot-secondary pull-right"&gt;&lt;/i&gt;
-    &lt;/span&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="d-flex"&gt;
-  &lt;div class="activity-dot-primary"&gt;&lt;/div&gt;
-  &lt;div class="flex-grow-1"&gt;
-    &lt;p class="mt-0 todo-font"&gt;
-      &lt;span class="font-primary"&gt; 20-04-2022 &lt;/span&gt;
-      Today
-    &lt;/p &gt;
-    &lt;span class="f-w-600"&gt; Jihan Doe just like your product
-    &lt;/span&gt;
-    &lt;p class="mb-0"&gt; Vestibulum nec mi suscipit, dapibus purus a consequat ane.Quisque a consequat ante..... &lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="d-flex"&gt;
-  &lt;div class="activity-dot-primary"&gt;&lt;/div&gt;
-  &lt;div class="flex-grow-1"&gt;
-    &lt;p class="todo-font mt-0"&gt;
-      &lt;span class="font-primary"&gt; 20-04-2022 &lt;/span&gt;
-      Today
-    &lt;/p &gt;
-    &lt;span class="f-w-600"&gt; Take Our Client Metting
-      &lt;i class="fa fa-circle circle-dot-primary pull-right"&gt;&lt;/i&gt;
-    &lt;/span&gt;
-    &lt;p class="mb-0"&gt; Vestibulum nec mi suscipit. &lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt; </code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
+        </section>
     </div>
-  </div>
+</div>
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date filter
+    const dateFilterForm = document.getElementById('dateFilterForm');
+    const spinners = document.querySelectorAll('.loading-spinner');
 
+    // Initialize chart variables
+    window.reservationsChart = null;
+    window.incomeChart = null;
+    window.pieChart = null;
 
-<script src="{{ asset('assets/js/chart/chartist/chartist.js') }}"></script>
-<script src="{{ asset('assets/js/chart/chartist/chartist-plugin-tooltip.js') }}"></script>
-<script src="{{ asset('assets/js/chart/apex-chart/apex-chart.js') }}"></script>
-<script src="{{ asset('assets/js/chart/apex-chart/stock-prices.js') }}"></script>
-<script src="{{ asset('assets/js/prism/prism.min.js') }}"></script>
-<script src="{{ asset('assets/js/clipboard/clipboard.min.js') }}"></script>
-<script src="{{ asset('assets/js/custom-card/custom-card.js') }}"></script>
-<script src="{{ asset('assets/js/notify/bootstrap-notify.min.js') }}"></script>
-<script src="{{ asset('assets/js/vector-map/jquery-jvectormap-2.0.2.min.js') }}"></script>
-<script src="{{ asset('assets/js/vector-map/map/jquery-jvectormap-world-mill-en.js') }}"></script>
-<script src="{{ asset('assets/js/vector-map/map/jquery-jvectormap-us-aea-en.js') }}"></script>
-<script src="{{ asset('assets/js/vector-map/map/jquery-jvectormap-uk-mill-en.js') }}"></script>
-<script src="{{ asset('assets/js/vector-map/map/jquery-jvectormap-au-mill.js') }}"></script>
-<script src="{{ asset('assets/js/vector-map/map/jquery-jvectormap-chicago-mill-en.js') }}"></script>
-<script src="{{ asset('assets/js/vector-map/map/jquery-jvectormap-in-mill.js') }}"></script>
-<script src="{{ asset('assets/js/vector-map/map/jquery-jvectormap-asia-mill.js') }}"></script>
-<script src="{{ asset('assets/js/dashboard/default.js') }}"></script>
-<script src="{{ asset('assets/js/notify/index.js') }}"></script>
-<script src="{{ asset('assets/js/typeahead/handlebars.js') }}"></script>
-<script src="{{ asset('assets/js/typeahead/typeahead.bundle.js') }}"></script>
-<script src="{{ asset('assets/js/typeahead/typeahead.custom.js') }}"></script>
-<script src="{{ asset('assets/js/typeahead-search/handlebars.js') }}"></script>
-<script src="{{ asset('assets/js/typeahead-search/typeahead-custom.js') }}"></script>
+    // Load initial data
+    loadDashboardData();
+
+    // Form submission handler
+    dateFilterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        loadDashboardData();
+    });
+
+    function showLoading() {
+        spinners.forEach(spinner => spinner.style.display = 'block');
+    }
+
+    function hideLoading() {
+        spinners.forEach(spinner => spinner.style.display = 'none');
+    }
+
+    function loadDashboardData() {
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+
+        showLoading();
+
+        // Fetch report data
+        fetch(`{{ route('dashboard.report-data') }}?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Error al cargar los datos');
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                updateStats(data);
+                updateCharts(data);
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || 'No se pudieron cargar los datos. Por favor, intenta de nuevo.');
+                hideLoading();
+            });
+    }
+
+    function updateStats(data) {
+        // Update quick stats
+        document.getElementById('stat-total').textContent = data.reservations.total;
+        document.getElementById('stat-pending').textContent = data.reservations.pending;
+        document.getElementById('stat-confirmed').textContent = data.reservations.confirmed;
+        document.getElementById('stat-cancelled').textContent = data.reservations.cancelled;
+
+        // Update cards
+        document.getElementById('card-total').textContent = data.reservations.total;
+        document.getElementById('card-pending').textContent = data.reservations.pending;
+        document.getElementById('card-confirmed').textContent = data.reservations.confirmed;
+        document.getElementById('card-cancelled').textContent = data.reservations.cancelled;
+
+        // Update income
+        document.getElementById('total-income').textContent = `Bs ${parseFloat(data.income).toFixed(2)}`;
+
+        // Update occupancy rate
+        const occupancyRate = parseFloat(data.occupancy_rate);
+        document.getElementById('occupancy-rate').textContent = occupancyRate.toFixed(2);
+
+        // Animate circular progress
+        const circle = document.querySelector('.progress-circle-fill');
+        const circumference = 2 * Math.PI * 54;
+        const offset = circumference - (occupancyRate / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+    }
+
+    function updateCharts(data) {
+        console.log('Chart data received:', data);
+
+        // Prepare chart data - ensure dates are sorted
+        const labels = Object.keys(data.chart_data).sort();
+        const reservationsData = labels.map(date => data.chart_data[date].reservations);
+        const incomeData = labels.map(date => parseFloat(data.chart_data[date].income));
+
+        // Destroy existing charts if they exist and are valid Chart.js instances
+        if (window.reservationsChart && typeof window.reservationsChart.destroy === 'function') {
+            window.reservationsChart.destroy();
+        }
+        if (window.incomeChart && typeof window.incomeChart.destroy === 'function') {
+            window.incomeChart.destroy();
+        }
+        if (window.pieChart && typeof window.pieChart.destroy === 'function') {
+            window.pieChart.destroy();
+        }
+
+        // Format dates for display (DD/MM)
+        const displayLabels = labels.map(date => {
+            const d = new Date(date);
+            return `${d.getDate()}/${d.getMonth() + 1}`;
+        });
+
+        // Reservations by Date Chart (Bar)
+        const reservationsCtx = document.getElementById('reservationsChart').getContext('2d');
+        window.reservationsChart = new Chart(reservationsCtx, {
+            type: 'bar',
+            data: {
+                labels: displayLabels,
+                datasets: [{
+                    label: 'Reservas',
+                    data: reservationsData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return labels[context[0].dataIndex]; // Show full date in tooltip
+                            },
+                            label: function(context) {
+                                return `Reservas: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Fecha' } },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Número de Reservas' },
+                        ticks: { stepSize: 1, precision: 0 }
+                    }
+                }
+            }
+        });
+
+        // Income Chart (Line)
+        const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+        window.incomeChart = new Chart(incomeCtx, {
+            type: 'line',
+            data: {
+                labels: displayLabels,
+                datasets: [{
+                    label: 'Ingresos',
+                    data: incomeData,
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return labels[context[0].dataIndex];
+                            },
+                            label: function(context) {
+                                return `Bs ${context.raw.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Fecha' } },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Ingresos (Bs)' },
+                        ticks: {
+                            callback: function(value) {
+                                return `Bs ${value}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Reservations Distribution (Doughnut)
+        const pieCtx = document.getElementById('reservationsPieChart').getContext('2d');
+        window.pieChart = new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Confirmadas', 'Pendientes', 'Canceladas'],
+                datasets: [{
+                    data: [
+                        data.reservations.confirmed,
+                        data.reservations.pending,
+                        data.reservations.cancelled
+                    ],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.7)',
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(220, 53, 69, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'right', labels: { font: { size: 14 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const value = context.raw;
+                                const percentage = Math.round((value / total) * 100);
+                                return `${context.label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    },
+                    datalabels: { display: false }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+});
+</script>
 @endsection

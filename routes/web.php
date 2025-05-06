@@ -43,11 +43,13 @@ use App\Http\Controllers\Admin\Pages;
 
 use App\Http\Controllers\Admin\PortfolioController;
 
+use App\Http\Controllers\Admin\PropertyController;
+
+use App\Http\Controllers\Admin\ReservationController;
+
+
 use App\Http\Controllers\Admin\ResetPasswordController;
-
 use App\Http\Controllers\Admin\RoleController;
-
-
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\Admin\SupportTicketController;
@@ -59,7 +61,7 @@ use App\Http\Middleware\SetLocale;
 use App\Models\Language;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\PropertyController;
+
 
 
 
@@ -137,6 +139,7 @@ Route::get('/error/{code}', function ($code) {
 Route::post('/log', [UserController::class, 'login'])->name('login');
 Route::group(['middleware' => ['prevent-back-history', SetLocale::class]], function () {
     Route::get('/', [UserController::class, 'home'])->name('home');
+    Route::post('/', [UserController::class, 'home'])->name('home.search');
     Route::get('/index', [UserController::class, 'home'])->name('home');
     Route::get('/local/{ln}', function ($ln) {
         return redirect()->back()->with('local', $ln);
@@ -222,7 +225,20 @@ Route::group(['prefix' => 'admin', 'middleware' => ['check.session', 'super.admi
 
     Route::group(['middleware' => 'admin-prevent-back-history', SetLocale::class], function () {
 
+        Route::get('reservations', [ReservationController::class, 'index'])->name('reservations.index');
+        Route::post('reservations/{id}/update-status', [ReservationController::class, 'updatePaymentStatus'])->name('reservations.updateStatus');
+        Route::get('manual-reservation/create', [ReservationController::class, 'create'])->name('manual-reservation.create');
+        Route::post('manual-reservation/store', [ReservationController::class, 'store'])->name('manual-reservation.store');
+        // Routes for editing and updating reservations
+        Route::get('manual-reservation/{reservation}/edit', [ReservationController::class, 'edit'])->name('manual-reservation.edit');
+        Route::put('manual-reservation/{reservation}', [ReservationController::class, 'update'])->name('manual-reservation.update');
+        // Route to render the Blade view with the calendar
+        Route::get('reservations/calendar', [ReservationController::class, 'calendarView'])->name('reservations.calendar.view');
 
+        // Route to fetch the calendar events in JSON format
+        Route::get('reservations/calendar-events', [ReservationController::class, 'calendarEvents'])->name('reservations.calendar.events');
+
+        Route::get('dashboard/report-data', [Admin::class, 'getReportData'])->name('dashboard.report-data');
         // Testimonial routes
         Route::prefix('testimonials')->group(function () {
             Route::get('/', [TestimonialController::class, 'index'])->name('testimonials.index');

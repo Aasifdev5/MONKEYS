@@ -47,16 +47,8 @@
 
                         <!-- Número de carnet & Fecha de Nacimiento -->
                         <div class="row mb-3">
-                            <div class="col-md-6 mb-3">
-                                <label for="carnet" class="form-label text-secondary">Código</label>
-                                <input type="text" class="form-control @error('code') is-invalid @enderror"
-                                       name="code" id="carnet" placeholder="Tu Código"
-                                       value="{{ old('code', $userData->id_number) }}" aria-label="Número de carnet">
-                                @error('code')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
+
+                            <div class="col-md-12 mb-3">
                                 <label for="celular" class="form-label text-secondary">Número de WhatsApp</label>
                                 <input type="text" class="form-control @error('mobile_number') is-invalid @enderror" name="mobile_number" id="celular" placeholder="+591" value="{{ old('mobile_number', $userData->mobile_number) }}" aria-label="Celular">
                                 @error('mobile_number')

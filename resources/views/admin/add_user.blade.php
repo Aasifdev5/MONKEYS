@@ -21,7 +21,7 @@
                     @endif
 
                     <div class="row mb-3 pt-3 ps-3">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-12 mb-3">
                             <label for="nombre" class="form-label text-secondary">Nombre</label>
                             <input type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" id="nombre" placeholder="Nombre" value="{{ old('first_name') }}" aria-label="Nombre">
                             @error('first_name')
@@ -30,15 +30,7 @@
                                 </div>
                             @enderror
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="apellido" class="form-label text-secondary">Apellido</label>
-                            <input type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" id="apellido" placeholder="Apellido" value="{{ old('last_name') }}" aria-label="Apellido">
-                            @error('last_name')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
+
                     </div>
 
                     <div class="row mb-3 ps-3">
@@ -54,16 +46,8 @@
                     </div>
 
                     <div class="row mb-3 ps-3">
-                        <div class="col-md-6 mb-3">
-                            <label for="carnet" class="form-label text-secondary"> Código</label>
-                            <input type="text" class="form-control @error('code') is-invalid @enderror" name="code" id="carnet" placeholder="Tu Código" value="{{ old('code') }}">
-                            @error('code')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6 mb-3">
+
+                        <div class="col-md-12 mb-3">
                             <label for="celular" class="form-label text-secondary">Número de WhatsApp</label>
                             <input type="text" class="form-control @error('mobile_number') is-invalid @enderror" name="mobile_number" id="celular" placeholder="+591" value="{{ old('mobile_number') }}" aria-label="Celular">
                             @error('mobile_number')

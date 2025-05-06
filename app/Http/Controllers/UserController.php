@@ -70,8 +70,7 @@ class UserController extends Controller
     use SendNotification;
 
 
-
-    public function home()
+    public function home(Request $request)
     {
         $user_session = User::where('id', Session::get('LoggedIn'))->first();
 
@@ -82,8 +81,72 @@ class UserController extends Controller
             return $slider;
         });
 
-        // Fetch properties with relevant fields
+        // Default rooms fetch
         $rooms = Property::limit(25)->get();
+
+        // Handle search request
+        if ($request->has(['date', 'check_in_hour', 'check_out_hour'])) {
+            $date = $request->input('date');
+            $checkInHour = $request->input('check_in_hour');
+            $checkOutHour = $request->input('check_out_hour');
+
+            // Validate inputs
+            if ($checkInHour === $checkOutHour) {
+                if ($request->ajax()) {
+                    return response()->json(['error' => 'La hora de entrada y salida no pueden ser iguales'], 400);
+                }
+                return view('index', compact('user_session', 'sliders', 'rooms'))
+                    ->withErrors(['check_out_hour' => 'La hora de entrada y salida no pueden ser iguales']);
+            }
+
+            try {
+                // Parse date to MySQL format (Y-m-d)
+                $parsedDate = Carbon::createFromFormat('d M Y', $date)->format('Y-m-d');
+
+                // Parse times to H:i:s
+                $checkInTime = Carbon::createFromFormat('H:i', $checkInHour)->format('H:i:s');
+                $checkOutTime = Carbon::createFromFormat('H:i', $checkOutHour)->format('H:i:s');
+            } catch (\Exception $e) {
+                Log::error('Invalid input format: ' . $e->getMessage(), [
+                    'date' => $date,
+                    'check_in_hour' => $checkInHour,
+                    'check_out_hour' => $checkOutHour,
+                ]);
+                if ($request->ajax()) {
+                    return response()->json(['error' => 'Formato de fecha o hora inválido'], 400);
+                }
+                return view('index', compact('user_session', 'sliders', 'rooms'))
+                    ->withErrors(['date' => 'Formato de fecha o hora inválido']);
+            }
+
+            try {
+                // Query available rooms
+                $rooms = Property::whereNotIn('id', function ($query) use ($parsedDate, $checkInTime, $checkOutTime) {
+                    $query->select('room_id')
+                        ->from('reservations')
+                        ->where('date', $parsedDate)
+                        ->where(function ($q) use ($checkInTime, $checkOutTime) {
+                            // Overlap: reserved period intersects with requested period
+                            $q->whereRaw('? < check_out_time', [$checkInTime])
+                              ->whereRaw('? > check_in_time', [$checkOutTime]);
+                        });
+                })
+                ->limit(25)
+                ->get();
+            } catch (\Exception $e) {
+                Log::error('Database query error: ' . $e->getMessage());
+                if ($request->ajax()) {
+                    return response()->json(['error' => 'Error en la consulta de habitaciones'], 500);
+                }
+                return view('index', compact('user_session', 'sliders', 'rooms'))
+                    ->withErrors(['database' => 'Error al consultar habitaciones']);
+            }
+
+            // Return JSON for AJAX requests
+            if ($request->ajax()) {
+                return response()->json($rooms);
+            }
+        }
 
         return view('index', compact('user_session', 'sliders', 'rooms'));
     }

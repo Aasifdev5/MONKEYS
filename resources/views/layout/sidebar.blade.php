@@ -125,7 +125,18 @@
                             <span>Properties</span>
                         </a>
                     </li>
+                    <li class="sidebar-list {{ Request::is('reservations') ? 'active' : '' }}"><i class="fa fa-thumb-tack"></i>
+                        <a class="sidebar-link sidebar-title link-nav" href="{{ route('reservations.index') }}">
+                            <i data-feather="briefcase"></i><span>Reservations</span>
 
+                        </a>
+                    </li>
+                    <li class="sidebar-list {{ Request::is('reservations') ? 'active' : '' }}"><i class="fa fa-thumb-tack"></i>
+                        <a class="sidebar-link sidebar-title link-nav" href="{{ route('reservations.calendar.view') }}">
+                            <i data-feather="calendar"></i><span>Reserve Calendar</span>
+
+                        </a>
+                    </li>
                     <li class="sidebar-list {{ Request::is('blogs*') ? 'active' : '' }}"><i class="fa fa-thumb-tack"></i>
                         <a class="sidebar-link sidebar-title" href="javascript:void(0)">
                             <i class="icofont icofont-social-blogger text-light"></i>&nbsp;&nbsp;

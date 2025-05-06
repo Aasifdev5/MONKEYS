@@ -44,9 +44,7 @@
                   <a href="{{ url('reserve') }}" class="list-group-item list-group-item-action d-flex align-items-center">
                     <i class="fa-solid fa-bed me-2 text-success"></i> {{ __('Reservar habitación') }}
                   </a>
-                  <a href="{{ url('profile') }}" class="list-group-item list-group-item-action d-flex align-items-center">
-                    <i class="fa-solid fa-user me-2 text-info"></i> {{ __('Mi Perfil') }}
-                  </a>
+
                   <a href="{{ url('logout') }}" class="list-group-item list-group-item-action d-flex align-items-center">
                     <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i> {{ __('Cerrar sesión') }}
                   </a>

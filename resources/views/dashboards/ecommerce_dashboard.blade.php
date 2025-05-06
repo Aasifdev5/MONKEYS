@@ -34,7 +34,7 @@
                             <div class="card-header pb-0">
                                 <div class="d-flex justify-content-between">
                                     <div class="flex-grow-1">
-                                        <p class="square-after f-w-600 header-text-primary">Our Total Profit<i
+                                        <p class="square-after f-w-600 header-text-primary"> sdfs Our Total Profit<i
                                                 class="fa fa-circle"> </i></p>
                                         <h4>$8,55,462</h4>
                                     </div>
@@ -293,7 +293,7 @@
           &lt;img class="img-fluid" src="../assets/images/dashboard-2/dash-2/01.png" alt=""/&gt;
         &lt;/div&gt;
         &lt;div class="flex-grow-1"&gt;
-          &lt;span class="f-14 f-w-600"&gt; 
+          &lt;span class="f-14 f-w-600"&gt;
             &lt;a href="user-profile.html"&gt; Ossim keter&lt;/a&gt; &lt;/span&gt;
           &lt;p class="mb-0"&gt; 2022 &lt;/p&gt;
         &lt;/div&gt;

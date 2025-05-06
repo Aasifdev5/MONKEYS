@@ -10,7 +10,7 @@
 <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Circular,-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 
 <style>
@@ -857,39 +857,15 @@
             <i class="fas fa-camera"></i> Mostrar todas las fotos
         </button>
     </div>
-
+    @if (session('fail'))
+    <div class="alert alert-danger">
+        {{ session('fail') }}
+    </div>
+@endif
     <div class="property-content">
         <div class="property-main">
             <!-- Property Highlights -->
-            <div class="property-highlights">
-                <div class="highlight-item">
-                    <div class="highlight-icon">
-                        <i class="fas fa-swimming-pool"></i>
-                    </div>
-                    <div class="highlight-content">
-                        <h3>Sumérgete de inmediato</h3>
-                        <p>Este lugar cuenta con una piscina para tu disfrute.</p>
-                    </div>
-                </div>
-                <div class="highlight-item">
-                    <div class="highlight-icon">
-                        <i class="fas fa-door-open"></i>
-                    </div>
-                    <div class="highlight-content">
-                        <h3>Auto check-in</h3>
-                        <p>Puedes hacer el check-in con el personal del edificio.</p>
-                    </div>
-                </div>
-                <div class="highlight-item">
-                    <div class="highlight-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div class="highlight-content">
-                        <h3>Excelente ubicación</h3>
-                        <p>Disfruta de una ubicación privilegiada en la zona.</p>
-                    </div>
-                </div>
-            </div>
+
 
             <hr>
 
@@ -927,13 +903,45 @@
             <div class="amenities-section">
                 <h2 class="section-title">Qué ofrece este lugar</h2>
                 <div class="amenities-grid">
+                    @php
+                        $staticAmenities = [
+                            'entertainment' => ['label' => 'Entretenimiento de alta gama', 'icon' => 'fas fa-film'],
+                            'group_spaces' => ['label' => 'Espacios para compartir en grupo', 'icon' => 'fas fa-users'],
+                            'fully_equipped' => ['label' => 'Habitaciones totalmente equipadas', 'icon' => 'fas fa-star'],
+                            'bed' => ['label' => 'Cama', 'icon' => 'fas fa-bed'],
+                            'tv' => ['label' => 'Televisor', 'icon' => 'fas fa-tv'],
+                            'wifi' => ['label' => 'WiFi', 'icon' => 'fas fa-wifi'],
+                            'private_bathroom' => ['label' => 'Baño privado', 'icon' => 'fas fa-bath'],
+                            'fridge' => ['label' => 'Refrigerador', 'icon' => 'fas fa-door-closed'],
+                            'ac' => ['label' => 'Aire acondicionado', 'icon' => 'fas fa-snowflake'],
+                            'kitchen' => ['label' => 'Cocina', 'icon' => 'fas fa-utensils'],
+                            'microwave' => ['label' => 'Microondas', 'icon' => 'fas fa-wave-square'],
+                            'chairs' => ['label' => 'Sillas adicionales', 'icon' => 'fas fa-chair'],
+                            'tables' => ['label' => 'Mesas (central o comedor)', 'icon' => 'fas fa-table'],
+                            'hot_shower' => ['label' => 'Ducha caliente', 'icon' => 'fas fa-shower'],
+                            'pool' => ['label' => 'Mesa de billar', 'icon' => 'fas fa-circle'],
+                            'jacuzzi' => ['label' => 'Jacuzzi', 'icon' => 'fas fa-star'],
+                            'bar' => ['label' => 'Área de bar/bebidas', 'icon' => 'fas fa-glass-martini'],
+                            'remotes' => ['label' => 'Controles remotos para TV/PS', 'icon' => 'fas fa-gamepad'],
+                            'playstation' => ['label' => 'PlayStation', 'icon' => 'fas fa-gamepad'],
+                            'alexa' => ['label' => 'Servicio Alexa', 'icon' => 'fas fa-robot'],
+                            'living' => ['label' => 'Sala de estar', 'icon' => 'fas fa-couch'],
+                            'sound_room' => ['label' => 'Sala de sonido', 'icon' => 'fas fa-microphone-alt'],
+                            'heating' => ['label' => 'Calefacción', 'icon' => 'fas fa-temperature-high'],
+                            'hammocks' => ['label' => 'Hamacas', 'icon' => 'fas fa-umbrella-beach'],
+                            'wardrobe' => ['label' => 'Armario', 'icon' => 'fas fa-tshirt'],
+                            'sound_system' => ['label' => 'Sistema de sonido', 'icon' => 'fas fa-volume-up'],
+                        ];
+                    @endphp
                     @foreach(array_slice($property->amenities, 0, 10) as $amenity)
-                        <div class="amenity-item">
-                            <div class="amenity-icon">
-                                <img src="{{ $amenity['image'] ?? 'https://via.placeholder.com/24' }}" alt="{{ $amenity['title'] }}" style="width: 24px; height: 24px;">
+                        @if(isset($staticAmenities[$amenity]))
+                            <div class="amenity-item">
+                                <div class="amenity-icon">
+                                    <i class="{{ $staticAmenities[$amenity]['icon'] }}"></i>
+                                </div>
+                                <div>{{ $staticAmenities[$amenity]['label'] }}</div>
                             </div>
-                            <div>{{ $amenity['title'] }}</div>
-                        </div>
+                        @endif
                     @endforeach
                 </div>
                 <button class="show-all-amenities">
@@ -1011,32 +1019,9 @@
                     @else
                         <a href="{{ url('Userlogin')}}" class="btn btn-sm booking-button">Reservar</a>
                     @endif
-                    <div class="booking-note">Aún no se te cobrará</div>
+
                 </div>
 
-                <div class="price-breakdown">
-                    <div class="price-row">
-                        <span>Bs{{ number_format($property->price, 2) }} x 1 hora</span>
-                        <span>Bs{{ number_format($property->price, 2) }}</span>
-                    </div>
-                    <div class="price-row">
-                        <span>Tarifa de limpieza <span class="price-detail">¿Qué es esto?</span></span>
-                        <span>Bs1,500</span>
-                    </div>
-                    <div class="price-row">
-                        <span>Tarifa de servicio <span class="price-detail">¿Qué es esto?</span></span>
-                        <span>Bs2,368</span>
-                    </div>
-                    <div class="price-total price-row">
-                        <span>Total antes de impuestos</span>
-                        <span>Bs{{ number_format($property->price + 1500 + 2368, 2) }}</span>
-                    </div>
-                </div>
-
-                <div class="booking-section">
-                    <a href="#" class="extend-trip">Extiende tu viaje y ahorra <span>Añade 7 horas</span></a>
-                    <a href="#" class="report-listing">Reportar este anuncio</a>
-                </div>
             </div>
         </div>
     </div>

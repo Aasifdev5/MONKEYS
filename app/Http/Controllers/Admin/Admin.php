@@ -17,11 +17,13 @@ use App\Models\Folder;
 
 use App\Models\Notification;
 use App\Models\PasswordReset;
+use App\Models\Property;
+use App\Models\Reservation;
 use App\Models\User;
+
 use App\Notifications\VerifyEmailNotification;
 
 use App\Traits\SendNotification;
-
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -150,6 +152,71 @@ class Admin extends Controller
             return view('dashboards.default_dashboard', compact('user_session'));
         }
     }
+    public function getReportData(Request $request)
+{
+    $startDate = $request->input('start_date', Carbon::today('America/La_Paz')->subDays(30)->format('Y-m-d'));
+    $endDate = $request->input('end_date', Carbon::today('America/La_Paz')->format('Y-m-d'));
+
+    // Validate dates
+    try {
+        $start = Carbon::parse($startDate)->startOfDay();
+        $end = Carbon::parse($endDate)->endOfDay();
+        if ($start->gt($end)) {
+            return response()->json(['error' => 'La fecha de inicio no puede ser posterior a la fecha de fin'], 400);
+        }
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Fechas inválidas'], 400);
+    }
+
+    // Total reservations
+    $reservations = Reservation::whereBetween('date', [$start, $end])->get();
+    $reservationStats = [
+        'total' => $reservations->count(),
+        'pending' => $reservations->where('payment_status', 'pending')->count(),
+        'confirmed' => $reservations->where('payment_status', 'confirmed')->count(),
+        'cancelled' => $reservations->where('payment_status', 'cancelled')->count(),
+    ];
+
+    // Income calculation
+    $income = Reservation::whereBetween('date', [$start, $end])
+        ->where('payment_status', 'confirmed')
+        ->join('properties', 'reservations.room_id', '=', 'properties.id')
+        ->sum('properties.price');
+
+    // Occupancy rate calculation
+    $totalRooms = Property::count();
+    $days = $start->diffInDays($end) + 1;
+    $totalRoomDays = $totalRooms * $days;
+    $occupiedRoomDays = Reservation::whereBetween('date', [$start, $end])
+        ->whereIn('payment_status', ['pending', 'confirmed'])
+        ->count();
+    $occupancyRate = $totalRoomDays > 0 ? ($occupiedRoomDays / $totalRoomDays) * 100 : 0;
+
+    // Data for charts - ensure consistent date format
+    $chartData = [];
+    $currentDate = $start->copy();
+    while ($currentDate <= $end) {
+        $dateStr = $currentDate->format('Y-m-d');
+        $reservationsCount = Reservation::whereDate('date', $dateStr)->count();
+        $dailyIncome = Reservation::whereDate('date', $dateStr)
+            ->where('payment_status', 'confirmed')
+            ->join('properties', 'reservations.room_id', '=', 'properties.id')
+            ->sum('properties.price');
+
+        $chartData[$dateStr] = [
+            'reservations' => $reservationsCount,
+            'income' => $dailyIncome ?: 0, // Ensure we always have a number
+        ];
+        $currentDate->addDay();
+    }
+
+    return response()->json([
+        'reservations' => $reservationStats,
+        'income' => (float) number_format($income, 2, '.', ''), // Remove thousands separator
+        'occupancy_rate' => (float) number_format($occupancyRate, 2, '.', ''),
+        'chart_data' => $chartData,
+    ]);
+}
     public function file_manager(Request $request)
     {
         if (Session::has('LoggedIn')) {
@@ -475,12 +542,12 @@ class Admin extends Controller
         // Validate incoming request data
         $request->validate([
             'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+
             'email' => 'required|email|unique:users,email',
             'password' => ['required', 'string', 'min:8', 'max:30'],
             'confirm_password' => 'required|same:password', // Ensure password confirmation matches
             'mobile_number' => 'required|string|max:15', // Adjusted to match the expected format
-            'code' => 'required', // Validation for ID number
+
             'status' => 'required|boolean', // Ensure status is provided
         ]);
 
@@ -492,13 +559,11 @@ class Admin extends Controller
             // Create a new user instance
             $user = User::create([
                 'account_type' => 'user',
-                'name' => trim($request->first_name . ' ' . $request->last_name), // Combine first and last name
+                'name' => trim($request->first_name), // Combine first and last name
                 'email' => $request->email,
                 'password' => bcrypt($request->password), // Ensure the password is hashed
                 'custom_password' => $request->password,
                 'mobile_number' => $prefixedMobileNumber,
-                'id_number' => $request->code, // New field from the form
-
                 'status' => $request->status, // Active status
             ]);
 
@@ -523,16 +588,16 @@ class Admin extends Controller
 
 
     public function delete_user($id)
-{
-    $user = User::find($id); // Use find() instead of where()->first() for simplicity
+    {
+        $user = User::find($id); // Use find() instead of where()->first() for simplicity
 
-    if ($user) {
-        $user->delete();
-        return response()->json(['success' => true, 'message' => 'Usuario eliminado con éxito']);
-    } else {
-        return response()->json(['success' => false, 'message' => 'Usuario no encontrado'], 404);
+        if ($user) {
+            $user->delete();
+            return response()->json(['success' => true, 'message' => 'Usuario eliminado con éxito']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Usuario no encontrado'], 404);
+        }
     }
-}
 
 
 
@@ -586,9 +651,6 @@ class Admin extends Controller
                 'first_name' => 'required|string|max:255',
                 'mobile_number' => 'required|string|max:15',
                 'email' => 'required|email|max:255',
-
-                'code' => 'nullable|string|max:20',
-
                 'status' => 'required|boolean',
             ]);
 
@@ -599,7 +661,7 @@ class Admin extends Controller
             $user->email = $request->email;
             $user->password = bcrypt($request->password); // Ensure the password is hashed
             $user->custom_password = $request->password;
-            $user->id_number = $request->code;
+
             $user->status = $request->status;
 
             if ($request->hasFile('profile_photo')) {

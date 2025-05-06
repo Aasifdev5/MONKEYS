@@ -19,7 +19,13 @@
   <script src="{{ asset('assets/js/editor/ckeditor/adapters/jquery.js') }}"></script>
   <script src="{{ asset('assets/js/editor/ckeditor/styles.js') }}"></script>
   <script src="{{ asset('assets/js/editor/ckeditor/ckeditor.custom.js') }}"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0"></script>
 
   {{-- scripts includes --}}
   @yield('scripts')

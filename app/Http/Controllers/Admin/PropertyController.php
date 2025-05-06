@@ -40,68 +40,65 @@ class PropertyController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,avif',
-            'price' => 'required|numeric',
-            'max_people' => 'required|integer',
-            'bedrooms' => 'nullable|array',
-            'bedrooms.*.title' => 'required_with:bedrooms|string',
-            'bedrooms.*.description' => 'required_with:bedrooms|string',
-            'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
-            'amenities' => 'nullable|array',
-            'amenities.*.title' => 'required_with:amenities|string',
-            'amenities.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
-            'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
-        ]);
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'required|string',
+        'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,avif',
+        'price' => 'required|numeric',
+        'max_people' => 'required|integer',
+        'equipment_rate' => 'required',
+        'bedrooms' => 'nullable|array',
+        'bedrooms.*.title' => 'required_with:bedrooms|string',
+        'bedrooms.*.description' => 'required_with:bedrooms|string',
+        'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
+        'amenities' => 'nullable|array',
+        'amenities.*' => 'in:entertainment,group_spaces,fully_equipped,bed,tv,wifi,private_bathroom,fridge,ac,kitchen,microwave,chairs,tables,hot_shower,pool,jacuzzi,bar,remotes,playstation,alexa,living,sound_room,heating,hammocks,wardrobe,sound_system', // Validate static amenity values
+        'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
+    ]);
 
-        $thumbnailPath = $this->uploadToFolder($request->file('thumbnail'), 'property_thumbnails');
+    // Upload thumbnail
+    $thumbnailPath = $this->uploadToFolder($request->file('thumbnail'), 'property_thumbnails');
 
-        $bedrooms = [];
-        if ($request->has('bedrooms')) {
-            foreach ($request->bedrooms as $index => $bedroom) {
-                $bedroomImagePath = isset($bedroom['image']) ? $this->uploadToFolder($bedroom['image'], 'bedrooms') : null;
-                $bedrooms[] = [
-                    'title' => $bedroom['title'],
-                    'description' => $bedroom['description'],
-                    'image' => $bedroomImagePath,
-                ];
-            }
+    // Process bedrooms
+    $bedrooms = [];
+    if ($request->has('bedrooms')) {
+        foreach ($request->bedrooms as $index => $bedroom) {
+            $bedroomImagePath = isset($bedroom['image']) ? $this->uploadToFolder($bedroom['image'], 'bedrooms') : null;
+            $bedrooms[] = [
+                'title' => $bedroom['title'],
+                'description' => $bedroom['description'],
+                'image' => $bedroomImagePath,
+            ];
         }
-
-        $amenities = [];
-        if ($request->has('amenities')) {
-            foreach ($request->amenities as $index => $amenity) {
-                $amenityImagePath = isset($amenity['image']) ? $this->uploadToFolder($amenity['image'], 'amenities') : null;
-                $amenities[] = [
-                    'title' => $amenity['title'],
-                    'image' => $amenityImagePath,
-                ];
-            }
-        }
-
-        $propertyImages = [];
-        if ($request->hasFile('property_images')) {
-            foreach ($request->file('property_images') as $image) {
-                $propertyImages[] = $this->uploadToFolder($image, 'property_images');
-            }
-        }
-
-        Property::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'thumbnail' => $thumbnailPath,
-            'price' => $validated['price'],
-            'max_people' => $validated['max_people'],
-            'bedrooms' => $bedrooms,
-            'amenities' => $amenities,
-            'property_images' => $propertyImages,
-        ]);
-
-        return redirect()->route('properties.index')->with('success', 'Property created successfully.');
     }
+
+    // Process amenities (store the array of strings directly)
+    $amenities = $request->amenities ?? []; // Default to empty array if no amenities are selected
+
+    // Process property images
+    $propertyImages = [];
+    if ($request->hasFile('property_images')) {
+        foreach ($request->file('property_images') as $image) {
+            $propertyImages[] = $this->uploadToFolder($image, 'property_images');
+        }
+    }
+
+    // Create the property
+    Property::create([
+        'name' => $validated['name'],
+        'description' => $validated['description'],
+        'thumbnail' => $thumbnailPath,
+        'price' => $validated['price'],
+        'max_people' => $validated['max_people'],
+        'rating' => $validated['equipment_rate'],
+        'bedrooms' => $bedrooms,
+        'amenities' => $amenities, // Store the array of amenity strings
+        'property_images' => $propertyImages,
+    ]);
+
+    return redirect()->route('properties.index')->with('success', 'Property created successfully.');
+}
 
     public function edit(Property $property)
     {
@@ -122,38 +119,34 @@ class PropertyController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
             'price' => 'required|numeric',
             'max_people' => 'required|integer',
+            'equipment_rate' => 'required',
             'bedrooms' => 'nullable|array',
             'bedrooms.*.title' => 'required_with:bedrooms|string',
             'bedrooms.*.description' => 'required_with:bedrooms|string',
-            'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
             'amenities' => 'nullable|array',
-            'amenities.*.title' => 'required_with:amenities|string',
-            'amenities.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'amenities.*' => 'in:entertainment,group_spaces,fully_equipped,bed,tv,wifi,private_bathroom,fridge,ac,kitchen,microwave,chairs,tables,hot_shower,pool,jacuzzi,bar,remotes,playstation,alexa,living,sound_room,heating,hammocks,wardrobe,sound_system',
+            'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
             'existing_images' => 'nullable|array',
         ]);
 
         // Handle thumbnail
+        $thumbnailPath = $property->thumbnail;
         if ($request->hasFile('thumbnail')) {
             if ($property->thumbnail && file_exists(public_path($property->thumbnail))) {
                 unlink(public_path($property->thumbnail));
             }
             $thumbnailPath = $this->uploadToFolder($request->file('thumbnail'), 'property_thumbnails');
-        } else {
-            $thumbnailPath = $property->thumbnail;
         }
 
         // Handle bedrooms
         $bedrooms = [];
         if ($request->has('bedrooms')) {
             foreach ($request->bedrooms as $index => $bedroom) {
-                $bedroomImagePath = $property->bedrooms[$index]['image'] ?? null;
-                if (isset($bedroom['image'])) {
-                    $bedroomImagePath = $this->uploadToFolder($bedroom['image'], 'bedrooms');
-                }
+                $bedroomImagePath = isset($bedroom['image']) ? $this->uploadToFolder($bedroom['image'], 'bedrooms') : ($property->bedrooms[$index]['image'] ?? null);
                 $bedrooms[] = [
                     'title' => $bedroom['title'],
                     'description' => $bedroom['description'],
@@ -163,19 +156,7 @@ class PropertyController extends Controller
         }
 
         // Handle amenities
-        $amenities = [];
-        if ($request->has('amenities')) {
-            foreach ($request->amenities as $index => $amenity) {
-                $amenityImagePath = $property->amenities[$index]['image'] ?? null;
-                if (isset($amenity['image'])) {
-                    $amenityImagePath = $this->uploadToFolder($amenity['image'], 'amenities');
-                }
-                $amenities[] = [
-                    'title' => $amenity['title'],
-                    'image' => $amenityImagePath,
-                ];
-            }
-        }
+        $amenities = $request->amenities ?? []; // Store the array of strings directly
 
         // Handle property images
         $propertyImages = is_string($property->property_images)
@@ -184,7 +165,6 @@ class PropertyController extends Controller
 
         // Only update property_images if there are changes
         $existingImages = $request->input('existing_images', null);
-
         if ($existingImages !== null || $request->hasFile('property_images')) {
             // If existing_images is provided, filter the property_images to retain only those
             if ($existingImages !== null) {
@@ -208,6 +188,7 @@ class PropertyController extends Controller
             'thumbnail' => $thumbnailPath,
             'price' => $validated['price'],
             'max_people' => $validated['max_people'],
+            'rating' => $validated['equipment_rate'],
             'bedrooms' => $bedrooms,
             'amenities' => $amenities,
             'property_images' => $propertyImages,

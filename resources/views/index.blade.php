@@ -239,6 +239,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 <script>
 $(document).ready(function () {
+    // Set up CSRF token for all AJAX requests
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
     // Single date picker
     flatpickr("#date", {
         minDate: "today",
@@ -314,13 +321,11 @@ $(document).ready(function () {
         placeholder: "⏰ Hora de salida"
     });
 
-    // Dynamic rooms from Laravel
-    const rooms = @json($rooms);
-
+    // Populate rooms function
     function populateRooms(rooms) {
         let html = '';
-        if (rooms.length === 0) {
-            html = '<div class="text-center text-muted py-5">No hay habitaciones disponibles para los criterios seleccionados.</div>';
+        if (!rooms || rooms.length === 0) {
+            html = '<div class="text-center text-muted py-5">No hay habitaciones disponibles para los criterios seleccionados. Es posible que las habitaciones estén reservadas para el horario solicitado.</div>';
         } else {
             rooms.forEach(room => {
                 html += `
@@ -343,22 +348,47 @@ $(document).ready(function () {
         $('#roomResults').html(html);
     }
 
+    // Initial rooms from Laravel
+    const rooms = @json($rooms);
     populateRooms(rooms);
 
+    // Search button click
     $('#searchBtn').on('click', function () {
         const date = $('#date').val();
         const checkInHour = $('#check_in_hour').val();
         const checkOutHour = $('#check_out_hour').val();
         const people = parseInt($('#people').val()) || 0;
 
-        const filteredRooms = rooms.filter(room => {
-            const matchesPeople = !people || room.max_people >= people;
-            return matchesPeople;
-        });
+        if (!date || !checkInHour || !checkOutHour || !people) {
+            $('#roomResults').html('<div class="text-center text-muted py-5">Por favor, completa todos los campos.</div>');
+            return;
+        }
 
-        populateRooms(filteredRooms);
+        // Send AJAX request
+        $.ajax({
+            url: '/',
+            method: 'POST',
+            data: {
+                date: date,
+                check_in_hour: checkInHour,
+                check_out_hour: checkOutHour,
+                people: people
+            },
+            success: function (response) {
+                populateRooms(response);
+            },
+            error: function (xhr) {
+                console.error('AJAX Error:', xhr.responseText, xhr.status, xhr.statusText);
+                let errorMsg = 'Error al buscar habitaciones. Inténtalo de nuevo.';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMsg = xhr.responseJSON.error;
+                }
+                $('#roomResults').html(`<div class="text-center text-muted py-5">${errorMsg}</div>`);
+            }
+        });
     });
 
+    // Favorite toggle
     $(document).on('click', '.heart-icon', function (e) {
         e.preventDefault();
         const roomId = $(this).data('room-id');
@@ -367,16 +397,13 @@ $(document).ready(function () {
 
         // Update UI
         $icon.toggleClass('active');
-        const room = rooms.find(r => r.id == roomId);
-        if (room) room.favorite = isActive;
 
-        // Send AJAX request to update the database
+        // Send AJAX request to update favorite
         $.ajax({
             url: '/rooms/' + roomId + '/favorite',
             method: 'POST',
             data: {
-                favorite: isActive,
-                _token: '{{ csrf_token() }}'
+                favorite: isActive
             },
             success: function (response) {
                 console.log('Favorite updated:', response);
@@ -385,7 +412,6 @@ $(document).ready(function () {
                 console.error('Error updating favorite:', xhr);
                 // Revert UI change on error
                 $icon.toggleClass('active');
-                if (room) room.favorite = !isActive;
             }
         });
     });
