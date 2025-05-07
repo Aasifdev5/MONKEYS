@@ -95,8 +95,8 @@
 
 
                     @if(!empty($user_session))
-                    <li class="nav-item"><a class="nav-link" href="{{ url('dashboard') }}"><i class="fa-solid fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('reserve') }}"><i class="fa-solid fa-bed me-2"></i>Reservar habitación</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url('dashboard') }}"><i class="fa-solid fa-tachometer-alt me-2"></i>Panel</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url('reserve') }}"><i class="fa-solid fa-bed me-2"></i>Historial</a></li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
@@ -129,7 +129,7 @@
     {{-- Optional Footer --}}
     <footer class="text-center py-4 mt-5 text-muted small">
         <div class="container">
-            © {{ date('Y') }} MonoResidente. Todos los derechos reservados.
+            © {{ date('Y') }} RESIDENT MONKEY. Todos los derechos reservados.
         </div>
     </footer>
 

@@ -901,53 +901,71 @@
 
             <!-- Amenities -->
             <div class="amenities-section">
-                <h2 class="section-title">Qué ofrece este lugar</h2>
-                <div class="amenities-grid">
-                    @php
-                        $staticAmenities = [
-                            'entertainment' => ['label' => 'Entretenimiento de alta gama', 'icon' => 'fas fa-film'],
-                            'group_spaces' => ['label' => 'Espacios para compartir en grupo', 'icon' => 'fas fa-users'],
-                            'fully_equipped' => ['label' => 'Habitaciones totalmente equipadas', 'icon' => 'fas fa-star'],
-                            'bed' => ['label' => 'Cama', 'icon' => 'fas fa-bed'],
-                            'tv' => ['label' => 'Televisor', 'icon' => 'fas fa-tv'],
-                            'wifi' => ['label' => 'WiFi', 'icon' => 'fas fa-wifi'],
-                            'private_bathroom' => ['label' => 'Baño privado', 'icon' => 'fas fa-bath'],
-                            'fridge' => ['label' => 'Refrigerador', 'icon' => 'fas fa-door-closed'],
-                            'ac' => ['label' => 'Aire acondicionado', 'icon' => 'fas fa-snowflake'],
-                            'kitchen' => ['label' => 'Cocina', 'icon' => 'fas fa-utensils'],
-                            'microwave' => ['label' => 'Microondas', 'icon' => 'fas fa-wave-square'],
-                            'chairs' => ['label' => 'Sillas adicionales', 'icon' => 'fas fa-chair'],
-                            'tables' => ['label' => 'Mesas (central o comedor)', 'icon' => 'fas fa-table'],
-                            'hot_shower' => ['label' => 'Ducha caliente', 'icon' => 'fas fa-shower'],
-                            'pool' => ['label' => 'Mesa de billar', 'icon' => 'fas fa-circle'],
-                            'jacuzzi' => ['label' => 'Jacuzzi', 'icon' => 'fas fa-star'],
-                            'bar' => ['label' => 'Área de bar/bebidas', 'icon' => 'fas fa-glass-martini'],
-                            'remotes' => ['label' => 'Controles remotos para TV/PS', 'icon' => 'fas fa-gamepad'],
-                            'playstation' => ['label' => 'PlayStation', 'icon' => 'fas fa-gamepad'],
-                            'alexa' => ['label' => 'Servicio Alexa', 'icon' => 'fas fa-robot'],
-                            'living' => ['label' => 'Sala de estar', 'icon' => 'fas fa-couch'],
-                            'sound_room' => ['label' => 'Sala de sonido', 'icon' => 'fas fa-microphone-alt'],
-                            'heating' => ['label' => 'Calefacción', 'icon' => 'fas fa-temperature-high'],
-                            'hammocks' => ['label' => 'Hamacas', 'icon' => 'fas fa-umbrella-beach'],
-                            'wardrobe' => ['label' => 'Armario', 'icon' => 'fas fa-tshirt'],
-                            'sound_system' => ['label' => 'Sistema de sonido', 'icon' => 'fas fa-volume-up'],
-                        ];
-                    @endphp
-                    @foreach(array_slice($property->amenities, 0, 10) as $amenity)
-                        @if(isset($staticAmenities[$amenity]))
-                            <div class="amenity-item">
-                                <div class="amenity-icon">
-                                    <i class="{{ $staticAmenities[$amenity]['icon'] }}"></i>
-                                </div>
-                                <div>{{ $staticAmenities[$amenity]['label'] }}</div>
-                            </div>
-                        @endif
-                    @endforeach
+    <h2 class="section-title">Qué ofrece este lugar</h2>
+    <div class="amenities-grid">
+        @php
+            $staticAmenities = [
+                'entertainment' => ['label' => 'Entretenimiento de alta gama', 'icon' => 'fas fa-film'],
+                'group_spaces' => ['label' => 'Espacios para compartir en grupo', 'icon' => 'fas fa-users'],
+                'fully_equipped' => ['label' => 'Habitaciones totalmente equipadas', 'icon' => 'fas fa-star'],
+                'bed' => ['label' => 'Cama', 'icon' => 'fas fa-bed'],
+                'tv' => ['label' => 'Televisor', 'icon' => 'fas fa-tv'],
+                'wifi' => ['label' => 'WiFi', 'icon' => 'fas fa-wifi'],
+                'private_bathroom' => ['label' => 'Baño privado', 'icon' => 'fas fa-bath'],
+                'fridge' => ['label' => 'Refrigerador', 'icon' => 'fas fa-door-closed'],
+                'ac' => ['label' => 'Aire acondicionado', 'icon' => 'fas fa-snowflake'],
+                'kitchen' => ['label' => 'Cocina', 'icon' => 'fas fa-utensils'],
+                'microwave' => ['label' => 'Microondas', 'icon' => 'fas fa-wave-square'],
+                'chairs' => ['label' => 'Sillas adicionales', 'icon' => 'fas fa-chair'],
+                'tables' => ['label' => 'Mesas (central o comedor)', 'icon' => 'fas fa-table'],
+                'hot_shower' => ['label' => 'Ducha caliente', 'icon' => 'fas fa-shower'],
+                'pool' => ['label' => 'Mesa de billar', 'icon' => 'fas fa-circle'],
+                'jacuzzi' => ['label' => 'Jacuzzi', 'icon' => 'fas fa-star'],
+                'bar' => ['label' => 'Área de bar/bebidas', 'icon' => 'fas fa-glass-martini'],
+                'remotes' => ['label' => 'Controles remotos para TV/PS', 'icon' => 'fas fa-gamepad'],
+                'playstation' => ['label' => 'PlayStation', 'icon' => 'fas fa-gamepad'],
+                'alexa' => ['label' => 'Servicio Alexa', 'icon' => 'fas fa-robot'],
+                'living' => ['label' => 'Sala de estar', 'icon' => 'fas fa-couch'],
+                'sound_room' => ['label' => 'Sala de sonido', 'icon' => 'fas fa-microphone-alt'],
+                'heating' => ['label' => 'Calefacción', 'icon' => 'fas fa-temperature-high'],
+                'hammocks' => ['label' => 'Hamacas', 'icon' => 'fas fa-umbrella-beach'],
+                'wardrobe' => ['label' => 'Armario', 'icon' => 'fas fa-tshirt'],
+                'sound_system' => ['label' => 'Sistema de sonido', 'icon' => 'fas fa-volume-up'],
+            ];
+        @endphp
+        @foreach($property->amenities as $index => $amenity)
+            @if(isset($staticAmenities[$amenity]))
+                <div class="amenity-item {{ $index >= 10 ? 'hidden-amenity' : '' }}">
+                    <div class="amenity-icon">
+                        <i class="{{ $staticAmenities[$amenity]['icon'] }}"></i>
+                    </div>
+                    <div>{{ $staticAmenities[$amenity]['label'] }}</div>
                 </div>
-                <button class="show-all-amenities">
-                    <i class="fas fa-plus"></i> Mostrar todas las {{ count($property->amenities) }} comodidades
-                </button>
-            </div>
+            @endif
+        @endforeach
+    </div>
+
+    @if(count($property->amenities) > 10)
+        <button class="show-all-amenities" onclick="showAllAmenities()">
+            <i class="fas fa-plus"></i> Mostrar todas las {{ count($property->amenities) }} comodidades
+        </button>
+    @endif
+</div>
+<style>
+.hidden-amenity {
+    display: none;
+}
+</style>
+
+<script>
+function showAllAmenities() {
+    document.querySelectorAll('.hidden-amenity').forEach(item => {
+        item.classList.remove('hidden-amenity');
+    });
+    document.querySelector('.show-all-amenities').style.display = 'none';
+}
+</script>
+
 
             <hr>
 
@@ -1007,10 +1025,11 @@
                 </div>
 
                 <div class="booking-guests">
-                    <div class="guest-input">
-                        <label><span class="emoji">👥</span> Número de personas</label>
-                        <input type="number" id="guest-count" name="people" min="1" max="{{ $property->max_people }}" value="1" placeholder="1">
-                    </div>
+                   <div class="guest-input">
+    <label><span class="emoji">👥</span> Número de personas</label>
+    <input type="number" id="guest-count" name="people" min="1" max="{{ $property->max_people }}" value="1" placeholder="1">
+</div>
+
                 </div>
 
                 <div class="booking-section">
@@ -1036,6 +1055,25 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.getElementById('guest-count').addEventListener('input', function () {
+    const max = parseInt(this.max);
+    const min = parseInt(this.min);
+    const value = parseInt(this.value);
+
+    if (value > max) {
+        this.value = max;
+        Swal.fire({
+            icon: 'warning',
+            title: 'Límite excedido',
+            text: 'Solo puedes ingresar hasta ' + max + ' personas.',
+        });
+    } else if (value < min) {
+        this.value = min;
+    }
+});
+</script>
 
 <script>
 $(document).ready(function () {

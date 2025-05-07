@@ -42,7 +42,7 @@ $adminNotifications = userNotifications();
             </div>
 
             <div class="mb-3 text-end">
-                <a href="{{ url('signup') }}" class="text-decoration-none" style="font-size: 14px;">registrarse?</a>
+                <a href="{{ url('signup') }}" class="text-decoration-none" style="font-size: 14px;">Registrarse?</a>
             </div>
 
             <button type="submit" class="btn w-100 mb-3" style="background-color: #ff385c; border-color: #ff385c; color: #fff; border-radius: 8px;">Iniciar Sesión</button>

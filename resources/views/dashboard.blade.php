@@ -39,10 +39,10 @@
               <div class="card-body p-0">
                 <div class="list-group list-group-flush">
                   <a href="{{ url('dashboard') }}" class="list-group-item list-group-item-action d-flex align-items-center active">
-                    <i class="fa-solid fa-tachometer-alt me-2 text-primary"></i> {{ __('Dashboard') }}
+                    <i class="fa-solid fa-tachometer-alt me-2 text-primary"></i> {{ __('Panel') }}
                   </a>
                   <a href="{{ url('reserve') }}" class="list-group-item list-group-item-action d-flex align-items-center">
-                    <i class="fa-solid fa-bed me-2 text-success"></i> {{ __('Reservar habitación') }}
+                    <i class="fa-solid fa-bed me-2 text-success"></i> {{ __('Historial') }}
                   </a>
 
                   <a href="{{ url('logout') }}" class="list-group-item list-group-item-action d-flex align-items-center">

@@ -1,12 +1,12 @@
 @extends('master')
 
 @section('title')
-    {{ __('Lista de Reservas') }}
+    {{ __('Historial de Reservas') }}
 @endsection
 
 @section('content')
 <div class="container py-5">
-    <h3 class="mb-4">Lista de Reservas</h3>
+    <h3 class="mb-4">Historial de Reservas</h3>
 
     <div class="table-responsive">
         <table id="reservationsTable" class="table table-striped table-bordered table-hover">
@@ -40,8 +40,8 @@
                                 <i class="fas fa-file-upload"></i> Ver Prueba
                             </a>
                         </td>
-                        <td class="text-center">
-                            <span class="badge badge-{{ $reservation->payment_status === 'pending' ? 'warning' : 'success' }}">
+                        <td class="text-center text-dark">
+                            <span class="badge badge-{{ $reservation->payment_status === 'pending' ? 'warning' : 'success' }}" style="color: #000;">
                                 {{ ucfirst($reservation->payment_status) }}
                             </span>
                         </td>

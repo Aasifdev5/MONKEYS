@@ -264,7 +264,7 @@
                     <div class="booking-guests">
                         <div class="guest-input">
                             <label><span class="emoji">👥</span> Número de personas</label>
-                            <input type="number" id="guest-count" name="guests" min="1" max="{{ $room->max_people ?? 10 }}" value="{{ $people ?? 1 }}" readonly>
+                            <input type="number" id="guest-count" name="guests" min="1" max="{{ $room->max_people ?? 8 }}" value="{{ $people ?? 1 }}" readonly>
                         </div>
                     </div>
                 </div>
@@ -272,9 +272,18 @@
                 <!-- QR & Upload -->
                 <div class="card p-4 shadow-sm mb-4">
                     <h5 class="fw-bold mb-3">Escanear QR para pagar</h5>
-                    <div class="text-center mb-3">
-                        <img src="{{ asset('images/qr-code.png') }}" class="img-fluid" style="max-width: 300px;">
-                    </div>
+                    <div class="text-center mb-4">
+    @if (!empty($qrcode))
+        <div class="d-inline-block p-3 border rounded shadow-sm bg-white">
+            <img src="{{ asset('qrcode/' . $qrcode->qrcode_path) }}" alt="Código QR" class="img-fluid mb-3" style="max-width: 150px; height: auto;">
+            <a href="{{ asset('qrcode/' . $qrcode->qrcode_path) }}" download="qr_code.png" class="btn btn-primary w-100">
+                <i class="fa fa-download me-2"></i> {{ __('Descargar Código QR') }}
+            </a>
+        </div>
+    @endif
+</div>
+
+
                     <div class="mb-3">
                         <label for="proof" class="form-label">Subir comprobante de pago</label>
                         <input type="file" name="proof" class="form-control">
@@ -315,28 +324,29 @@
                         <p>Bs{{ number_format($room_price ?? $room->price ?? 6276, 2) }} x 1 hora</p>
                         <p>Bs{{ number_format($room_price ?? $room->price ?? 6276, 2) }}</p>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <p>Tarifa de limpieza</p>
-                        <p>Bs1500</p>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <p>Tarifa de servicio</p>
-                        <p>Bs2368</p>
-                    </div>
+
                     <hr>
                     <div class="d-flex justify-content-between">
                         <h6>Total (Bs)</h6>
-                        <h6>Bs{{ number_format(($room_price ?? $room->price ?? 6276) + 1500 + 2368, 2) }}</h6>
+                        <h6>Bs{{ number_format(($room_price ?? $room->price ?? 6276) , 2) }}</h6>
                     </div>
                     <p class="text-muted text-center mt-2">Desglose de precios</p>
 
                     <!-- Submit -->
-                    <p class="text-muted mt-4">El anfitrión deberá aceptar esta solicitud. Pagarás ahora, pero recibirás un reembolso completo si no se confirma en 24 horas.</p>
+                  <div class="d-flex align-items-center rounded-pill shadow-sm py-2 px-4 mt-4 mb-3" role="alert" style="background-color: #E63946; color: white; font-size: 0.95rem;">
+    <i class="fas fa-exclamation-triangle fa-shake me-2"></i>
+    <span class="fw-semibold">Debes subir el comprobante de pago primero.</span>
+</div>
+
+
+
+
+
                     <button type="submit" class="btn btn-primary w-100 mb-2">
                         Solicitar reserva
                     </button>
                     <p class="text-muted text-center">
-                        Al seleccionar el botón, acepto las reglas de la casa del anfitrión, la política de reembolsos de 🐵 MONOS Booking y los términos de responsabilidad por daños.
+                        Al seleccionar el botón, acepto las reglas de la casa del anfitrión, la política de reembolsos de RESIDENT MONKEY y los términos de responsabilidad por daños.
                     </p>
                 </div>
             </div>

@@ -125,6 +125,12 @@
                             <span>Properties</span>
                         </a>
                     </li>
+                    <li class="sidebar-list {{ Request::is('qrcode') ? 'active' : '' }}"><i class="fa fa-thumb-tack"></i>
+                        <a class="sidebar-link sidebar-title link-nav" href="{{ url('admin/qrcode') }}">
+                            <i class="fa fa-qrcode text-light"></i>&nbsp;&nbsp;&nbsp;<span>CÓDIGO QR</span>
+
+                        </a>
+                    </li>
                     <li class="sidebar-list {{ Request::is('reservations') ? 'active' : '' }}"><i class="fa fa-thumb-tack"></i>
                         <a class="sidebar-link sidebar-title link-nav" href="{{ route('reservations.index') }}">
                             <i data-feather="briefcase"></i><span>Reservations</span>

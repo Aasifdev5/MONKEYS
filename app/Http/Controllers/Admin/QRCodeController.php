@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Response;
@@ -23,7 +24,7 @@ class QRCodeController extends Controller
 
    public function generateQrCode(Request $request)
 {
-   
+
         // Validate the form data
         $request->validate([
             'qrcode' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',

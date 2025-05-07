@@ -22,7 +22,7 @@ class ReservationController extends Controller
         }
         $user_session = User::find(Session::get('LoggedIn'));
 
-        $reservations = Reservation::with('room')->get();
+        $reservations = Reservation::with('room')->orderByDesc('id')->get();
 
 
         return view('admin.reservations.index', compact('user_session', 'reservations'));
@@ -139,7 +139,6 @@ class ReservationController extends Controller
 
     public function calendarEvents(Request $request)
     {
-        // Validate date range if needed (for performance with many reservations)
         $start = $request->get('start');
         $end = $request->get('end');
 
@@ -154,8 +153,9 @@ class ReservationController extends Controller
 
         foreach ($reservations as $reservation) {
             try {
-                $startDateTime = Carbon::parse($reservation->date . ' ' . $reservation->check_in_time);
-                $endDateTime = Carbon::parse($reservation->date . ' ' . $reservation->check_out_time);
+                // Combine date and time and avoid timezone conversion
+                $startDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $reservation->date . ' ' . $reservation->check_in_time);
+                $endDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $reservation->date . ' ' . $reservation->check_out_time);
 
                 // Skip invalid time ranges
                 if ($startDateTime >= $endDateTime) {
@@ -164,16 +164,15 @@ class ReservationController extends Controller
 
                 $events[] = [
                     'title' => $reservation->full_name,
-                    'start' => $startDateTime->toIso8601String(),
-                    'end' => $endDateTime->toIso8601String(),
+                    'start' => $startDateTime->format('Y-m-d\TH:i:s'), // No timezone offset
+                    'end' => $endDateTime->format('Y-m-d\TH:i:s'),
                     'allDay' => false,
                     'extendedProps' => [
                         'guests' => $reservation->guests,
                         'reservation_id' => $reservation->id,
                         'phone' => $reservation->phone,
-                        'email' => $reservation->email
+                        'email' => $reservation->email,
                     ],
-                    // Additional metadata if needed
                     'backgroundColor' => $this->getEventColor($reservation->guests),
                     'borderColor' => '#ffffff',
                     'textColor' => '#ffffff'
@@ -185,6 +184,7 @@ class ReservationController extends Controller
 
         return response()->json($events);
     }
+
     public function edit(Reservation $reservation)
     {
         if (!Session::has('LoggedIn')) {
@@ -261,9 +261,18 @@ class ReservationController extends Controller
         }
     }
     protected function getEventColor($guests)
-    {
-        if ($guests > 4) return '#dc3545'; // Red
-        if ($guests > 2) return '#fd7e14'; // Orange
-        return '#0d6efd'; // Blue
-    }
+{
+    return match($guests) {
+        1 => '#0d6efd', // Blue
+        2 => '#6610f2', // Indigo
+        3 => '#20c997', // Teal
+        4 => '#fd7e14', // Orange
+        5 => '#ffc107', // Yellow
+        6 => '#198754', // Green
+        7 => '#6f42c1', // Purple
+        8 => '#dc3545', // Red
+        default => '#6c757d', // Gray (fallback)
+    };
+}
+
 }

@@ -237,6 +237,20 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.getElementById('people').addEventListener('input', function () {
+    const value = parseInt(this.value);
+    if (value > 8) {
+        this.value = 8;
+        Swal.fire({
+            icon: 'warning',
+            title: 'Límite excedido',
+            text: 'Solo puedes ingresar hasta 8 personas.',
+        });
+    }
+});
+</script>
 <script>
 $(document).ready(function () {
     // Set up CSRF token for all AJAX requests

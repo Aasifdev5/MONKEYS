@@ -13,12 +13,8 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('reservations:send-check-in-reminders')
-                 ->dailyAt('00:00')
-                 ->timezone('America/La_Paz');
-        $schedule->command('queue:work --stop-when-empty')
-                 ->everyFiveMinutes()
-                 ->timezone('America/La_Paz');
+        $schedule->command('reservations:send-check-in-reminders')->everyMinute();
+    $schedule->command('queue:work --stop-when-empty')->everyMinute();
     }
 
     protected function commands(): void

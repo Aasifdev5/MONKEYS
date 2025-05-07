@@ -409,7 +409,7 @@ class UserController extends Controller
         // Get the pages, the current logged-in user, and all reservations
         $pages = Page::all();
         $user_session = User::find(Session::get('LoggedIn'));  // More concise way
-        $reservations = Reservation::all();  // Fetch all reservations
+        $reservations = Reservation::where('user_id',Session::get('LoggedIn'))->orderBy('id','desc')->get();  // Fetch all reservations
 
         // Pass data to the view
         return view('reserve', compact('user_session', 'pages', 'reservations'));

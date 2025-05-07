@@ -56,11 +56,13 @@ use App\Http\Controllers\Admin\SupportTicketController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Client\BookingController;
+use App\Http\Controllers\Admin\QRCodeController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\SetLocale;
 use App\Models\Language;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -239,6 +241,12 @@ Route::group(['prefix' => 'admin', 'middleware' => ['check.session', 'super.admi
         Route::get('reservations/calendar-events', [ReservationController::class, 'calendarEvents'])->name('reservations.calendar.events');
 
         Route::get('dashboard/report-data', [Admin::class, 'getReportData'])->name('dashboard.report-data');
+
+        Route::get('/qrcode', [QRCodeController::class, 'index'])->name('qrcode.index')->middleware('AdminIsLoggedIn');
+        Route::get('/destroy_qrcode/{id}', [QRCodeController::class, 'destroy'])->name('destroy');
+        Route::post('/qrcode/generate', [QRCodeController::class, 'generateQrCode'])->name('qrcode.generate');
+        Route::get('/qrcode/download/{data}', [QRCodeController::class, 'downloadQrCode'])->name('qrcode.download');
+
         // Testimonial routes
         Route::prefix('testimonials')->group(function () {
             Route::get('/', [TestimonialController::class, 'index'])->name('testimonials.index');

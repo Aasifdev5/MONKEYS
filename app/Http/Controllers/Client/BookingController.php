@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\BankDetails;
 use App\Models\Banner;
 use App\Models\Property;
 use App\Models\Reservation;
@@ -50,53 +51,53 @@ class BookingController extends Controller
      */
     // Replace route binding with manual lookup (for testing)
     public function showForm($room, Request $request)
-{
-    if (Session::has('LoggedIn')) {
-        $room = Property::findOrFail($room); // Will return 404 if not found
-        $user_session = User::where('id', Session::get('LoggedIn'))->first();
+    {
+        if (Session::has('LoggedIn')) {
+            $room = Property::findOrFail($room); // Will return 404 if not found
+            $user_session = User::where('id', Session::get('LoggedIn'))->first();
+            $qrcode = BankDetails::orderby('id', 'desc')->first();
+            // Retrieve query parameters
+            $date = $request->query('date');
+            $check_in_hour = $request->query('check_in_hour');
+            $check_out_hour = $request->query('check_out_hour');
+            $people = $request->query('people');
+            $room_name = $request->query('room_name');
+            $room_price = $request->query('room_price');
 
-        // Retrieve query parameters
-        $date = $request->query('date');
-        $check_in_hour = $request->query('check_in_hour');
-        $check_out_hour = $request->query('check_out_hour');
-        $people = $request->query('people');
-        $room_name = $request->query('room_name');
-        $room_price = $request->query('room_price');
+            // Validate that required parameters are present
+            if ($date && $check_in_hour && $check_out_hour) {
+                // Check for booking conflicts
+                $conflict = Reservation::where('room_id', $room->id)
+                    ->where('date', $date)
+                    ->where(function ($query) use ($check_in_hour, $check_out_hour) {
+                        $query->whereBetween('check_in_time', [$check_in_hour, $check_out_hour])
+                            ->orWhereBetween('check_out_time', [$check_in_hour, $check_out_hour])
+                            ->orWhere(function ($q) use ($check_in_hour, $check_out_hour) {
+                                $q->where('check_in_time', '<=', $check_in_hour)
+                                    ->where('check_out_time', '>=', $check_out_hour);
+                            });
+                    })
+                    ->exists();
 
-        // Validate that required parameters are present
-        if ($date && $check_in_hour && $check_out_hour) {
-            // Check for booking conflicts
-            $conflict = Reservation::where('room_id', $room->id)
-                ->where('date', $date)
-                ->where(function ($query) use ($check_in_hour, $check_out_hour) {
-                    $query->whereBetween('check_in_time', [$check_in_hour, $check_out_hour])
-                          ->orWhereBetween('check_out_time', [$check_in_hour, $check_out_hour])
-                          ->orWhere(function ($q) use ($check_in_hour, $check_out_hour) {
-                              $q->where('check_in_time', '<=', $check_in_hour)
-                                ->where('check_out_time', '>=', $check_out_hour);
-                          });
-                })
-                ->exists();
-
-            if ($conflict) {
-                return Redirect()->back()->with('fail', 'No está disponible en ese horario');
+                if ($conflict) {
+                    return Redirect()->back()->with('fail', 'No está disponible en ese horario');
+                }
             }
-        }
 
-        return view('client.booking-form', compact(
-            'user_session',
-            'room',
-            'date',
-            'check_in_hour',
-            'check_out_hour',
-            'people',
-            'room_name',
-            'room_price'
-        ));
-    } else {
-        return Redirect()->back()->with('fail', 'Tienes que iniciar sesión primero');
+            return view('client.booking-form', compact(
+                'user_session',
+                'room',
+                'date',
+                'check_in_hour',
+                'check_out_hour',
+                'people',
+                'room_name','qrcode',
+                'room_price'
+            ));
+        } else {
+            return Redirect()->back()->with('fail', 'Tienes que iniciar sesión primero');
+        }
     }
-}
 
     /**
      * Submit the booking request for the selected room.
@@ -118,11 +119,19 @@ class BookingController extends Controller
 
         // Handle proof upload
         $proofPath = null;
+
         if ($request->hasFile('proof')) {
             $proof = $request->file('proof');
-            $proofFileName = time() . '-' . \Illuminate\Support\Str::random(10) . '.' . $proof->getClientOriginalExtension();
-            $proofPath = $proof->storeAs('uploads/proofs', $proofFileName, 'public');
+            $proofFileName = time() . '_' . $proof->getClientOriginalName();
+
+            // Move the uploaded file to public/uploads/proofs
+            $proof->move(public_path('uploads/proofs'), $proofFileName);
+
+            // Set the relative path
+            $proofPath = 'uploads/proofs/' . $proofFileName;
         }
+
+
 
         // Create booking
         $reservation  = Reservation::create([
@@ -149,7 +158,7 @@ class BookingController extends Controller
 
             $user_session = User::where('id', Session::get('LoggedIn'))->first();
             $reservation = Reservation::find($reservationId); // Adjust this based on how you're fetching the reservation
-            return view('client.thank-you', compact('reservation','user_session'));
+            return view('client.thank-you', compact('reservation', 'user_session'));
         } else {
             return Redirect()->with('fail', 'Tienes que iniciar sesión primero');
         }
