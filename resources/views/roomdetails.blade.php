@@ -30,17 +30,25 @@
         --transition: all 0.2s ease-out;
     }
 
+    * {
+        box-sizing: border-box; /* Ensure all elements include padding/borders in width */
+    }
+
     body {
         font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
         color: var(--airbnb-dark);
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+        margin: 0; /* Remove default body margin */
     }
 
     .container {
         max-width: 1120px;
         margin: 0 auto;
-        padding: 0 24px;
+        padding: 0 16px; /* Reduced padding to fit mobile */
+        width: 100%;
+        overflow-x: hidden; /* Prevent container overflow */
     }
 
     /* Header Section */
@@ -108,11 +116,13 @@
         grid-template-columns: 60% 20% 20%;
         grid-template-rows: 50% 50%;
         gap: 8px;
-        height: 550px;
+        max-height: 550px;
         margin-bottom: 48px;
         border-radius: 12px;
         overflow: hidden;
         position: relative;
+        width: 100%;
+        overflow-x: hidden; /* Prevent gallery overflow */
     }
 
     .gallery-main {
@@ -152,6 +162,7 @@
         object-fit: cover;
         transition: transform 0.3s ease;
         cursor: pointer;
+        display: block;
     }
 
     .gallery-main:hover img,
@@ -209,6 +220,8 @@
         display: flex;
         gap: 48px;
         position: relative;
+        width: 100%;
+        overflow-x: hidden; /* Prevent content overflow */
     }
 
     .property-main {
@@ -302,6 +315,8 @@
         padding-bottom: 16px;
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
+        width: 100%;
+        overflow-x: hidden; /* Prevent slider overflow */
     }
 
     .bedroom-slider::-webkit-scrollbar {
@@ -310,6 +325,7 @@
 
     .bedroom-card {
         min-width: 280px;
+        max-width: 100%; /* Prevent cards from exceeding container */
         background: white;
         border: 1px solid var(--airbnb-border);
         border-radius: 12px;
@@ -477,6 +493,8 @@
         border: 1px solid var(--airbnb-border);
         box-shadow: var(--shadow-md);
         transition: var(--transition);
+        width: 100%;
+        max-width: 100%; /* Prevent widget overflow */
     }
 
     .booking-widget:hover {
@@ -517,6 +535,7 @@
         font-size: 14px;
         cursor: pointer;
         transition: border-color 0.2s ease;
+        width: 100%;
     }
 
     .booking-date-field:hover {
@@ -567,6 +586,7 @@
         display: flex;
         flex-direction: column;
         transition: var(--transition);
+        width: 100%;
     }
 
     .guest-input:hover {
@@ -690,7 +710,7 @@
     /* Responsive Design */
     @media (max-width: 1024px) {
         .property-gallery {
-            height: 450px;
+            max-height: 450px;
         }
 
         .things-grid {
@@ -701,18 +721,43 @@
     @media (max-width: 768px) {
         .property-content {
             flex-direction: column;
+            gap: 32px;
         }
 
         .property-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: none;
             height: auto;
-            grid-template-columns: 1fr;
-            grid-template-rows: auto;
+            overflow-x: hidden;
+            width: 100%;
+            margin: 0;
         }
 
         .gallery-main, .gallery-secondary {
-            grid-column: auto;
-            grid-row: auto;
+            width: 100%;
+            max-width: 100%;
             height: 300px;
+            aspect-ratio: 4 / 3;
+            margin: 0;
+        }
+
+        .gallery-main img, .gallery-secondary img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .show-all-photos {
+            bottom: 16px;
+            right: 16px;
+            font-size: 13px;
+            padding: 8px 12px;
+        }
+
+        .gallery-overlay {
+            height: 60px;
         }
 
         .property-highlights {
@@ -731,6 +776,23 @@
         .booking-widget {
             position: static;
             margin-top: 32px;
+            padding: 16px;
+        }
+
+        .container {
+            padding: 0 12px;
+        }
+
+        .bedroom-slider {
+            overflow-x: auto;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .bedroom-card {
+            min-width: 260px;
+            max-width: calc(100% - 24px); /* Account for container padding */
         }
     }
 
@@ -741,6 +803,41 @@
 
         .section-title {
             font-size: 22px;
+        }
+
+        .property-gallery {
+            gap: 6px;
+            overflow-x: hidden;
+        }
+
+        .gallery-main, .gallery-secondary {
+            height: 250px;
+            aspect-ratio: 4 / 3;
+            max-width: 100%;
+        }
+
+        .show-all-photos {
+            font-size: 12px;
+            padding: 6px 10px;
+            bottom: 12px;
+            right: 12px;
+        }
+
+        .gallery-overlay {
+            height: 50px;
+        }
+
+        .container {
+            padding: 0 8px;
+        }
+
+        .bedroom-card {
+            min-width: 220px;
+            max-width: calc(100% - 16px);
+        }
+
+        .booking-widget {
+            padding: 12px;
         }
     }
 
@@ -810,33 +907,34 @@
 
 <div class="container">
     <!-- Property Header -->
-    <div class="property-header">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <h1 class="property-title">{{ $property->name }}</h1>
-                <p class="property-subtitle">
-                    {{ $property->max_people }} huéspedes ·
-                    {{ count($property->bedrooms) }} habitación{{ count($property->bedrooms) > 1 ? 'es' : '' }} ·
-                    {{ $property->description }}
-                </p>
-            </div>
-            <div class="property-actions">
-                <button class="tooltip-trigger" data-tooltip="Compartir este anuncio">
-                    <i class="fas fa-share-alt"></i> Compartir
-                    <div class="tooltip">Compartir este anuncio</div>
-                </button>
-                <button class="save-button tooltip-trigger {{ $property->favorite ? 'active' : '' }}" data-tooltip="Guardar en tu lista de deseos" data-room-id="{{ $property->id }}">
-                    <i class="fa{{ $property->favorite ? 's' : 'r' }} fa-heart"></i> Guardar
-                    <div class="tooltip">Guardar en tu lista de deseos</div>
-                </button>
-            </div>
+    <div class="property-header" style="width: 100%; box-sizing: border-box; padding: 16px;">
+    <div class="d-flex justify-content-between align-items-start" style="flex-wrap: wrap; width: 100%; gap: 12px;">
+        <div style="flex: 1 1 100%; min-width: 0;">
+            <h1 class="property-title" style="font-size: 24px; margin-bottom: 8px;">{{ $property->name }}</h1>
+            <p class="property-subtitle" style="font-size: 14px; margin-bottom: 0;">
+                {{ $property->max_people }} huéspedes ·
+                {{ count($property->bedrooms) }} habitación{{ count($property->bedrooms) > 1 ? 'es' : '' }} ·
+                {{ $property->description }}
+            </p>
         </div>
-        <div class="property-meta">
-            @if($property->rating)
-                <span><i class="fas fa-star" style="color: var(--airbnb-star);"></i> {{ number_format($property->rating, 2) }}</span>
-            @endif
+        <div class="property-actions" style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button class="tooltip-trigger" style="background: none; border: none; padding: 4px 8px; font-size: 14px;" data-tooltip="Compartir este anuncio">
+                <i class="fas fa-share-alt"></i> Compartir
+                <div class="tooltip">Compartir este anuncio</div>
+            </button>
+            <button class="save-button tooltip-trigger {{ $property->favorite ? 'active' : '' }}" style="background: none; border: none; padding: 4px 8px; font-size: 14px;" data-tooltip="Guardar en tu lista de deseos" data-room-id="{{ $property->id }}">
+                <i class="fa{{ $property->favorite ? 's' : 'r' }} fa-heart"></i> Guardar
+                <div class="tooltip">Guardar en tu lista de deseos</div>
+            </button>
         </div>
     </div>
+    <div class="property-meta" style="margin-top: 12px; font-size: 14px;">
+        @if($property->rating)
+            <span><i class="fas fa-star" style="color: var(--airbnb-star);"></i> {{ number_format($property->rating, 2) }}</span>
+        @endif
+    </div>
+</div>
+
 
     <!-- Property Gallery -->
     <div class="property-gallery">
@@ -865,19 +963,14 @@
     <div class="property-content">
         <div class="property-main">
             <!-- Property Highlights -->
-
-
             <hr>
-
             <!-- About Section -->
             <h2 class="section-title">Acerca de este lugar</h2>
             <p class="property-description">
                 {{ $property->description ?: 'No hay descripción disponible.' }}
             </p>
             <button class="read-more">Mostrar más</button>
-
             <hr>
-
             <!-- Sleeping Arrangements -->
             <h2 class="section-title">Dónde dormirás</h2>
             <div class="sleeping-arrangements">
@@ -896,79 +989,72 @@
                     @endforeach
                 </div>
             </div>
-
             <hr>
-
             <!-- Amenities -->
             <div class="amenities-section">
-    <h2 class="section-title">Qué ofrece este lugar</h2>
-    <div class="amenities-grid">
-        @php
-            $staticAmenities = [
-                'entertainment' => ['label' => 'Entretenimiento de alta gama', 'icon' => 'fas fa-film'],
-                'group_spaces' => ['label' => 'Espacios para compartir en grupo', 'icon' => 'fas fa-users'],
-                'fully_equipped' => ['label' => 'Habitaciones totalmente equipadas', 'icon' => 'fas fa-star'],
-                'bed' => ['label' => 'Cama', 'icon' => 'fas fa-bed'],
-                'tv' => ['label' => 'Televisor', 'icon' => 'fas fa-tv'],
-                'wifi' => ['label' => 'WiFi', 'icon' => 'fas fa-wifi'],
-                'private_bathroom' => ['label' => 'Baño privado', 'icon' => 'fas fa-bath'],
-                'fridge' => ['label' => 'Refrigerador', 'icon' => 'fas fa-door-closed'],
-                'ac' => ['label' => 'Aire acondicionado', 'icon' => 'fas fa-snowflake'],
-                'kitchen' => ['label' => 'Cocina', 'icon' => 'fas fa-utensils'],
-                'microwave' => ['label' => 'Microondas', 'icon' => 'fas fa-wave-square'],
-                'chairs' => ['label' => 'Sillas adicionales', 'icon' => 'fas fa-chair'],
-                'tables' => ['label' => 'Mesas (central o comedor)', 'icon' => 'fas fa-table'],
-                'hot_shower' => ['label' => 'Ducha caliente', 'icon' => 'fas fa-shower'],
-                'pool' => ['label' => 'Mesa de billar', 'icon' => 'fas fa-circle'],
-                'jacuzzi' => ['label' => 'Jacuzzi', 'icon' => 'fas fa-star'],
-                'bar' => ['label' => 'Área de bar/bebidas', 'icon' => 'fas fa-glass-martini'],
-                'remotes' => ['label' => 'Controles remotos para TV/PS', 'icon' => 'fas fa-gamepad'],
-                'playstation' => ['label' => 'PlayStation', 'icon' => 'fas fa-gamepad'],
-                'alexa' => ['label' => 'Servicio Alexa', 'icon' => 'fas fa-robot'],
-                'living' => ['label' => 'Sala de estar', 'icon' => 'fas fa-couch'],
-                'sound_room' => ['label' => 'Sala de sonido', 'icon' => 'fas fa-microphone-alt'],
-                'heating' => ['label' => 'Calefacción', 'icon' => 'fas fa-temperature-high'],
-                'hammocks' => ['label' => 'Hamacas', 'icon' => 'fas fa-umbrella-beach'],
-                'wardrobe' => ['label' => 'Armario', 'icon' => 'fas fa-tshirt'],
-                'sound_system' => ['label' => 'Sistema de sonido', 'icon' => 'fas fa-volume-up'],
-            ];
-        @endphp
-        @foreach($property->amenities as $index => $amenity)
-            @if(isset($staticAmenities[$amenity]))
-                <div class="amenity-item {{ $index >= 10 ? 'hidden-amenity' : '' }}">
-                    <div class="amenity-icon">
-                        <i class="{{ $staticAmenities[$amenity]['icon'] }}"></i>
-                    </div>
-                    <div>{{ $staticAmenities[$amenity]['label'] }}</div>
+                <h2 class="section-title">Qué ofrece este lugar</h2>
+                <div class="amenities-grid">
+                    @php
+                        $staticAmenities = [
+                            'entertainment' => ['label' => 'Entretenimiento de alta gama', 'icon' => 'fas fa-film'],
+                            'group_spaces' => ['label' => 'Espacios para compartir en grupo', 'icon' => 'fas fa-users'],
+                            'fully_equipped' => ['label' => 'Habitaciones totalmente equipadas', 'icon' => 'fas fa-star'],
+                            'bed' => ['label' => 'Cama', 'icon' => 'fas fa-bed'],
+                            'tv' => ['label' => 'Televisor', 'icon' => 'fas fa-tv'],
+                            'wifi' => ['label' => 'WiFi', 'icon' => 'fas fa-wifi'],
+                            'private_bathroom' => ['label' => 'Baño privado', 'icon' => 'fas fa-bath'],
+                            'fridge' => ['label' => 'Refrigerador', 'icon' => 'fas fa-door-closed'],
+                            'ac' => ['label' => 'Aire acondicionado', 'icon' => 'fas fa-snowflake'],
+                            'kitchen' => ['label' => 'Cocina', 'icon' => 'fas fa-utensils'],
+                            'microwave' => ['label' => 'Microondas', 'icon' => 'fas fa-wave-square'],
+                            'chairs' => ['label' => 'Sillas adicionales', 'icon' => 'fas fa-chair'],
+                            'tables' => ['label' => 'Mesas (central o comedor)', 'icon' => 'fas fa-table'],
+                            'hot_shower' => ['label' => 'Ducha caliente', 'icon' => 'fas fa-shower'],
+                            'pool' => ['label' => 'Mesa de billar', 'icon' => 'fas fa-circle'],
+                            'jacuzzi' => ['label' => 'Jacuzzi', 'icon' => 'fas fa-star'],
+                            'bar' => ['label' => 'Área de bar/bebidas', 'icon' => 'fas fa-glass-martini'],
+                            'remotes' => ['label' => 'Controles remotos para TV/PS', 'icon' => 'fas fa-gamepad'],
+                            'playstation' => ['label' => 'PlayStation', 'icon' => 'fas fa-gamepad'],
+                            'alexa' => ['label' => 'Servicio Alexa', 'icon' => 'fas fa-robot'],
+                            'living' => ['label' => 'Sala de estar', 'icon' => 'fas fa-couch'],
+                            'sound_room' => ['label' => 'Sala de sonido', 'icon' => 'fas fa-microphone-alt'],
+                            'heating' => ['label' => 'Calefacción', 'icon' => 'fas fa-temperature-high'],
+                            'hammocks' => ['label' => 'Hamacas', 'icon' => 'fas fa-umbrella-beach'],
+                            'wardrobe' => ['label' => 'Armario', 'icon' => 'fas fa-tshirt'],
+                            'sound_system' => ['label' => 'Sistema de sonido', 'icon' => 'fas fa-volume-up'],
+                        ];
+                    @endphp
+                    @foreach($property->amenities as $index => $amenity)
+                        @if(isset($staticAmenities[$amenity]))
+                            <div class="amenity-item {{ $index >= 10 ? 'hidden-amenity' : '' }}">
+                                <div class="amenity-icon">
+                                    <i class="{{ $staticAmenities[$amenity]['icon'] }}"></i>
+                                </div>
+                                <div>{{ $staticAmenities[$amenity]['label'] }}</div>
+                            </div>
+                        @endif
+                    @endforeach
                 </div>
-            @endif
-        @endforeach
-    </div>
-
-    @if(count($property->amenities) > 10)
-        <button class="show-all-amenities" onclick="showAllAmenities()">
-            <i class="fas fa-plus"></i> Mostrar todas las {{ count($property->amenities) }} comodidades
-        </button>
-    @endif
-</div>
-<style>
-.hidden-amenity {
-    display: none;
-}
-</style>
-
-<script>
-function showAllAmenities() {
-    document.querySelectorAll('.hidden-amenity').forEach(item => {
-        item.classList.remove('hidden-amenity');
-    });
-    document.querySelector('.show-all-amenities').style.display = 'none';
-}
-</script>
-
-
+                @if(count($property->amenities) > 10)
+                    <button class="show-all-amenities" onclick="showAllAmenities()">
+                        <i class="fas fa-plus"></i> Mostrar todas las {{ count($property->amenities) }} comodidades
+                    </button>
+                @endif
+            </div>
+            <style>
+                .hidden-amenity {
+                    display: none;
+                }
+            </style>
+            <script>
+                function showAllAmenities() {
+                    document.querySelectorAll('.hidden-amenity').forEach(item => {
+                        item.classList.remove('hidden-amenity');
+                    });
+                    document.querySelector('.show-all-amenities').style.display = 'none';
+                }
+            </script>
             <hr>
-
             <!-- Things to Know -->
             <div class="things-section">
                 <h2 class="section-title">Cosas que debes saber</h2>
@@ -1001,14 +1087,12 @@ function showAllAmenities() {
                 </div>
             </div>
         </div>
-
         <div class="property-sidebar">
             <!-- Booking Widget -->
             <div class="booking-widget">
                 <div class="booking-header">
                     <div class="booking-price">Bs{{ number_format($property->price, 2) }} <span>/ hora</span></div>
                 </div>
-
                 <div class="booking-dates">
                     <div class="booking-date-field">
                         <label><span class="emoji">📅</span> Fecha</label>
@@ -1023,24 +1107,19 @@ function showAllAmenities() {
                         <input type="text" id="check-out-hour-picker" name="check_out_hour" placeholder="Añadir hora">
                     </div>
                 </div>
-
                 <div class="booking-guests">
-                   <div class="guest-input">
-    <label><span class="emoji">👥</span> Número de personas</label>
-    <input type="number" id="guest-count" name="people" min="1" max="{{ $property->max_people }}" value="1" placeholder="1">
-</div>
-
+                    <div class="guest-input">
+                        <label><span class="emoji">👥</span> Número de personas</label>
+                        <input type="number" id="guest-count" name="people" min="1" max="{{ $property->max_people }}" value="1" placeholder="1">
+                    </div>
                 </div>
-
                 <div class="booking-section">
                     @if(!empty($user_session))
                         <a href="{{ route('booking.form', ['room' => $property->id])}}" id="reserve-button" class="btn btn-sm booking-button" data-room-id="{{ $property->id }}" data-room-name="{{ $property->name }}" data-room-price="{{ $property->price }}">Reservar</a>
                     @else
                         <a href="{{ url('Userlogin')}}" class="btn btn-sm booking-button">Reservar</a>
                     @endif
-
                 </div>
-
             </div>
         </div>
     </div>
@@ -1061,7 +1140,6 @@ document.getElementById('guest-count').addEventListener('input', function () {
     const max = parseInt(this.max);
     const min = parseInt(this.min);
     const value = parseInt(this.value);
-
     if (value > max) {
         this.value = max;
         Swal.fire({
@@ -1074,7 +1152,6 @@ document.getElementById('guest-count').addEventListener('input', function () {
     }
 });
 </script>
-
 <script>
 $(document).ready(function () {
     // Initialize Flatpickr for date and time pickers
@@ -1088,7 +1165,6 @@ $(document).ready(function () {
             }
         }
     });
-
     flatpickr("#check-in-hour-picker", {
         enableTime: true,
         noCalendar: true,
@@ -1101,7 +1177,6 @@ $(document).ready(function () {
             }
         }
     });
-
     flatpickr("#check-out-hour-picker", {
         enableTime: true,
         noCalendar: true,
@@ -1114,7 +1189,6 @@ $(document).ready(function () {
             }
         }
     });
-
     // Update people value on input change
     $("#guest-count").on("input", function() {
         let value = parseInt($(this).val());
@@ -1124,7 +1198,6 @@ $(document).ready(function () {
             $(this).val({{ $property->max_people }});
         }
     });
-
     // Handle reserve button click to pass chosen values
     $("#reserve-button").click(function(e) {
         e.preventDefault();
@@ -1135,13 +1208,11 @@ $(document).ready(function () {
         const checkInHour = $("#check-in-hour-picker").val();
         const checkOutHour = $("#check-out-hour-picker").val();
         const guestCount = $("#guest-count").val();
-
         // Validate inputs
         if (!date || !checkInHour || !checkOutHour || !guestCount) {
             alert('Por favor, completa todos los campos (fecha, hora de entrada, hora de salida y número de personas).');
             return;
         }
-
         // Construct URL with query parameters
         const url = `{{ route('booking.form', ['room' => ':roomId']) }}`
             .replace(':roomId', roomId) +
@@ -1151,11 +1222,9 @@ $(document).ready(function () {
             `&people=${encodeURIComponent(guestCount)}` +
             `&room_name=${roomName}` +
             `&room_price=${encodeURIComponent(roomPrice)}`;
-
         // Redirect to booking form
         window.location.href = url;
     });
-
     // Bedroom slider pagination
     $('.dot').click(function() {
         const index = $(this).index();
@@ -1164,7 +1233,6 @@ $(document).ready(function () {
             scrollLeft: $('.bedroom-card').eq(index).position().left + $('.bedroom-slider').scrollLeft()
         }, 300);
     });
-
     // Update dots based on scroll position
     $('.bedroom-slider').on('scroll', function() {
         const scrollPosition = $(this).scrollLeft();
@@ -1172,7 +1240,6 @@ $(document).ready(function () {
         const currentIndex = Math.round(scrollPosition / cardWidth);
         $('.dot').eq(currentIndex).addClass('active').siblings().removeClass('active');
     });
-
     // Toggle "Show more" sections
     $('.read-more').click(function() {
         const section = $(this).prev();
@@ -1184,26 +1251,21 @@ $(document).ready(function () {
             $(this).text('Mostrar más');
         }
     });
-
     // Save button toggle with AJAX
     $('.save-button').click(function() {
         const $button = $(this);
         const roomId = $button.data('room-id');
         const isActive = !$button.hasClass('active');
-
         // Update UI
         $button.toggleClass('active');
         $button.find('i').toggleClass('far fas');
-
         // Show feedback
         const tooltip = $button.find('.tooltip');
         tooltip.text(isActive ? 'Guardado en la lista de deseos' : 'Eliminado de la lista de deseos');
         tooltip.css('opacity', 1);
-
         setTimeout(() => {
             tooltip.css('opacity', 0);
         }, 2000);
-
         // Send AJAX request to update favorite status
         $.ajax({
             url: '/rooms/' + roomId + '/favorite',
@@ -1228,12 +1290,10 @@ $(document).ready(function () {
             }
         });
     });
-
     // Show all photos lightbox
     $('#show-all-photos').click(function() {
         $('[data-lightbox="property-gallery"]').first().trigger('click');
     });
-
     // Tooltip functionality
     $('.tooltip-trigger').hover(function() {
         const tooltip = $(this).find('.tooltip');
@@ -1246,14 +1306,12 @@ $(document).ready(function () {
     }, function() {
         $(this).find('.tooltip').css('opacity', 0);
     });
-
     // Floating action button
     $('#fab-reserve').click(function() {
         $('html, body').animate({
             scrollTop: $(".booking-widget").offset().top - 20
         }, 500);
     });
-
     // Show/hide FAB based on scroll position
     $(window).scroll(function() {
         if ($(window).scrollTop() > 300) {
