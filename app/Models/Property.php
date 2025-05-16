@@ -25,8 +25,13 @@ class Property extends Model
 
     protected $casts = [
         'bedrooms' => 'array',
+        'price' => 'array',
         'amenities' => 'array',
         'property_images' => 'array',
         'favorite' => 'boolean',
     ];
+    public function property()
+    {
+        return $this->belongsTo(Property::class);
+    }
 }

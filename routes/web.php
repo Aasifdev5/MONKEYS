@@ -223,6 +223,8 @@ Route::post('/ResetPassword', [UserController::class, 'ResetPassword'])->name('R
 Route::get('admin/unlock', [Admin::class, 'unlock'])->name('unlock')->middleware('AdminAlreadyLoggedIn');
 Route::post('/update-mode', [Admin::class, 'updateMode']);
 Route::get('/get-user-mode', [Admin::class, 'getUserMode'])->name('getUserMode');
+Route::get('/rooms/{id}/prices', [ReservationController::class, 'getPrices']);
+
 Route::group(['prefix' => 'admin', 'middleware' => ['check.session', 'super.admin']], function () {
 
     Route::group(['middleware' => 'admin-prevent-back-history', SetLocale::class], function () {

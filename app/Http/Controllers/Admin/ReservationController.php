@@ -22,7 +22,8 @@ class ReservationController extends Controller
         }
         $user_session = User::find(Session::get('LoggedIn'));
 
-        $reservations = Reservation::with('room')->orderByDesc('id')->get();
+        $reservations = Reservation::with('room')->orderBy('id', 'desc')->get();
+
 
 
         return view('admin.reservations.index', compact('user_session', 'reservations'));
@@ -65,68 +66,102 @@ class ReservationController extends Controller
         $rooms = Property::all(); // or Room::all() based on your model
         return view('admin.reservations.create', compact('users', 'rooms', 'user_session'));
     }
+public function getPrices($id)
+{
+    $property = Property::findOrFail($id);
 
-    public function store(Request $request)
-    {
-        // Validate the request first to ensure all inputs are valid
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'room_id' => 'required|exists:properties,id', // Corrected to reference 'rooms' table
-            'date' => 'required|date',
-            'check_in_time' => 'required|date_format:H:i', // Ensure time format is valid
-            'check_out_time' => 'required|date_format:H:i|after:check_in_time', // Ensure check-out is after check-in
-            'guests' => 'required|integer|min:1',
+    $durations = $property->price ?? [];
+
+    return response()->json($durations);
+}
+
+
+   public function store(Request $request)
+{
+    $room = Property::findOrFail($request->room_id);
+
+    // Validate input
+    $validated = $request->validate([
+        'room_id' => 'required|exists:properties,id',
+        'date' => 'required|date_format:Y-m-d|after_or_equal:today',
+        'check_in_time' => 'required',
+        'duration' => 'required|numeric|min:1',
+        'amount' => 'required|numeric|min:0',
+        'guests' => 'required|numeric|min:1|max:' . $room->max_people,
+
+        'user_id' => 'required|exists:users,id',
+    ]);
+
+    // Fetch user data
+    $user = User::findOrFail($validated['user_id']);
+    $validated['name'] = $user->name;
+    $validated['email'] = $user->email;
+    $validated['phone'] = $user->mobile_number ?? $validated['phone'];
+
+    // Validate duration and amount
+    $prices = json_decode($room->price, true);
+    $validPrice = collect($prices)->contains(function ($price) use ($validated) {
+        return (int)$price['hours'] === (int)$validated['duration'] && (float)$price['amount'] === (float)$validated['amount'];
+    });
+
+    if (!$validPrice) {
+        return back()->withErrors(['fail' => 'Invalid duration or price'])->withInput();
+    }
+
+    // Calculate check-out time
+    $checkIn = Carbon::createFromFormat('Y-m-d H:i', $validated['date'] . ' ' . $validated['check_in_time']);
+    $checkOut = $checkIn->copy()->addHours($validated['duration']);
+    $checkOutHour = $checkOut->format('H:i');
+    $checkOutDate = $checkOut->format('Y-m-d');
+
+    // Check for conflicts
+    $conflict = Reservation::where('room_id', $validated['room_id'])
+        ->where('id', '!=', 0) // Always true for new reservations
+        ->where(function ($query) use ($validated, $checkOutDate) {
+            $query->where('date', $validated['date'])
+                ->orWhere('date', $checkOutDate);
+        })
+        ->where(function ($query) use ($validated, $checkOutHour) {
+            $query->whereBetween('check_in_time', [$validated['check_in_time'], $checkOutHour])
+                ->orWhereBetween('check_out_time', [$validated['check_in_time'], $checkOutHour])
+                ->orWhere(function ($sub) use ($validated, $checkOutHour) {
+                    $sub->where('check_in_time', '<=', $validated['check_in_time'])
+                        ->where('check_out_time', '>=', $checkOutHour);
+                });
+        })
+        ->exists();
+
+    if ($conflict) {
+        return back()->withErrors(['fail' => 'Time slot not available'])->withInput();
+    }
+
+    // Create reservation
+    try {
+        $reservation = Reservation::create([
+            'user_id' => $validated['user_id'],
+            'room_id' => $validated['room_id'],
+            'date' => $validated['date'],
+            'full_name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'check_in_time' => $validated['check_in_time'],
+            'check_out_time' => $checkOutHour,
+            'duration' => $validated['duration'],
+            'amount' => $validated['amount'],
+            'guests' => $validated['guests'],
+            'proof_path' => null,
+            'payment_status' => 'pending',
         ]);
 
-        // Check for existing reservations to prevent double-booking
-        $existingReservation = Reservation::where('room_id', $validated['room_id'])
-            ->where('date', $validated['date'])
-            ->where(function ($query) use ($validated) {
-                $query->where(function ($q) use ($validated) {
-                    // Check if new reservation's time range overlaps with existing ones
-                    $q->where('check_in_time', '>=', $validated['check_in_time'])
-                        ->where('check_in_time', '<', $validated['check_out_time']);
-                })->orWhere(function ($q) use ($validated) {
-                    $q->where('check_out_time', '>', $validated['check_in_time'])
-                        ->where('check_out_time', '<=', $validated['check_out_time']);
-                })->orWhere(function ($q) use ($validated) {
-                    // Check if existing reservation fully contains the new time range
-                    $q->where('check_in_time', '<=', $validated['check_in_time'])
-                        ->where('check_out_time', '>=', $validated['check_out_time']);
-                });
-            })
-            ->exists();
+        $user->notify(new ReservationConfirmed($reservation));
 
-        if ($existingReservation) {
-            return back()->withErrors(['error' => 'La habitación no está disponible en ese horario.'])->withInput();
-        }
-
-        // Fetch user once to optimize database queries
-        $user = User::findOrFail($validated['user_id']);
-
-        // Create the reservation
-        try {
-            $reservation  = Reservation::create([
-                'user_id' => $validated['user_id'],
-                'room_id' => $validated['room_id'],
-                'full_name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->mobile_number ?? '',
-                'date' => $validated['date'],
-                'check_in_time' => $validated['check_in_time'],
-                'check_out_time' => $validated['check_out_time'],
-                'guests' => $validated['guests'],
-                'payment_status' => 'pending',
-            ]);
-            // Notify the user
-            $user = $reservation->user; // assuming the reservation has a `user` relationship
-            $user->notify(new ReservationConfirmed($reservation));
-
-            return redirect()->route('reservations.index')->with('success', 'Reserva creada exitosamente.');
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Error al crear la reserva: ' . $e->getMessage()])->withInput();
-        }
+        return redirect()->route('reservations.index')
+            ->with('success', 'Reservation created successfully.');
+    } catch (\Exception $e) {
+        return back()->withErrors(['fail' => 'Failed to create reservation'])->withInput();
     }
+}
+
 
     public function calendarView()
     {
@@ -137,53 +172,63 @@ class ReservationController extends Controller
         return view('admin.reservations.calendar', compact('user_session')); // Blade view for rendering the calendar
     }
 
-    public function calendarEvents(Request $request)
-    {
-        $start = $request->get('start');
-        $end = $request->get('end');
+   public function calendarEvents(Request $request)
+{
+    $start = $request->get('start');
+    $end = $request->get('end');
 
-        $query = Reservation::query();
+    $query = Reservation::query();
 
-        if ($start && $end) {
-            $query->whereBetween('date', [$start, $end]);
-        }
+    if ($start && $end) {
+        $query->whereBetween('date', [$start, $end]);
+    }
 
-        $reservations = $query->get();
-        $events = [];
+    $reservations = $query->get();
+    $events = [];
 
-        foreach ($reservations as $reservation) {
-            try {
-                // Combine date and time and avoid timezone conversion
-                $startDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $reservation->date . ' ' . $reservation->check_in_time);
+    foreach ($reservations as $reservation) {
+        try {
+            // Combine date and time and avoid timezone conversion
+            $startDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $reservation->date . ' ' . $reservation->check_in_time);
+
+            // Calculate end time: use duration if available, otherwise parse check_out_time
+            if ($reservation->duration && $reservation->duration > 0) {
+                $endDateTime = $startDateTime->copy()->addHours($reservation->duration);
+            } else {
                 $endDateTime = Carbon::createFromFormat('Y-m-d H:i:s', $reservation->date . ' ' . $reservation->check_out_time);
-
-                // Skip invalid time ranges
-                if ($startDateTime >= $endDateTime) {
-                    continue;
+                // Adjust for cross-day if check_out_time is earlier than check_in_time
+                if ($endDateTime < $startDateTime) {
+                    $endDateTime->addDay();
                 }
+            }
 
-                $events[] = [
-                    'title' => $reservation->full_name,
-                    'start' => $startDateTime->format('Y-m-d\TH:i:s'), // No timezone offset
-                    'end' => $endDateTime->format('Y-m-d\TH:i:s'),
-                    'allDay' => false,
-                    'extendedProps' => [
-                        'guests' => $reservation->guests,
-                        'reservation_id' => $reservation->id,
-                        'phone' => $reservation->phone,
-                        'email' => $reservation->email,
-                    ],
-                    'backgroundColor' => $this->getEventColor($reservation->guests),
-                    'borderColor' => '#ffffff',
-                    'textColor' => '#ffffff'
-                ];
-            } catch (\Exception $e) {
+            // Skip invalid reservations (e.g., null times or invalid dates)
+            if (!$startDateTime || !$endDateTime || $startDateTime->eq($endDateTime)) {
                 continue;
             }
-        }
 
-        return response()->json($events);
+            $events[] = [
+                'title' => $reservation->full_name,
+                'start' => $startDateTime->format('Y-m-d\TH:i:s'), // No timezone offset
+                'end' => $endDateTime->format('Y-m-d\TH:i:s'),
+                'allDay' => false,
+                'extendedProps' => [
+                    'guests' => $reservation->guests,
+                    'reservation_id' => $reservation->id,
+                    'phone' => $reservation->phone,
+                    'email' => $reservation->email,
+                ],
+                'backgroundColor' => $this->getEventColor($reservation->guests),
+                'borderColor' => '#ffffff',
+                'textColor' => '#ffffff'
+            ];
+        } catch (\Exception $e) {
+            continue;
+        }
     }
+
+    return response()->json($events);
+}
 
     public function edit(Reservation $reservation)
     {
@@ -203,63 +248,82 @@ class ReservationController extends Controller
      * @param Reservation $reservation
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Reservation $reservation)
-    {
-        // Validate the request
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'room_id' => 'required|exists:properties,id',
-            'date' => 'required|date',
-            'check_in_time' => 'required|date_format:H:i',
-            'check_out_time' => 'required|date_format:H:i|after:check_in_time',
-            'guests' => 'required|integer|min:1',
+  public function update(Request $request, Reservation $reservation)
+{
+    $room = Property::findOrFail($request->room_id);
+
+    // Assign input manually (no validation)
+    $user = User::findOrFail($request->user_id);
+
+    $fullName = $user->name;
+    $email = $user->email;
+    $phone = $user->mobile_number ?? null;
+
+    // Validate duration and amount against property prices
+    $prices = json_decode($room->price, true);
+    $validPrice = collect($prices)->contains(function ($price) use ($request) {
+        return (int)$price['hours'] === (int)$request->duration && (float)$price['amount'] == (float)$request->amount;
+    });
+
+    if (!$validPrice) {
+        return back()->withErrors(['fail' => 'Duración o precio inválidos'])->withInput();
+    }
+
+    // Calculate check-out time
+    // Sanitize date and time inputs
+    $date = Carbon::createFromFormat('Y-m-d', $request->date)->format('Y-m-d');
+    $checkInTime = substr($request->check_in_time, 0, 5); // Take only HH:MM
+    $checkIn = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $checkInTime);
+    $checkOut = $checkIn->copy()->addHours($request->duration);
+    $checkOutHour = $checkOut->format('H:i');
+    $checkOutDate = $checkOut->format('Y-m-d');
+
+    // Check for conflicts
+    $conflict = Reservation::where('room_id', $request->room_id)
+        ->where('id', '!=', $reservation->id)
+        ->where(function ($query) use ($request, $checkOutDate) {
+            $query->where('date', $request->date)
+                  ->orWhere('date', $checkOutDate);
+        })
+        ->where(function ($query) use ($request, $checkOutHour) {
+            $query->whereBetween('check_in_time', [$request->check_in_time, $checkOutHour])
+                  ->orWhereBetween('check_out_time', [$request->check_in_time, $checkOutHour])
+                  ->orWhere(function ($sub) use ($request, $checkOutHour) {
+                      $sub->where('check_in_time', '<=', $request->check_in_time)
+                          ->where('check_out_time', '>=', $checkOutHour);
+                  });
+        })
+        ->exists();
+
+    if ($conflict) {
+        return back()->withErrors(['fail' => 'No está disponible en ese horario'])->withInput();
+    }
+
+    // Update reservation
+    try {
+        $reservation->update([
+            'user_id' => $request->user_id,
+            'room_id' => $request->room_id,
+            'date' => $request->date,
+            'full_name' => $fullName,
+            'email' => $email,
+            'phone' => $phone,
+            'check_in_time' => $request->check_in_time,
+            'check_out_time' => $checkOutHour,
+            'duration' => $request->duration,
+            'amount' => $request->amount,
+            'guests' => $request->guests,
+            'payment_status' => $reservation->payment_status,
         ]);
 
-        // Check for availability conflicts, excluding the current reservation
-        $existingReservation = Reservation::where('room_id', $validated['room_id'])
-            ->where('date', $validated['date'])
-            ->where('id', '!=', $reservation->id) // Exclude the current reservation
-            ->where(function ($query) use ($validated) {
-                $query->where(function ($q) use ($validated) {
-                    $q->where('check_in_time', '>=', $validated['check_in_time'])
-                        ->where('check_in_time', '<', $validated['check_out_time']);
-                })->orWhere(function ($q) use ($validated) {
-                    $q->where('check_out_time', '>', $validated['check_in_time'])
-                        ->where('check_out_time', '<=', $validated['check_out_time']);
-                })->orWhere(function ($q) use ($validated) {
-                    $q->where('check_in_time', '<=', $validated['check_in_time'])
-                        ->where('check_out_time', '>=', $validated['check_out_time']);
-                });
-            })
-            ->exists();
-
-        if ($existingReservation) {
-            return back()->withErrors(['error' => 'La habitación no está disponible en ese horario.'])->withInput();
-        }
-
-        // Fetch user once to optimize queries
-        $user = User::findOrFail($validated['user_id']);
-
-        // Update the reservation
-        try {
-            $reservation->update([
-                'user_id' => $validated['user_id'],
-                'room_id' => $validated['room_id'],
-                'full_name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->mobile_number ?? '',
-                'date' => $validated['date'],
-                'check_in_time' => $validated['check_in_time'],
-                'check_out_time' => $validated['check_out_time'],
-                'guests' => $validated['guests'],
-                'payment_status' => $reservation->payment_status, // Preserve existing status
-            ]);
-
-            return redirect()->route('reservations.index')->with('success', 'Reserva actualizada exitosamente.');
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Error al actualizar la reserva: ' . $e->getMessage()])->withInput();
-        }
+        return redirect()->route('reservations.index')
+            ->with('success', 'Reserva actualizada exitosamente.');
+    } catch (\Exception $e) {
+        return back()->withErrors(['fail' => 'No se pudo actualizar la reserva'])->withInput();
     }
+}
+
+
     protected function getEventColor($guests)
 {
     return match($guests) {
