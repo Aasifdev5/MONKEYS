@@ -31,7 +31,7 @@
     }
 
     * {
-        box-sizing: border-box; /* Ensure all elements include padding/borders in width */
+        box-sizing: border-box;
     }
 
     body {
@@ -39,16 +39,16 @@
         color: var(--airbnb-dark);
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
-        overflow-x: hidden; /* Prevent horizontal scroll */
-        margin: 0; /* Remove default body margin */
+        overflow-x: hidden;
+        margin: 0;
     }
 
     .container {
         max-width: 1120px;
         margin: 0 auto;
-        padding: 0 16px; /* Reduced padding to fit mobile */
+        padding: 0 16px;
         width: 100%;
-        overflow-x: hidden; /* Prevent container overflow */
+        overflow-x: hidden;
     }
 
     /* Header Section */
@@ -122,7 +122,7 @@
         overflow: hidden;
         position: relative;
         width: 100%;
-        overflow-x: hidden; /* Prevent gallery overflow */
+        overflow-x: hidden;
     }
 
     .gallery-main {
@@ -205,23 +205,13 @@
         z-index: 1;
     }
 
-    /* Image Preview Section */
-    .image-preview {
-        margin-bottom: 32px;
-    }
-
-    .image-preview img {
-        margin-right: 8px;
-        margin-bottom: 8px;
-    }
-
     /* Main Content */
     .property-content {
         display: flex;
         gap: 48px;
         position: relative;
         width: 100%;
-        overflow-x: hidden; /* Prevent content overflow */
+        overflow-x: hidden;
     }
 
     .property-main {
@@ -316,7 +306,7 @@
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
         width: 100%;
-        overflow-x: hidden; /* Prevent slider overflow */
+        overflow-x: hidden;
     }
 
     .bedroom-slider::-webkit-scrollbar {
@@ -325,7 +315,7 @@
 
     .bedroom-card {
         min-width: 280px;
-        max-width: 100%; /* Prevent cards from exceeding container */
+        max-width: 100%;
         background: white;
         border: 1px solid var(--airbnb-border);
         border-radius: 12px;
@@ -494,7 +484,7 @@
         box-shadow: var(--shadow-md);
         transition: var(--transition);
         width: 100%;
-        max-width: 100%; /* Prevent widget overflow */
+        max-width: 100%;
     }
 
     .booking-widget:hover {
@@ -557,7 +547,8 @@
         font-size: 16px;
     }
 
-    .booking-date-field input {
+    .booking-date-field input,
+    .booking-date-field select {
         border: none;
         font-size: 14px;
         color: var(--airbnb-dark);
@@ -651,62 +642,6 @@
         font-weight: 400;
     }
 
-    .price-breakdown {
-        margin-top: 24px;
-        padding-top: 24px;
-        border-top: 1px solid var(--airbnb-border);
-    }
-
-    .price-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 16px;
-        font-size: 16px;
-        color: var(--airbnb-dark);
-    }
-
-    .price-row .price-detail {
-        text-decoration: underline;
-        cursor: pointer;
-    }
-
-    .price-total {
-        font-weight: 700;
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid var(--airbnb-border);
-        font-size: 18px;
-    }
-
-    .extend-trip {
-        display: block;
-        text-align: center;
-        color: var(--airbnb-pink);
-        font-size: 16px;
-        font-weight: 600;
-        margin: 24px 0;
-        text-decoration: underline;
-        transition: var(--transition);
-    }
-
-    .extend-trip:hover {
-        color: #e63946;
-    }
-
-    .report-listing {
-        display: block;
-        text-align: center;
-        color: var(--airbnb-gray);
-        font-size: 14px;
-        font-weight: 400;
-        margin-top: 16px;
-        transition: var(--transition);
-    }
-
-    .report-listing:hover {
-        color: var(--airbnb-dark);
-    }
-
     /* Responsive Design */
     @media (max-width: 1024px) {
         .property-gallery {
@@ -792,7 +727,7 @@
 
         .bedroom-card {
             min-width: 260px;
-            max-width: calc(100% - 24px); /* Account for container padding */
+            max-width: calc(100% - 24px);
         }
     }
 
@@ -902,39 +837,42 @@
         border-style: solid;
         border-color: var(--airbnb-dark) transparent transparent transparent;
     }
+
+    .hidden-amenity {
+        display: none;
+    }
 </style>
 @endpush
 
 <div class="container">
     <!-- Property Header -->
     <div class="property-header" style="width: 100%; box-sizing: border-box; padding: 16px;">
-    <div class="d-flex justify-content-between align-items-start" style="flex-wrap: wrap; width: 100%; gap: 12px;">
-        <div style="flex: 1 1 100%; min-width: 0;">
-            <h1 class="property-title" style="font-size: 24px; margin-bottom: 8px;">{{ $property->name }}</h1>
-            <p class="property-subtitle" style="font-size: 14px; margin-bottom: 0;">
-                {{ $property->max_people }} huéspedes ·
-                {{ count($property->bedrooms) }} habitación{{ count($property->bedrooms) > 1 ? 'es' : '' }} ·
-                {{ $property->description }}
-            </p>
+        <div class="d-flex justify-content-between align-items-start" style="flex-wrap: wrap; width: 100%; gap: 12px;">
+            <div style="flex: 1 1 100%; min-width: 0;">
+                <h1 class="property-title" style="font-size: 24px; margin-bottom: 8px;">{{ $property->name }}</h1>
+                <p class="property-subtitle" style="font-size: 14px; margin-bottom: 0;">
+                    {{ $property->max_people }} huéspedes ·
+                    {{ count($property->bedrooms) }} habitación{{ count($property->bedrooms) > true ? 'es' : '' }} ·
+                    {{ $property->description }}
+                </p>
+            </div>
+            <div class="property-actions" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <button class="tooltip-trigger" style="background: none; border: none; padding: 4px 8px; font-size: 14px;" data-tooltip="Compartir este anuncio">
+                    <i class="fas fa-share-alt"></i> Compartir
+                    <div class="tooltip">Compartir este anuncio</div>
+                </button>
+                <button class="save-button tooltip-trigger {{ $property->favorite ? 'active' : '' }}" style="background: none; border: none; padding: 4px 8px; font-size: 14px;" data-tooltip="Guardar en tu lista de deseos" data-room-id="{{ $property->id }}">
+                    <i class="fa{{ $property->favorite ? 's' : 'r' }} fa-heart"></i> Guardar
+                    <div class="tooltip">Guardar en tu lista de deseos</div>
+                </button>
+            </div>
         </div>
-        <div class="property-actions" style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <button class="tooltip-trigger" style="background: none; border: none; padding: 4px 8px; font-size: 14px;" data-tooltip="Compartir este anuncio">
-                <i class="fas fa-share-alt"></i> Compartir
-                <div class="tooltip">Compartir este anuncio</div>
-            </button>
-            <button class="save-button tooltip-trigger {{ $property->favorite ? 'active' : '' }}" style="background: none; border: none; padding: 4px 8px; font-size: 14px;" data-tooltip="Guardar en tu lista de deseos" data-room-id="{{ $property->id }}">
-                <i class="fa{{ $property->favorite ? 's' : 'r' }} fa-heart"></i> Guardar
-                <div class="tooltip">Guardar en tu lista de deseos</div>
-            </button>
+        <div class="property-meta" style="margin-top: 12px; font-size: 14px;">
+            @if($property->rating)
+                <span><i class="fas fa-star" style="color: var(--airbnb-star);"></i> {{ number_format($property->rating, 2) }}</span>
+            @endif
         </div>
     </div>
-    <div class="property-meta" style="margin-top: 12px; font-size: 14px;">
-        @if($property->rating)
-            <span><i class="fas fa-star" style="color: var(--airbnb-star);"></i> {{ number_format($property->rating, 2) }}</span>
-        @endif
-    </div>
-</div>
-
 
     <!-- Property Gallery -->
     <div class="property-gallery">
@@ -955,16 +893,17 @@
             <i class="fas fa-camera"></i> Mostrar todas las fotos
         </button>
     </div>
+
     @if (session('fail'))
-    <div class="alert alert-danger">
-        {{ session('fail') }}
-    </div>
-@endif
+        <div class="alert alert-danger">
+            {{ session('fail') }}
+        </div>
+    @endif
+
     <div class="property-content">
         <div class="property-main">
-            <!-- Property Highlights -->
-            <hr>
             <!-- About Section -->
+            <hr>
             <h2 class="section-title">Acerca de este lugar</h2>
             <p class="property-description">
                 {{ $property->description ?: 'No hay descripción disponible.' }}
@@ -1041,19 +980,6 @@
                     </button>
                 @endif
             </div>
-            <style>
-                .hidden-amenity {
-                    display: none;
-                }
-            </style>
-            <script>
-                function showAllAmenities() {
-                    document.querySelectorAll('.hidden-amenity').forEach(item => {
-                        item.classList.remove('hidden-amenity');
-                    });
-                    document.querySelector('.show-all-amenities').style.display = 'none';
-                }
-            </script>
             <hr>
             <!-- Things to Know -->
             <div class="things-section">
@@ -1091,7 +1017,7 @@
             <!-- Booking Widget -->
             <div class="booking-widget">
                 <div class="booking-header">
-                    <div class="booking-price">Bs{{ number_format($property->price, 2) }} <span>/ hora</span></div>
+                    <!-- Optional: Display base price if needed -->
                 </div>
                 <div class="booking-dates">
                     <div class="booking-date-field">
@@ -1102,9 +1028,19 @@
                         <label><span class="emoji">⏰</span> Hora de entrada</label>
                         <input type="text" id="check-in-hour-picker" name="check_in_hour" placeholder="Añadir hora">
                     </div>
+                    @php
+                        $durations = json_decode($property->price ?? '[]', true);
+                    @endphp
                     <div class="booking-date-field">
-                        <label><span class="emoji">⏰</span> Hora de salida</label>
-                        <input type="text" id="check-out-hour-picker" name="check_out_hour" placeholder="Añadir hora">
+                        <label><span class="emoji">💰</span> Selecciona duración y precio</label>
+                        <select id="duration-picker" name="duration" class="form-select">
+                            <option value="">Selecciona una opción</option>
+                            @foreach ($durations as $duration)
+                                <option value="{{ $duration['hours'] }}" data-amount="{{ $duration['amount'] }}">
+                                    {{ $duration['hours'] }} hora{{ $duration['hours'] > 1 ? 's' : '' }} por {{ $duration['amount'] }}bs
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="booking-guests">
@@ -1115,9 +1051,9 @@
                 </div>
                 <div class="booking-section">
                     @if(!empty($user_session))
-                        <a href="{{ route('booking.form', ['room' => $property->id])}}" id="reserve-button" class="btn btn-sm booking-button" data-room-id="{{ $property->id }}" data-room-name="{{ $property->name }}" data-room-price="{{ $property->price }}">Reservar</a>
+                        <a href="{{ route('booking.form', ['room' => $property->id]) }}" id="reserve-button" class="btn btn-sm booking-button" data-room-id="{{ $property->id }}" data-room-name="{{ $property->name }}">Reservar</a>
                     @else
-                        <a href="{{ url('Userlogin')}}" class="btn btn-sm booking-button">Reservar</a>
+                        <a href="{{ url('Userlogin') }}" class="btn btn-sm booking-button">Reservar</a>
                     @endif
                 </div>
             </div>
@@ -1136,25 +1072,15 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.getElementById('guest-count').addEventListener('input', function () {
-    const max = parseInt(this.max);
-    const min = parseInt(this.min);
-    const value = parseInt(this.value);
-    if (value > max) {
-        this.value = max;
-        Swal.fire({
-            icon: 'warning',
-            title: 'Límite excedido',
-            text: 'Solo puedes ingresar hasta ' + max + ' personas.',
-        });
-    } else if (value < min) {
-        this.value = min;
-    }
-});
-</script>
-<script>
+function showAllAmenities() {
+    document.querySelectorAll('.hidden-amenity').forEach(item => {
+        item.classList.remove('hidden-amenity');
+    });
+    document.querySelector('.show-all-amenities').style.display = 'none';
+}
+
 $(document).ready(function () {
-    // Initialize Flatpickr for date and time pickers
+    // Initialize Flatpickr for date and check-in time
     flatpickr("#date-picker", {
         dateFormat: "Y-m-d",
         minDate: "today",
@@ -1165,6 +1091,7 @@ $(document).ready(function () {
             }
         }
     });
+
     flatpickr("#check-in-hour-picker", {
         enableTime: true,
         noCalendar: true,
@@ -1177,54 +1104,63 @@ $(document).ready(function () {
             }
         }
     });
-    flatpickr("#check-out-hour-picker", {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        allowInput: true,
-        onClose: function(selectedDates, dateStr, instance) {
-            if (selectedDates.length > 0) {
-                instance.input.value = dateStr;
-            }
-        }
-    });
-    // Update people value on input change
+
+    // Guest count validation
     $("#guest-count").on("input", function() {
         let value = parseInt($(this).val());
         if (value < 1) {
             $(this).val(1);
+            Swal.fire({
+                icon: 'warning',
+                title: 'Valor inválido',
+                text: 'El número de personas debe ser al menos 1.',
+            });
         } else if (value > {{ $property->max_people }}) {
             $(this).val({{ $property->max_people }});
+            Swal.fire({
+                icon: 'warning',
+                title: 'Límite excedido',
+                text: 'Solo puedes ingresar hasta {{ $property->max_people }} personas.',
+            });
         }
     });
+
     // Handle reserve button click to pass chosen values
     $("#reserve-button").click(function(e) {
         e.preventDefault();
         const roomId = $(this).data('room-id');
         const roomName = encodeURIComponent($(this).data('room-name'));
-        const roomPrice = $(this).data('room-price');
         const date = $("#date-picker").val();
         const checkInHour = $("#check-in-hour-picker").val();
-        const checkOutHour = $("#check-out-hour-picker").val();
+        const durationOption = $("#duration-picker option:selected");
+        const duration = durationOption.val(); // Hours
+        const amount = durationOption.data('amount'); // Price
         const guestCount = $("#guest-count").val();
+
         // Validate inputs
-        if (!date || !checkInHour || !checkOutHour || !guestCount) {
-            alert('Por favor, completa todos los campos (fecha, hora de entrada, hora de salida y número de personas).');
+        if (!date || !checkInHour || !duration || !amount || !guestCount) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Campos incompletos',
+                text: 'Por favor, completa todos los campos (fecha, hora de entrada, duración y número de personas).',
+            });
             return;
         }
+
         // Construct URL with query parameters
         const url = `{{ route('booking.form', ['room' => ':roomId']) }}`
             .replace(':roomId', roomId) +
             `?date=${encodeURIComponent(date)}` +
             `&check_in_hour=${encodeURIComponent(checkInHour)}` +
-            `&check_out_hour=${encodeURIComponent(checkOutHour)}` +
+            `&duration=${encodeURIComponent(duration)}` +
+            `&amount=${encodeURIComponent(amount)}` +
             `&people=${encodeURIComponent(guestCount)}` +
-            `&room_name=${roomName}` +
-            `&room_price=${encodeURIComponent(roomPrice)}`;
+            `&room_name=${roomName}`;
+
         // Redirect to booking form
         window.location.href = url;
     });
+
     // Bedroom slider pagination
     $('.dot').click(function() {
         const index = $(this).index();
@@ -1233,13 +1169,14 @@ $(document).ready(function () {
             scrollLeft: $('.bedroom-card').eq(index).position().left + $('.bedroom-slider').scrollLeft()
         }, 300);
     });
-    // Update dots based on scroll position
+
     $('.bedroom-slider').on('scroll', function() {
         const scrollPosition = $(this).scrollLeft();
         const cardWidth = $('.bedroom-card').outerWidth();
         const currentIndex = Math.round(scrollPosition / cardWidth);
         $('.dot').eq(currentIndex).addClass('active').siblings().removeClass('active');
     });
+
     // Toggle "Show more" sections
     $('.read-more').click(function() {
         const section = $(this).prev();
@@ -1251,22 +1188,23 @@ $(document).ready(function () {
             $(this).text('Mostrar más');
         }
     });
+
     // Save button toggle with AJAX
     $('.save-button').click(function() {
         const $button = $(this);
         const roomId = $button.data('room-id');
         const isActive = !$button.hasClass('active');
-        // Update UI
+
         $button.toggleClass('active');
         $button.find('i').toggleClass('far fas');
-        // Show feedback
+
         const tooltip = $button.find('.tooltip');
         tooltip.text(isActive ? 'Guardado en la lista de deseos' : 'Eliminado de la lista de deseos');
         tooltip.css('opacity', 1);
         setTimeout(() => {
             tooltip.css('opacity', 0);
         }, 2000);
-        // Send AJAX request to update favorite status
+
         $.ajax({
             url: '/rooms/' + roomId + '/favorite',
             method: 'POST',
@@ -1279,7 +1217,6 @@ $(document).ready(function () {
             },
             error: function(xhr) {
                 console.error('Error updating favorite:', xhr);
-                // Revert UI change on error
                 $button.toggleClass('active');
                 $button.find('i').toggleClass('far fas');
                 tooltip.text('Error al actualizar');
@@ -1290,10 +1227,12 @@ $(document).ready(function () {
             }
         });
     });
+
     // Show all photos lightbox
     $('#show-all-photos').click(function() {
         $('[data-lightbox="property-gallery"]').first().trigger('click');
     });
+
     // Tooltip functionality
     $('.tooltip-trigger').hover(function() {
         const tooltip = $(this).find('.tooltip');
@@ -1306,12 +1245,14 @@ $(document).ready(function () {
     }, function() {
         $(this).find('.tooltip').css('opacity', 0);
     });
+
     // Floating action button
     $('#fab-reserve').click(function() {
         $('html, body').animate({
             scrollTop: $(".booking-widget").offset().top - 20
         }, 500);
     });
+
     // Show/hide FAB based on scroll position
     $(window).scroll(function() {
         if ($(window).scrollTop() > 300) {

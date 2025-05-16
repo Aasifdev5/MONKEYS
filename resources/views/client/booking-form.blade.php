@@ -1,12 +1,16 @@
 @extends('master')
 
+@section('title')
+Confirmar Reserva - {{ $room_name }}
+@endsection
+
 @section('content')
 @push('styles')
 <!-- Airbnb-like Flatpickr and Fonts -->
 <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Circular,-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
     :root {
@@ -105,167 +109,85 @@
         align-items: center;
     }
 
-    /* Booking Fields (from last response) */
-    .booking-dates {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 16px;
-    }
-
-    .booking-date-field {
-        position: relative;
-        border: 1px solid var(--airbnb-dark);
+    .booking-details, .payment-details {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid var(--airbnb-border);
         border-radius: 8px;
-        padding: 12px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: border-color 0.2s ease;
     }
 
-    .booking-date-field:hover {
-        border-color: var(--airbnb-pink);
+    .booking-details p, .payment-details p {
+        font-size: 16px;
+        margin: 10px 0;
     }
 
-    .booking-date-field label {
+    .alert-warning {
+        background-color: #E63946;
+        color: white;
+        font-size: 0.95rem;
+        border-radius: 20px;
+        padding: 12px 16px;
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 10px;
-        font-weight: 700;
-        color: var(--airbnb-dark);
-        text-transform: uppercase;
-        margin-bottom: 4px;
     }
 
-    .booking-date-field label span.emoji {
-        font-size: 16px;
+    .alert-warning i {
+        margin-right: 8px;
     }
 
-    .booking-date-field input {
-        border: none;
-        font-size: 14px;
-        color: var(--airbnb-dark);
-        font-weight: 500;
-        width: 100%;
-        outline: none;
-        background: transparent;
-    }
-
-    .booking-date-field input::placeholder {
-        color: var(--airbnb-gray);
-        font-weight: 400;
-    }
-
-    .booking-guests {
-        position: relative;
-        margin-bottom: 16px;
-    }
-
-    .guest-input {
-        border: 1px solid var(--airbnb-dark);
-        border-radius: 8px;
-        padding: 12px;
-        font-size: 14px;
-        background: white;
-        display: flex;
-        flex-direction: column;
-        transition: var(--transition);
-    }
-
-    .guest-input:hover {
-        border-color: var(--airbnb-pink);
-    }
-
-    .guest-input label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 10px;
-        font-weight: 700;
-        color: var(--airbnb-dark);
-        text-transform: uppercase;
-        margin-bottom: 4px;
-    }
-
-    .guest-input label span.emoji {
-        font-size: 16px;
-    }
-
-    .guest-input input {
-        border: none;
-        font-size: 14px;
-        color: var(--airbnb-dark);
-        font-weight: 500;
-        width: 100%;
-        outline: none;
-    }
-
-    .guest-input input::placeholder {
-        color: var(--airbnb-gray);
-        font-weight: 400;
-    }
-
-    /* Responsive Design */
     @media (max-width: 768px) {
         .sticky-top {
             position: static;
             top: 0;
+        }
+
+        .container {
+            padding: 0 16px;
         }
     }
 </style>
 @endpush
 
 <div class="container mt-4">
+    @if (session('fail'))
+        <div class="alert alert-danger">
+            {{ session('fail') }}
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('booking.submit', $room->id) }}" enctype="multipart/form-data">
         @csrf
+        <input type="hidden" name="room_id" value="{{ $room->id }}">
+        <input type="hidden" name="date" value="{{ $date }}">
+        <input type="hidden" name="check_in_hour" value="{{ $check_in_hour }}">
+        <input type="hidden" name="check_out_hour" value="{{ $check_out_hour }}">
+        <input type="hidden" name="duration" value="{{ $duration }}">
+        <input type="hidden" name="amount" value="{{ $amount }}">
+        <input type="hidden" name="people" value="{{ $people }}">
+        <input type="hidden" id="name" name="name"  value="{{ $user_session->name ?? '' }}" readonly>
+                    <input type="hidden" id="email" name="email"  value="{{ $user_session->email ?? '' }}" readonly>
+                    <input type="hidden" id="phone" name="phone"  value="{{ $user_session->mobile_number ?? '' }}" readonly>
 
         <div class="row">
             <!-- Left Column -->
             <div class="col-lg-7">
-                <!-- Your Trip -->
+                <!-- Booking Details -->
                 <div class="card p-4 shadow-sm mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h3 class="fw-bold">Tu viaje</h3>
-                        <button class="btn btn-link text-decoration-none">Editar</button>
-                    </div>
+                    <h3 class="fw-bold mb-3">Tu viaje</h3>
                     <div class="d-flex align-items-center mb-3">
                         <img src="{{ asset( $room->thumbnail) }}" class="rounded me-3" width="150" alt="Propiedad">
                         <div>
-                            <h5 class="mb-0">{{ $room_name ?? $room->title ?? 'Habitación de Prueba' }}</h5>
-                            <p class="text-muted mb-0">{{ $room->room_type ?? 'Estancia en granja' }} ·  {{ $room->description  }} </p>
+                            <h5 class="mb-0">{{ $room_name ?? $room->name ?? 'Habitación de Prueba' }}</h5>
+                            <p class="text-muted mb-0">{{ $room->description ?? 'Sin descripción disponible' }}</p>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <p><strong>Fechas</strong> <span>{{ $date ?? '2025-05-01' }}</span> <a href="#" class="text-decoration-none">Editar</a></p>
-                        <p><strong>Hora de entrada</strong> <span>{{ $check_in_hour ?? '14:00' }}</span> <a href="#" class="text-decoration-none">Editar</a></p>
-                        <p><strong>Hora de salida</strong> <span>{{ $check_out_hour ?? '11:00' }}</span> <a href="#" class="text-decoration-none">Editar</a></p>
-                        <p><strong>Huéspedes</strong> <span>{{ $people ?? 2 }} huésped{{ ($people ?? 2) > 1 ? 'es' : '' }}</span> <a href="#" class="text-decoration-none">Editar</a></p>
-                    </div>
-
-                    <!-- Date, Check-in, Check-out, and Guests Fields -->
-                    <div class="booking-dates">
-                        <div class="booking-date-field">
-                            <label><span class="emoji">📅</span> Fecha</label>
-                            <input type="text" id="date-picker" name="date" placeholder="Añadir fecha" value="{{ $date ?? '' }}" readonly>
-                        </div>
-                        <div class="booking-date-field">
-                            <label><span class="emoji">⏰</span> Hora de entrada</label>
-                            <input type="text" id="check-in-hour-picker" name="check_in" placeholder="Añadir hora" value="{{ $check_in_hour ?? '' }}" readonly>
-                        </div>
-                        <div class="booking-date-field">
-                            <label><span class="emoji">⏰</span> Hora de salida</label>
-                            <input type="text" id="check-out-hour-picker" name="check_out" placeholder="Añadir hora" value="{{ $check_out_hour ?? '' }}" readonly>
-                        </div>
-                    </div>
-                    <input type="hidden" id="name" name="name"  value="{{ $user_session->name ?? '' }}" readonly>
-                    <input type="hidden" id="email" name="email"  value="{{ $user_session->email ?? '' }}" readonly>
-                    <input type="hidden" id="phone" name="phone"  value="{{ $user_session->mobile_number ?? '' }}" readonly>
-                    <div class="booking-guests">
-                        <div class="guest-input">
-                            <label><span class="emoji">👥</span> Número de personas</label>
-                            <input type="number" id="guest-count" name="guests" min="1" max="{{ $room->max_people ?? 8 }}" value="{{ $people ?? 1 }}" readonly>
-                        </div>
+                    <div class="booking-details">
+                        <p><strong>Fecha:</strong> {{ $date }}</p>
+                        <p><strong>Hora de entrada:</strong> {{ $check_in_hour }}</p>
+                        <p><strong>Hora de salida:</strong> {{ $check_out_hour }}</p>
+                        <p><strong>Duración:</strong> {{ $duration }} hora{{ $duration > 1 ? 's' : '' }}</p>
+                        <p><strong>Precio:</strong> Bs{{ number_format($amount, 2) }}</p>
+                        <p><strong>Huéspedes:</strong> {{ $people }} huésped{{ $people > 1 ? 'es' : '' }}</p>
                     </div>
                 </div>
 
@@ -273,20 +195,20 @@
                 <div class="card p-4 shadow-sm mb-4">
                     <h5 class="fw-bold mb-3">Escanear QR para pagar</h5>
                     <div class="text-center mb-4">
-    @if (!empty($qrcode))
-        <div class="d-inline-block p-3 border rounded shadow-sm bg-white">
-            <img src="{{ asset('qrcode/' . $qrcode->qrcode_path) }}" alt="Código QR" class="img-fluid mb-3" style="max-width: 150px; height: auto;">
-            <a href="{{ asset('qrcode/' . $qrcode->qrcode_path) }}" download="qr_code.png" class="btn btn-primary w-100">
-                <i class="fa fa-download me-2"></i> {{ __('Descargar Código QR') }}
-            </a>
-        </div>
-    @endif
-</div>
-
-
+                        @if ($qrcode)
+                            <div class="d-inline-block p-3 border rounded shadow-sm bg-white">
+                                <img src="{{ asset('qrcode/' . $qrcode->qrcode_path) }}" alt="Código QR" class="img-fluid mb-3" style="max-width: 150px; height: auto;">
+                                <a href="{{ asset('qrcode/' . $qrcode->qrcode_path) }}" download="qr_code.png" class="btn btn-primary w-100">
+                                    <i class="fa fa-download me-2"></i> Descargar Código QR
+                                </a>
+                            </div>
+                        @else
+                            <p class="text-muted">No hay código QR disponible.</p>
+                        @endif
+                    </div>
                     <div class="mb-3">
                         <label for="proof" class="form-label">Subir comprobante de pago</label>
-                        <input type="file" name="proof" class="form-control">
+                        <input type="file" name="proof" class="form-control" accept="image/*,application/pdf">
                     </div>
                 </div>
 
@@ -295,19 +217,11 @@
                     <h5 class="fw-bold mb-3">Información para tu viaje</h5>
                     <div class="mb-3">
                         <label>Mensaje al anfitrión</label>
-                        <p class="text-muted mb-2">Antes de continuar, cuéntale un poco a tu anfitrión sobre tu viaje.</p>
-                        <button type="button" class="btn btn-outline-dark btn-sm">Añadir</button>
+                        <p class="text-muted mb-2">Cuéntale un poco a tu anfitrión sobre tu viaje.</p>
+                        <textarea name="host_message" class="form-control" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label>Número de teléfono</label>
-                        <p class="text-muted mb-2">Añade y confirma tu número de teléfono para recibir actualizaciones del viaje.</p>
-                        <button type="button" class="btn btn-outline-dark btn-sm">Añadir</button>
-                    </div>
-
-                    <!-- Policy -->
                     <h5 class="fw-bold mt-4">Política de cancelación</h5>
                     <p>Esta reserva no es reembolsable. <a href="#" class="text-decoration-none">Saber más</a></p>
-
                     <h5 class="fw-bold mt-4">Reglas básicas</h5>
                     <ul class="list-unstyled">
                         <li><i class="fas fa-check text-success me-2"></i> Seguir las reglas de la casa</li>
@@ -321,32 +235,26 @@
                 <div class="card p-4 shadow-sm sticky-top">
                     <h5 class="fw-bold">Tu total</h5>
                     <div class="d-flex justify-content-between mb-2">
-                        <p>Bs{{ number_format($room_price ?? $room->price ?? 6276, 2) }} x 1 hora</p>
-                        <p>Bs{{ number_format($room_price ?? $room->price ?? 6276, 2) }}</p>
+                        <p>Bs{{ number_format($amount, 2) }} x {{ $duration }} hora{{ $duration > 1 ? 's' : '' }}</p>
+                        <p>Bs{{ number_format($amount, 2) }}</p>
                     </div>
-
                     <hr>
                     <div class="d-flex justify-content-between">
                         <h6>Total (Bs)</h6>
-                        <h6>Bs{{ number_format(($room_price ?? $room->price ?? 6276) , 2) }}</h6>
+                        <h6>Bs{{ number_format($amount, 2) }}</h6>
                     </div>
                     <p class="text-muted text-center mt-2">Desglose de precios</p>
 
-                    <!-- Submit -->
-                  <div class="d-flex align-items-center rounded-pill shadow-sm py-2 px-4 mt-4 mb-3" role="alert" style="background-color: #E63946; color: white; font-size: 0.95rem;">
-    <i class="fas fa-exclamation-triangle fa-shake me-2"></i>
-    <span class="fw-semibold">Debes subir el comprobante de pago primero.</span>
-</div>
-
-
-
-
+                    <div class="alert-warning shadow-sm py-2 px-4 mt-4 mb-3">
+                        <i class="fas fa-exclamation-triangle fa-shake"></i>
+                        <span class="fw-semibold">Debes subir el comprobante de pago primero.</span>
+                    </div>
 
                     <button type="submit" class="btn btn-primary w-100 mb-2">
                         Solicitar reserva
                     </button>
                     <p class="text-muted text-center">
-                        Al seleccionar el botón, acepto las reglas de la casa del anfitrión, la política de reembolsos de RESIDENT MONKEY y los términos de responsabilidad por daños.
+                        Al seleccionar el botón, acepto las reglas de la casa del anfitrión, la política de reembolsos y los términos de responsabilidad por daños.
                     </p>
                 </div>
             </div>
@@ -357,18 +265,14 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function () {
-    // Initialize Flatpickr for date and time pickers
+    // Initialize Flatpickr (for display purposes, inputs are read-only)
     flatpickr("#date-picker", {
         dateFormat: "Y-m-d",
         minDate: "today",
-        allowInput: true,
-        onClose: function(selectedDates, dateStr, instance) {
-            if (selectedDates.length > 0) {
-                instance.input.value = dateStr;
-            }
-        }
+        allowInput: false
     });
 
     flatpickr("#check-in-hour-picker", {
@@ -376,32 +280,19 @@ $(document).ready(function () {
         noCalendar: true,
         dateFormat: "H:i",
         time_24hr: true,
-        allowInput: true,
-        onClose: function(selectedDates, dateStr, instance) {
-            if (selectedDates.length > 0) {
-                instance.input.value = dateStr;
-            }
-        }
+        allowInput: false
     });
 
-    flatpickr("#check-out-hour-picker", {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        allowInput: true,
-        onClose: function(selectedDates, dateStr, instance) {
-            if (selectedDates.length > 0) {
-                instance.input.value = dateStr;
-            }
-        }
-    });
-
-    // Update guests value on input change
-    $("#guest-count").on("input", function() {
-        let value = $(this).val();
-        if (value < 1) {
-            $(this).val(1);
+    // Validate file upload before submission
+    $('form').on('submit', function(e) {
+        const proof = $('input[name="proof"]').val();
+        if (!proof) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Comprobante requerido',
+                text: 'Por favor, sube el comprobante de pago antes de continuar.',
+            });
         }
     });
 });

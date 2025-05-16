@@ -14,6 +14,7 @@ class Property extends Model
         'description',
         'thumbnail',
         'price',
+        'duration',
         'rating',
         'favorite',
         'max_people',

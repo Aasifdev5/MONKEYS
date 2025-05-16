@@ -263,9 +263,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['check.session', 'super.admi
             Route::post('store', [PropertyController::class, 'store'])->name('properties.store');
             Route::get('edit/{property}', [PropertyController::class, 'edit'])->name('properties.edit');
             Route::post('update/{property}', [PropertyController::class, 'update'])->name('properties.update');
-            Route::delete('delete/{property}', [PropertyController::class, 'destroy'])->name('properties.delete');
+            Route::delete('delete/{id}', [PropertyController::class, 'destroy'])->name('properties.delete');
             Route::post('bulk-delete', [PropertyController::class, 'bulkDelete'])->name('properties.bulk.delete');
         });
+
         // Portfolio routes
         Route::prefix('portfolios')->group(function () {
             Route::get('/', [PortfolioController::class, 'index'])->name('portfolios.index');

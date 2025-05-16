@@ -66,10 +66,29 @@
                                     <img id="thumbnail-img" src="#" alt="Vista Previa" class="img-fluid mt-2" style="max-width: 300px; display: none;">
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="price">Precio</label>
-                                    <input type="number" step="0.01" name="price" id="price" class="form-control" value="{{ old('price', $property->price) }}">
-                                </div>
+                                @php
+    $priceData = is_array($property->price) ? $property->price : json_decode($property->price, true);
+@endphp
+
+<div class="mb-3">
+    <label>Precios por Hora</label>
+    <div id="price-wrapper">
+        @foreach ($priceData as $index => $price)
+        <div class="row g-2 mb-2">
+            <div class="col-md-5">
+                <input type="number" step="0.01" name="price[{{ $index }}][amount]" class="form-control" placeholder="Precio" value="{{ $price['amount'] ?? '' }}">
+            </div>
+            <div class="col-md-5">
+                <input type="number" name="price[{{ $index }}][hours]" class="form-control" placeholder="Horas" value="{{ $price['hours'] ?? '' }}">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()">Eliminar</button>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    <button type="button" class="btn btn-secondary mt-2" onclick="addPriceField()">+ Agregar Precio</button>
+</div>
 
                                 <div class="mb-3">
                                     <label for="max_people">Máximo de Personas</label>
@@ -178,6 +197,23 @@
 </div>
 
 <script>
+    function addPriceField() {
+    const wrapper = document.getElementById('price-wrapper');
+    const index = wrapper.children.length;
+    const html = `
+        <div class="row g-2 mb-2">
+            <div class="col-md-5">
+                <input type="number" step="0.01" name="price[${index}][amount]" class="form-control" placeholder="Precio">
+            </div>
+            <div class="col-md-5">
+                <input type="number" name="price[${index}][hours]" class="form-control" placeholder="Horas">
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove()">Eliminar</button>
+            </div>
+        </div>`;
+    wrapper.insertAdjacentHTML('beforeend', html);
+}
 function previewThumbnail(event) {
     const file = event.target.files[0];
     const reader = new FileReader();

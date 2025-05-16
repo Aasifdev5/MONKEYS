@@ -39,13 +39,15 @@ class PropertyController extends Controller
         return view('admin.properties.create', compact('user_session'));
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
 {
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'description' => 'required|string',
         'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,avif',
-        'price' => 'required|numeric',
+        'price' => 'required|array',
+        'price.*.amount' => 'required|numeric',
+        'price.*.hours' => 'required|integer',
         'max_people' => 'required|integer',
         'equipment_rate' => 'required',
         'bedrooms' => 'nullable|array',
@@ -53,14 +55,12 @@ class PropertyController extends Controller
         'bedrooms.*.description' => 'required_with:bedrooms|string',
         'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
         'amenities' => 'nullable|array',
-        'amenities.*' => 'in:entertainment,group_spaces,fully_equipped,bed,tv,wifi,private_bathroom,fridge,ac,kitchen,microwave,chairs,tables,hot_shower,pool,jacuzzi,bar,remotes,playstation,alexa,living,sound_room,heating,hammocks,wardrobe,sound_system', // Validate static amenity values
+        'amenities.*' => 'in:entertainment,group_spaces,fully_equipped,bed,tv,wifi,private_bathroom,fridge,ac,kitchen,microwave,chairs,tables,hot_shower,pool,jacuzzi,bar,remotes,playstation,alexa,living,sound_room,heating,hammocks,wardrobe,sound_system',
         'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
     ]);
 
-    // Upload thumbnail
     $thumbnailPath = $this->uploadToFolder($request->file('thumbnail'), 'property_thumbnails');
 
-    // Process bedrooms
     $bedrooms = [];
     if ($request->has('bedrooms')) {
         foreach ($request->bedrooms as $index => $bedroom) {
@@ -73,10 +73,8 @@ class PropertyController extends Controller
         }
     }
 
-    // Process amenities (store the array of strings directly)
-    $amenities = $request->amenities ?? []; // Default to empty array if no amenities are selected
+    $amenities = $request->amenities ?? [];
 
-    // Process property images
     $propertyImages = [];
     if ($request->hasFile('property_images')) {
         foreach ($request->file('property_images') as $image) {
@@ -84,21 +82,27 @@ class PropertyController extends Controller
         }
     }
 
-    // Create the property
+    // Convert price to JSON
+    $prices = array_values(array_filter($validated['price'], function ($p) {
+        return isset($p['amount'], $p['hours']);
+    }));
+    $encodedPrice = json_encode($prices);
+
     Property::create([
         'name' => $validated['name'],
         'description' => $validated['description'],
         'thumbnail' => $thumbnailPath,
-        'price' => $validated['price'],
+        'price' => $encodedPrice,
         'max_people' => $validated['max_people'],
         'rating' => $validated['equipment_rate'],
         'bedrooms' => $bedrooms,
-        'amenities' => $amenities, // Store the array of amenity strings
+        'amenities' => $amenities,
         'property_images' => $propertyImages,
     ]);
 
     return redirect()->route('properties.index')->with('success', 'Property created successfully.');
 }
+
 
     public function edit(Property $property)
     {
@@ -109,116 +113,134 @@ class PropertyController extends Controller
         return view('admin.properties.edit', compact('property', 'user_session'));
     }
 
-    public function update(Request $request, Property $property)
-    {
-        if (!Session::has('LoggedIn')) {
-            return redirect()->back()->with('fail', 'Tienes que iniciar sesión primero');
-        }
-        $user_session = User::find(Session::get('LoggedIn'));
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
-            'price' => 'required|numeric',
-            'max_people' => 'required|integer',
-            'equipment_rate' => 'required',
-            'bedrooms' => 'nullable|array',
-            'bedrooms.*.title' => 'required_with:bedrooms|string',
-            'bedrooms.*.description' => 'required_with:bedrooms|string',
-            'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
-            'amenities' => 'nullable|array',
-            'amenities.*' => 'in:entertainment,group_spaces,fully_equipped,bed,tv,wifi,private_bathroom,fridge,ac,kitchen,microwave,chairs,tables,hot_shower,pool,jacuzzi,bar,remotes,playstation,alexa,living,sound_room,heating,hammocks,wardrobe,sound_system',
-            'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
-            'existing_images' => 'nullable|array',
-        ]);
-
-        // Handle thumbnail
-        $thumbnailPath = $property->thumbnail;
-        if ($request->hasFile('thumbnail')) {
-            if ($property->thumbnail && file_exists(public_path($property->thumbnail))) {
-                unlink(public_path($property->thumbnail));
-            }
-            $thumbnailPath = $this->uploadToFolder($request->file('thumbnail'), 'property_thumbnails');
-        }
-
-        // Handle bedrooms
-        $bedrooms = [];
-        if ($request->has('bedrooms')) {
-            foreach ($request->bedrooms as $index => $bedroom) {
-                $bedroomImagePath = isset($bedroom['image']) ? $this->uploadToFolder($bedroom['image'], 'bedrooms') : ($property->bedrooms[$index]['image'] ?? null);
-                $bedrooms[] = [
-                    'title' => $bedroom['title'],
-                    'description' => $bedroom['description'],
-                    'image' => $bedroomImagePath,
-                ];
-            }
-        }
-
-        // Handle amenities
-        $amenities = $request->amenities ?? []; // Store the array of strings directly
-
-        // Handle property images
-        $propertyImages = is_string($property->property_images)
-            ? json_decode($property->property_images, true)
-            : ($property->property_images ?? []);
-
-        // Only update property_images if there are changes
-        $existingImages = $request->input('existing_images', null);
-        if ($existingImages !== null || $request->hasFile('property_images')) {
-            // If existing_images is provided, filter the property_images to retain only those
-            if ($existingImages !== null) {
-                $propertyImages = array_intersect($propertyImages, $existingImages);
-            }
-
-            // Append new images if uploaded
-            if ($request->hasFile('property_images')) {
-                foreach ($request->file('property_images') as $image) {
-                    $propertyImages[] = $this->uploadToFolder($image, 'property_images');
-                }
-            }
-
-            $propertyImages = array_values($propertyImages); // Reindex the array
-        }
-
-        // Update the property
-        $property->update([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'thumbnail' => $thumbnailPath,
-            'price' => $validated['price'],
-            'max_people' => $validated['max_people'],
-            'rating' => $validated['equipment_rate'],
-            'bedrooms' => $bedrooms,
-            'amenities' => $amenities,
-            'property_images' => $propertyImages,
-        ]);
-
-        return redirect()->route('properties.index')->with('success', 'Property updated successfully.');
+   public function update(Request $request, Property $property)
+{
+    if (!Session::has('LoggedIn')) {
+        return redirect()->back()->with('fail', 'Tienes que iniciar sesión primero');
     }
 
+    $user_session = User::find(Session::get('LoggedIn'));
 
-    public function destroy(Property $property)
-    {
-        if (!Session::has('LoggedIn')) {
-            return redirect()->back()->with('fail', 'Tienes que iniciar sesión primero');
-        }
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'required|string',
+        'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
+        'price' => 'required|array',
+        'price.*.amount' => 'required|numeric',
+        'price.*.hours' => 'required|integer',
+        'max_people' => 'required|integer',
+        'equipment_rate' => 'required',
+        'bedrooms' => 'nullable|array',
+        'bedrooms.*.title' => 'required_with:bedrooms|string',
+        'bedrooms.*.description' => 'required_with:bedrooms|string',
+        'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
+        'amenities' => 'nullable|array',
+        'amenities.*' => 'in:entertainment,group_spaces,fully_equipped,bed,tv,wifi,private_bathroom,fridge,ac,kitchen,microwave,chairs,tables,hot_shower,pool,jacuzzi,bar,remotes,playstation,alexa,living,sound_room,heating,hammocks,wardrobe,sound_system',
+        'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
+        'existing_images' => 'nullable|array',
+    ]);
 
+    $thumbnailPath = $property->thumbnail;
+    if ($request->hasFile('thumbnail')) {
         if ($property->thumbnail && file_exists(public_path($property->thumbnail))) {
             unlink(public_path($property->thumbnail));
         }
+        $thumbnailPath = $this->uploadToFolder($request->file('thumbnail'), 'property_thumbnails');
+    }
 
-        if ($property->property_images) {
+    $bedrooms = [];
+    if ($request->has('bedrooms')) {
+        foreach ($request->bedrooms as $index => $bedroom) {
+            $bedroomImagePath = isset($bedroom['image']) ? $this->uploadToFolder($bedroom['image'], 'bedrooms') : ($property->bedrooms[$index]['image'] ?? null);
+            $bedrooms[] = [
+                'title' => $bedroom['title'],
+                'description' => $bedroom['description'],
+                'image' => $bedroomImagePath,
+            ];
+        }
+    }
+
+    $amenities = $request->amenities ?? [];
+
+    $propertyImages = is_string($property->property_images)
+        ? json_decode($property->property_images, true)
+        : ($property->property_images ?? []);
+
+    $existingImages = $request->input('existing_images', null);
+    if ($existingImages !== null || $request->hasFile('property_images')) {
+        if ($existingImages !== null) {
+            $propertyImages = array_intersect($propertyImages, $existingImages);
+        }
+
+        if ($request->hasFile('property_images')) {
+            foreach ($request->file('property_images') as $image) {
+                $propertyImages[] = $this->uploadToFolder($image, 'property_images');
+            }
+        }
+
+        $propertyImages = array_values($propertyImages);
+    }
+
+    // Convert price to JSON
+    $prices = array_values(array_filter($validated['price'], function ($p) {
+        return isset($p['amount'], $p['hours']);
+    }));
+    $encodedPrice = json_encode($prices);
+
+    $property->update([
+        'name' => $validated['name'],
+        'description' => $validated['description'],
+        'thumbnail' => $thumbnailPath,
+        'price' => $encodedPrice,
+        'max_people' => $validated['max_people'],
+        'rating' => $validated['equipment_rate'],
+        'bedrooms' => $bedrooms,
+        'amenities' => $amenities,
+        'property_images' => $propertyImages,
+    ]);
+
+    return redirect()->route('properties.index')->with('success', 'Property updated successfully.');
+}
+
+
+
+    public function destroy($id)
+    {
+        \Log::info("Destroy method called for property ID: {$id}");
+
+        $property = Property::find($id);
+
+        if (!$property) {
+            \Log::warning("Property with ID {$id} not found.");
+            return response()->json(['error' => 'Property not found.'], 404);
+        }
+
+        // Delete thumbnail if it exists
+        if (!empty($property->thumbnail)) {
+            $thumbnailPath = public_path($property->thumbnail);
+            if (file_exists($thumbnailPath)) {
+                @unlink($thumbnailPath);
+            }
+        }
+
+        // Delete property images (array from cast)
+        if (!empty($property->property_images) && is_array($property->property_images)) {
             foreach ($property->property_images as $image) {
-                if (file_exists(public_path($image))) {
-                    unlink(public_path($image));
+                $imagePath = public_path($image);
+                if (file_exists($imagePath)) {
+                    @unlink($imagePath);
                 }
             }
         }
 
         $property->delete();
+
         return response()->json(['success' => 'Property deleted successfully.']);
     }
+
+
+
+
     public function updateFavorite(Request $request, $id)
     {
         $property = Property::findOrFail($id);

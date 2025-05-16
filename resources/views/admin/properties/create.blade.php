@@ -67,10 +67,40 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="price">Precio</label>
-                                    <input type="number" step="0.01" name="price" id="price" class="form-control" value="{{ old('price') }}">
-                                </div>
+                               <div class="mb-3">
+    <label>Precios por Hora</label>
+    <div id="price-multiple-wrapper">
+        @if(old('price_multiple'))
+            @foreach(old('price_multiple') as $i => $item)
+                <div class="row mb-2 price-group">
+                    <div class="col">
+                        <input type="number" name="price_multiple[{{ $i }}][hours]" class="form-control" placeholder="Horas" value="{{ $item['hours'] }}">
+                    </div>
+                    <div class="col">
+                        <input type="number" name="price_multiple[{{ $i }}][price]" class="form-control" placeholder="Precio" value="{{ $item['price'] }}">
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-danger" onclick="this.closest('.price-group').remove()">Eliminar</button>
+                    </div>
+                </div>
+            @endforeach
+        @else
+            <div class="row mb-2 price-group">
+                <div class="col">
+                    <input type="number" name="price_multiple[0][hours]" class="form-control" placeholder="Horas">
+                </div>
+                <div class="col">
+                    <input type="number" name="price_multiple[0][price]" class="form-control" placeholder="Precio">
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger" onclick="this.closest('.price-group').remove()">Eliminar</button>
+                </div>
+            </div>
+        @endif
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="addPriceGroup()">Añadir Precio</button>
+</div>
+
 
                                 <div class="mb-3">
                                     <label for="max_people">Máximo de Personas</label>
@@ -174,6 +204,23 @@
 </div>
 
 <script>
+    function addPriceGroup() {
+    const wrapper = document.getElementById('price-multiple-wrapper');
+    const index = wrapper.querySelectorAll('.price-group').length;
+    const html = `
+        <div class="row mb-2 price-group">
+            <div class="col">
+                <input type="number" name="price_multiple[${index}][hours]" class="form-control" placeholder="Horas">
+            </div>
+            <div class="col">
+                <input type="number" name="price_multiple[${index}][price]" class="form-control" placeholder="Precio">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-danger" onclick="this.closest('.price-group').remove()">Eliminar</button>
+            </div>
+        </div>`;
+    wrapper.insertAdjacentHTML('beforeend', html);
+}
 function previewThumbnail(event) {
     const file = event.target.files[0];
     const reader = new FileReader();

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
-use App\Models\BankDetails;
 use App\Models\Banner;
 use App\Models\Property;
 use App\Models\Reservation;
 use App\Models\Room;
+use App\Models\BankDetails;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Notifications\ReservationConfirmed;
 use Illuminate\Http\Request;
@@ -50,38 +51,75 @@ class BookingController extends Controller
      * @return \Illuminate\View\View
      */
     // Replace route binding with manual lookup (for testing)
-    public function showForm($room, Request $request)
+   public function showForm($room, Request $request)
     {
         if (Session::has('LoggedIn')) {
-            $room = Property::findOrFail($room); // Will return 404 if not found
+            $room = Property::findOrFail($room);
             $user_session = User::where('id', Session::get('LoggedIn'))->first();
-            $qrcode = BankDetails::orderby('id', 'desc')->first();
+            $qrcode = BankDetails::orderBy('id', 'desc')->first();
+
             // Retrieve query parameters
             $date = $request->query('date');
             $check_in_hour = $request->query('check_in_hour');
-            $check_out_hour = $request->query('check_out_hour');
+            $duration = $request->query('duration');
+            $amount = $request->query('amount');
             $people = $request->query('people');
             $room_name = $request->query('room_name');
-            $room_price = $request->query('room_price');
 
-            // Validate that required parameters are present
-            if ($date && $check_in_hour && $check_out_hour) {
-                // Check for booking conflicts
-                $conflict = Reservation::where('room_id', $room->id)
-                    ->where('date', $date)
-                    ->where(function ($query) use ($check_in_hour, $check_out_hour) {
-                        $query->whereBetween('check_in_time', [$check_in_hour, $check_out_hour])
-                            ->orWhereBetween('check_out_time', [$check_in_hour, $check_out_hour])
-                            ->orWhere(function ($q) use ($check_in_hour, $check_out_hour) {
-                                $q->where('check_in_time', '<=', $check_in_hour)
-                                    ->where('check_out_time', '>=', $check_out_hour);
-                            });
-                    })
-                    ->exists();
+            // Validate required parameters
+            if (!$date || !$check_in_hour || !$duration || !$amount || !$people) {
+                return redirect()->back()->with('fail', 'Por favor, completa todos los campos requeridos');
+            }
 
-                if ($conflict) {
-                    return Redirect()->back()->with('fail', 'No está disponible en ese horario');
-                }
+            // Validate duration and amount
+            $durations = json_decode($room->price, true) ?? [];
+            $valid_duration = collect($durations)->contains(function ($d) use ($duration, $amount) {
+                return $d['hours'] == $duration && $d['amount'] == $amount;
+            });
+
+            if (!$valid_duration) {
+                return redirect()->back()->with('fail', 'Duración o precio inválidos');
+            }
+
+            // Validate people
+            if ($people < 1 || $people > $room->max_people) {
+                return redirect()->back()->with('fail', 'Número de personas inválido');
+            }
+
+            // Calculate check_out_time
+            try {
+                $check_in_datetime = Carbon::createFromFormat('Y-m-d H:i', "$date $check_in_hour");
+                $check_out_datetime = $check_in_datetime->copy()->addHours($duration);
+                $check_out_hour = $check_out_datetime->format('H:i');
+                $check_out_date = $check_out_datetime->format('Y-m-d');
+            } catch (\Exception $e) {
+                return redirect()->back()->with('fail', 'Formato de hora inválido');
+            }
+
+            // Check for booking conflicts
+            $conflict = Reservation::where('room_id', $room->id)
+                ->where(function ($query) use ($date, $check_in_hour, $check_out_hour, $check_out_date) {
+                    $query->where('date', $date)
+                          ->where(function ($q) use ($check_in_hour, $check_out_hour) {
+                              $q->whereBetween('check_in_time', [$check_in_hour, $check_out_hour])
+                                ->orWhereBetween('check_out_time', [$check_in_hour, $check_out_hour])
+                                ->orWhere(function ($sub) use ($check_in_hour, $check_out_hour) {
+                                    $sub->where('check_in_time', '<=', $check_in_hour)
+                                        ->where('check_out_time', '>=', $check_out_hour);
+                                });
+                          });
+                    if ($date !== $check_out_date) {
+                        $query->orWhere('date', $check_out_date)
+                              ->where(function ($q) use ($check_in_hour, $check_out_hour) {
+                                  $q->whereBetween('check_in_time', [$check_in_hour, $check_out_hour])
+                                    ->orWhereBetween('check_out_time', [$check_in_hour, $check_out_hour]);
+                              });
+                    }
+                })
+                ->exists();
+
+            if ($conflict) {
+                return redirect()->back()->with('fail', 'No está disponible en ese horario');
             }
 
             return view('client.booking-form', compact(
@@ -90,12 +128,14 @@ class BookingController extends Controller
                 'date',
                 'check_in_hour',
                 'check_out_hour',
+                'duration',
+                'amount',
                 'people',
-                'room_name','qrcode',
-                'room_price'
+                'room_name',
+                'qrcode'
             ));
         } else {
-            return Redirect()->back()->with('fail', 'Tienes que iniciar sesión primero');
+            return redirect()->back()->with('fail', 'Tienes que iniciar sesión primero');
         }
     }
 
@@ -106,18 +146,61 @@ class BookingController extends Controller
      * @param \App\Models\Property $room
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function submit(Request $request, Property $room)
+        public function submit(Request $request, Property $room)
     {
         // Validate form data
-        $request->validate([
-            'date' => 'required|date',
-            'check_in' => 'required',
-            'check_out' => 'required',
-            'guests' => 'required|integer|min:1',
-            'proof' => 'required|file|mimes:jpg,png,pdf',
+        $validated = $request->validate([
+            'room_id' => 'required|exists:properties,id',
+            'date' => 'required|date_format:Y-m-d',
+            'check_in_hour' => 'required|date_format:H:i',
+            'check_out_hour' => 'required|date_format:H:i',
+            'duration' => 'required|numeric|min:1',
+            'amount' => 'required|numeric|min:0',
+            'people' => 'required|numeric|min:1|max:'.$room->max_people,
+            'proof' => 'required|file|mimes:jpg,png,pdf|max:2048', // 2MB max
+            'host_message' => 'nullable|string|max:1000',
         ]);
 
-        // Handle proof upload
+        // Validate duration and amount against property's price
+        $durations = json_decode($room->price, true) ?? [];
+        $valid_duration = collect($durations)->contains(function ($d) use ($validated) {
+            return $d['hours'] == $validated['duration'] && $d['amount'] == $validated['amount'];
+        });
+
+        if (!$valid_duration) {
+            return redirect()->back()->with('fail', 'Duración o precio inválidos');
+        }
+
+        // Check for booking conflicts
+        $conflict = Reservation::where('room_id', $room->id)
+            ->where(function ($query) use ($validated) {
+                $query->where('date', $validated['date'])
+                      ->where(function ($q) use ($validated) {
+                          $q->whereBetween('check_in_time', [$validated['check_in_hour'], $validated['check_out_hour']])
+                            ->orWhereBetween('check_out_time', [$validated['check_in_hour'], $validated['check_out_hour']])
+                            ->orWhere(function ($sub) use ($validated) {
+                                $sub->where('check_in_time', '<=', $validated['check_in_hour'])
+                                    ->where('check_out_time', '>=', $validated['check_out_hour']);
+                            });
+                      });
+                $check_in_datetime = Carbon::createFromFormat('Y-m-d H:i', $validated['date'].' '.$validated['check_in_hour']);
+                $check_out_datetime = $check_in_datetime->copy()->addHours($validated['duration']);
+                $check_out_date = $check_out_datetime->format('Y-m-d');
+                if ($validated['date'] !== $check_out_date) {
+                    $query->orWhere('date', $check_out_date)
+                          ->where(function ($q) use ($validated) {
+                              $q->whereBetween('check_in_time', [$validated['check_in_hour'], $validated['check_out_hour']])
+                                ->orWhereBetween('check_out_time', [$validated['check_in_hour'], $validated['check_out_hour']]);
+                          });
+                }
+            })
+            ->exists();
+
+        if ($conflict) {
+            return redirect()->back()->with('fail', 'No está disponible en ese horario');
+        }
+
+       // Handle proof upload
         $proofPath = null;
 
         if ($request->hasFile('proof')) {
@@ -131,22 +214,24 @@ class BookingController extends Controller
             $proofPath = 'uploads/proofs/' . $proofFileName;
         }
 
-
-
-        // Create booking
-        $reservation  = Reservation::create([
+        // Create reservation
+        $reservation = Reservation::create([
             'user_id' => Session::get('LoggedIn'),
-            'room_id' => $room->id,
+            'room_id' => $validated['room_id'],
+            'date' => $validated['date'],
             'full_name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'date' => $request->date,
-            'check_in_time' => $request->check_in,
-            'check_out_time' => $request->check_out,
-            'guests' => $request->guests,
+            'check_in_time' => $validated['check_in_hour'],
+            'check_out_time' => $validated['check_out_hour'],
+            'duration' => $validated['duration'],
+            'amount' => $validated['amount'],
+            'guests' => $validated['people'],
             'proof_path' => $proofPath,
+            'host_message' => $validated['host_message'],
             'payment_status' => 'pending',
         ]);
+
         // Notify the user
         $user = $reservation->user; // assuming the reservation has a `user` relationship
         $user->notify(new ReservationConfirmed($reservation));
@@ -158,7 +243,7 @@ class BookingController extends Controller
 
             $user_session = User::where('id', Session::get('LoggedIn'))->first();
             $reservation = Reservation::find($reservationId); // Adjust this based on how you're fetching the reservation
-            return view('client.thank-you', compact('reservation', 'user_session'));
+            return view('client.thank-you', compact('reservation','user_session'));
         } else {
             return Redirect()->with('fail', 'Tienes que iniciar sesión primero');
         }
