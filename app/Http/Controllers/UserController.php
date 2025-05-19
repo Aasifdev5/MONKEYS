@@ -82,7 +82,7 @@ class UserController extends Controller
         });
 
         // Default rooms fetch
-        $rooms = Property::limit(25)->get();
+        $rooms = Property::limit(8)->get();
 
         // Handle search request
         if ($request->has(['date', 'check_in_hour', 'check_out_hour'])) {
@@ -131,7 +131,7 @@ class UserController extends Controller
                               ->whereRaw('? > check_in_time', [$checkOutTime]);
                         });
                 })
-                ->limit(25)
+                ->limit(8)
                 ->get();
             } catch (\Exception $e) {
                 Log::error('Database query error: ' . $e->getMessage());

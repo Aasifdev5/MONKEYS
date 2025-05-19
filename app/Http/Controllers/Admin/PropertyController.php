@@ -39,42 +39,50 @@ class PropertyController extends Controller
         return view('admin.properties.create', compact('user_session'));
     }
 
-   public function store(Request $request)
+public function store(Request $request)
 {
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'description' => 'required|string',
-        'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,avif',
-        'price' => 'required|array',
-        'price.*.amount' => 'required|numeric',
-        'price.*.hours' => 'required|integer',
-        'max_people' => 'required|integer',
-        'equipment_rate' => 'required',
+        'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,avif|max:2048',
+        'hourly_price' => 'nullable|numeric|min:0',
+        'price' => 'required|array|min:1',
+        'price.*.amount' => 'required|numeric|min:0',
+        'price.*.hours' => 'required|integer|min:1',
+        'max_people' => 'required|integer|min:1',
+        'equipment_rate' => 'required|numeric|min:0|max:5',
         'bedrooms' => 'nullable|array',
-        'bedrooms.*.title' => 'required_with:bedrooms|string',
+        'bedrooms.*.title' => 'required_with:bedrooms|string|max:255',
         'bedrooms.*.description' => 'required_with:bedrooms|string',
-        'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
+        'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif|max:2048',
         'amenities' => 'nullable|array',
         'amenities.*' => 'in:entertainment,group_spaces,fully_equipped,bed,tv,wifi,private_bathroom,fridge,ac,kitchen,microwave,chairs,tables,hot_shower,pool,jacuzzi,bar,remotes,playstation,alexa,living,sound_room,heating,hammocks,wardrobe,sound_system',
-        'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
+        'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif|max:2048',
     ]);
 
+    // Upload thumbnail
     $thumbnailPath = $this->uploadToFolder($request->file('thumbnail'), 'property_thumbnails');
 
+    // Prepare bedrooms array
     $bedrooms = [];
     if ($request->has('bedrooms')) {
         foreach ($request->bedrooms as $index => $bedroom) {
-            $bedroomImagePath = isset($bedroom['image']) ? $this->uploadToFolder($bedroom['image'], 'bedrooms') : null;
+            $imagePath = null;
+            if (isset($bedroom['image']) && $bedroom['image'] instanceof \Illuminate\Http\UploadedFile) {
+                $imagePath = $this->uploadToFolder($bedroom['image'], 'bedrooms');
+            }
             $bedrooms[] = [
                 'title' => $bedroom['title'],
                 'description' => $bedroom['description'],
-                'image' => $bedroomImagePath,
+                'image' => $imagePath,
             ];
         }
     }
 
-    $amenities = $request->amenities ?? [];
+    // Prepare amenities
+    $amenities = $validated['amenities'] ?? [];
 
+    // Upload gallery images
     $propertyImages = [];
     if ($request->hasFile('property_images')) {
         foreach ($request->file('property_images') as $image) {
@@ -82,22 +90,24 @@ class PropertyController extends Controller
         }
     }
 
-    // Convert price to JSON
-    $prices = array_values(array_filter($validated['price'], function ($p) {
-        return isset($p['amount'], $p['hours']);
+    // Prepare price JSON
+    $priceArray = array_values(array_filter($validated['price'], function ($item) {
+        return isset($item['amount']) && isset($item['hours']);
     }));
-    $encodedPrice = json_encode($prices);
+    $encodedPrice = json_encode($priceArray);
 
+    // Save property
     Property::create([
         'name' => $validated['name'],
         'description' => $validated['description'],
         'thumbnail' => $thumbnailPath,
+        'hourly_price' => $validated['hourly_price'] ?? null,
         'price' => $encodedPrice,
         'max_people' => $validated['max_people'],
         'rating' => $validated['equipment_rate'],
-        'bedrooms' => $bedrooms,
-        'amenities' => $amenities,
-        'property_images' => $propertyImages,
+        'bedrooms' => json_encode($bedrooms),
+        'amenities' => json_encode($amenities),
+        'property_images' => json_encode($propertyImages),
     ]);
 
     return redirect()->route('properties.index')->with('success', 'Property created successfully.');
@@ -113,93 +123,103 @@ class PropertyController extends Controller
         return view('admin.properties.edit', compact('property', 'user_session'));
     }
 
-   public function update(Request $request, Property $property)
+  public function update(Request $request, Property $property)
 {
+    // Check if user is logged in
     if (!Session::has('LoggedIn')) {
         return redirect()->back()->with('fail', 'Tienes que iniciar sesión primero');
     }
 
+    // Verify user session
     $user_session = User::find(Session::get('LoggedIn'));
+    if (!$user_session) {
+        return redirect()->back()->with('fail', 'Sesión inválida');
+    }
 
+    // Validate request data
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'description' => 'required|string',
-        'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
-        'price' => 'required|array',
-        'price.*.amount' => 'required|numeric',
-        'price.*.hours' => 'required|integer',
-        'max_people' => 'required|integer',
-        'equipment_rate' => 'required',
+        'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif|max:2048',
+        'hourly_price' => 'nullable|numeric|min:0',
+        'price' => 'required|array|min:1',
+        'price.*.amount' => 'required|numeric|min:0',
+        'price.*.hours' => 'required|integer|min:1',
+        'max_people' => 'required|integer|min:1',
+        'equipment_rate' => 'required|numeric|min:0|max:5',
         'bedrooms' => 'nullable|array',
-        'bedrooms.*.title' => 'required_with:bedrooms|string',
+        'bedrooms.*.title' => 'required_with:bedrooms|string|max:255',
         'bedrooms.*.description' => 'required_with:bedrooms|string',
-        'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
+        'bedrooms.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif|max:2048',
         'amenities' => 'nullable|array',
         'amenities.*' => 'in:entertainment,group_spaces,fully_equipped,bed,tv,wifi,private_bathroom,fridge,ac,kitchen,microwave,chairs,tables,hot_shower,pool,jacuzzi,bar,remotes,playstation,alexa,living,sound_room,heating,hammocks,wardrobe,sound_system',
-        'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif',
-        'existing_images' => 'nullable|array',
+        'property_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,avif|max:2048',
     ]);
 
+    // Handle thumbnail upload
     $thumbnailPath = $property->thumbnail;
     if ($request->hasFile('thumbnail')) {
-        if ($property->thumbnail && file_exists(public_path($property->thumbnail))) {
-            unlink(public_path($property->thumbnail));
+        // Delete old thumbnail if it exists
+        if ($thumbnailPath && Storage::disk('public')->exists($thumbnailPath)) {
+            Storage::disk('public')->delete($thumbnailPath);
         }
         $thumbnailPath = $this->uploadToFolder($request->file('thumbnail'), 'property_thumbnails');
     }
 
+    // Prepare bedrooms array
     $bedrooms = [];
     if ($request->has('bedrooms')) {
+        $existingBedrooms = is_string($property->bedrooms) ? json_decode($property->bedrooms, true) : ($property->bedrooms ?? []);
         foreach ($request->bedrooms as $index => $bedroom) {
-            $bedroomImagePath = isset($bedroom['image']) ? $this->uploadToFolder($bedroom['image'], 'bedrooms') : ($property->bedrooms[$index]['image'] ?? null);
+            $imagePath = null;
+            if (isset($bedroom['image']) && $bedroom['image'] instanceof \Illuminate\Http\UploadedFile) {
+                // New image uploaded
+                $imagePath = $this->uploadToFolder($bedroom['image'], 'bedrooms');
+            } elseif (isset($existingBedrooms[$index]['image']) && is_string($existingBedrooms[$index]['image'])) {
+                // Keep existing image
+                $imagePath = $existingBedrooms[$index]['image'];
+            }
             $bedrooms[] = [
                 'title' => $bedroom['title'],
                 'description' => $bedroom['description'],
-                'image' => $bedroomImagePath,
+                'image' => $imagePath,
             ];
         }
     }
 
-    $amenities = $request->amenities ?? [];
+    // Prepare amenities
+    $amenities = $validated['amenities'] ?? [];
 
-    $propertyImages = is_string($property->property_images)
-        ? json_decode($property->property_images, true)
-        : ($property->property_images ?? []);
-
-    $existingImages = $request->input('existing_images', null);
-    if ($existingImages !== null || $request->hasFile('property_images')) {
-        if ($existingImages !== null) {
-            $propertyImages = array_intersect($propertyImages, $existingImages);
+    // Handle gallery images
+    $propertyImages = is_string($property->property_images) ? json_decode($property->property_images, true) : ($property->property_images ?? []);
+    $propertyImages = is_array($propertyImages) ? $propertyImages : [];
+    if ($request->hasFile('property_images')) {
+        foreach ($request->file('property_images') as $image) {
+            $propertyImages[] = $this->uploadToFolder($image, 'property_images');
         }
-
-        if ($request->hasFile('property_images')) {
-            foreach ($request->file('property_images') as $image) {
-                $propertyImages[] = $this->uploadToFolder($image, 'property_images');
-            }
-        }
-
-        $propertyImages = array_values($propertyImages);
     }
 
-    // Convert price to JSON
-    $prices = array_values(array_filter($validated['price'], function ($p) {
-        return isset($p['amount'], $p['hours']);
+    // Prepare price JSON
+    $priceArray = array_values(array_filter($validated['price'], function ($item) {
+        return isset($item['amount']) && isset($item['hours']);
     }));
-    $encodedPrice = json_encode($prices);
+    $encodedPrice = json_encode($priceArray);
 
+    // Update property
     $property->update([
         'name' => $validated['name'],
         'description' => $validated['description'],
         'thumbnail' => $thumbnailPath,
+        'hourly_price' => $validated['hourly_price'] ?? null,
         'price' => $encodedPrice,
         'max_people' => $validated['max_people'],
         'rating' => $validated['equipment_rate'],
-        'bedrooms' => $bedrooms,
-        'amenities' => $amenities,
-        'property_images' => $propertyImages,
+        'bedrooms' => json_encode($bedrooms),
+        'amenities' => json_encode($amenities),
+        'property_images' => json_encode($propertyImages),
     ]);
 
-    return redirect()->route('properties.index')->with('success', 'Property updated successfully.');
+    return redirect()->route('properties.index')->with('success', 'Propiedad actualizada con éxito.');
 }
 
 

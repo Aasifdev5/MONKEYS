@@ -550,7 +550,7 @@ $(document).ready(function () {
                                 ${room.favorite ? '<span class="badge">Favorito de los huéspedes</span>' : ''}
                                 <p class="text-muted mb-1">${room.name}</p>
                                 <p class="text-muted mb-1">${room.max_people} Personas</p>
-                                <p class="price mb-1">Desde Bs ${Number(room.price).toLocaleString()} x hora</p>
+                                <p class="price mb-1">Desde Bs ${Number(room.hourly_price).toLocaleString()} x hora</p>
                                 <p class="text-muted mb-0">Equipamiento ★ ${room.rating}</p>
                             </div>
                         </div>

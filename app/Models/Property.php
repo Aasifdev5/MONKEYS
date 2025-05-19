@@ -14,6 +14,7 @@ class Property extends Model
         'description',
         'thumbnail',
         'price',
+        'hourly_price',
         'duration',
         'rating',
         'favorite',

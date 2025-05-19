@@ -1,7 +1,7 @@
 @extends('master')
 
 @section('title')
-Confirmar Reserva - {{ $room_name }}
+Confirmar Reserva - {{ $bookingData['room_name'] }}
 @endsection
 
 @section('content')
@@ -158,15 +158,17 @@ Confirmar Reserva - {{ $room_name }}
     <form method="POST" action="{{ route('booking.submit', $room->id) }}" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="room_id" value="{{ $room->id }}">
-        <input type="hidden" name="date" value="{{ $date }}">
-        <input type="hidden" name="check_in_hour" value="{{ $check_in_hour }}">
-        <input type="hidden" name="check_out_hour" value="{{ $check_out_hour }}">
-        <input type="hidden" name="duration" value="{{ $duration }}">
-        <input type="hidden" name="amount" value="{{ $amount }}">
-        <input type="hidden" name="people" value="{{ $people }}">
-        <input type="hidden" id="name" name="name"  value="{{ $user_session->name ?? '' }}" readonly>
-                    <input type="hidden" id="email" name="email"  value="{{ $user_session->email ?? '' }}" readonly>
-                    <input type="hidden" id="phone" name="phone"  value="{{ $user_session->mobile_number ?? '' }}" readonly>
+        <input type="hidden" name="date" value="{{ $bookingData['date'] }}">
+        <input type="hidden" name="check_in_hour" value="{{ $bookingData['check_in_hour'] }}">
+        <input type="hidden" name="check_out_hour" value="{{ $bookingData['check_out_hour'] }}">
+        <input type="hidden" name="duration" value="{{ $bookingData['duration'] }}">
+        <input type="hidden" name="amount" value="{{ $bookingData['amount'] }}">
+        <input type="hidden" name="base_amount" value="{{ $bookingData['base_amount'] }}">
+        <input type="hidden" name="extra_fee" value="{{ $bookingData['extra_fee'] }}">
+        <input type="hidden" name="people" value="{{ $bookingData['people'] }}">
+        <input type="hidden" id="name" name="name" value="{{ $user_session->name ?? '' }}" readonly>
+        <input type="hidden" id="email" name="email" value="{{ $user_session->email ?? '' }}" readonly>
+        <input type="hidden" id="phone" name="phone" value="{{ $user_session->mobile_number ?? '' }}" readonly>
 
         <div class="row">
             <!-- Left Column -->
@@ -175,19 +177,18 @@ Confirmar Reserva - {{ $room_name }}
                 <div class="card p-4 shadow-sm mb-4">
                     <h3 class="fw-bold mb-3">Tu viaje</h3>
                     <div class="d-flex align-items-center mb-3">
-                        <img src="{{ asset( $room->thumbnail) }}" class="rounded me-3" width="150" alt="Propiedad">
+                        <img src="{{ asset($room->thumbnail) }}" class="rounded me-3" width="150" alt="Propiedad">
                         <div>
-                            <h5 class="mb-0">{{ $room_name ?? $room->name ?? 'Habitación de Prueba' }}</h5>
+                            <h5 class="mb-0">{{ $bookingData['room_name'] ?? $room->name ?? 'Habitación de Prueba' }}</h5>
                             <p class="text-muted mb-0">{{ $room->description ?? 'Sin descripción disponible' }}</p>
                         </div>
                     </div>
                     <div class="booking-details">
-                        <p><strong>Fecha:</strong> {{ $date }}</p>
-                        <p><strong>Hora de entrada:</strong> {{ $check_in_hour }}</p>
-                        <p><strong>Hora de salida:</strong> {{ $check_out_hour }}</p>
-                        <p><strong>Duración:</strong> {{ $duration }} hora{{ $duration > 1 ? 's' : '' }}</p>
-                        <p><strong>Precio:</strong> Bs{{ number_format($amount, 2) }}</p>
-                        <p><strong>Huéspedes:</strong> {{ $people }} huésped{{ $people > 1 ? 'es' : '' }}</p>
+                        <p><strong>Fecha:</strong> {{ $bookingData['date'] }}</p>
+                        <p><strong>Hora de entrada:</strong> {{ $bookingData['check_in_hour'] }}</p>
+                        <p><strong>Hora de salida:</strong> {{ $bookingData['check_out_hour'] }}</p>
+                        <p><strong>Duración:</strong> {{ $bookingData['duration'] }} hora{{ $bookingData['duration'] > 1 ? 's' : '' }}</p>
+                        <p><strong>Huéspedes:</strong> {{ $bookingData['people'] }} huésped{{ $bookingData['people'] > 1 ? 'es' : '' }}</p>
                     </div>
                 </div>
 
@@ -235,13 +236,19 @@ Confirmar Reserva - {{ $room_name }}
                 <div class="card p-4 shadow-sm sticky-top">
                     <h5 class="fw-bold">Tu total</h5>
                     <div class="d-flex justify-content-between mb-2">
-                        <p>Bs{{ number_format($amount, 2) }} x {{ $duration }} hora{{ $duration > 1 ? 's' : '' }}</p>
-                        <p>Bs{{ number_format($amount, 2) }}</p>
+                        <p>Precio base ({{ $bookingData['duration'] }} hora{{ $bookingData['duration'] > 1 ? 's' : '' }})</p>
+                        <p>Bs{{ number_format($bookingData['base_amount'], 2) }}</p>
                     </div>
+                    @if($bookingData['extra_fee'] > 0)
+                        <div class="d-flex justify-content-between mb-2">
+                            <p>Cargo por huéspedes adicionales ({{ $bookingData['people'] - $room->max_people }} persona{{ ($bookingData['people'] - $room->max_people) > 1 ? 's' : '' }})</p>
+                            <p>Bs{{ number_format($bookingData['extra_fee'], 2) }}</p>
+                        </div>
+                    @endif
                     <hr>
                     <div class="d-flex justify-content-between">
                         <h6>Total (Bs)</h6>
-                        <h6>Bs{{ number_format($amount, 2) }}</h6>
+                        <h6>Bs{{ number_format($bookingData['amount'], 2) }}</h6>
                     </div>
                     <p class="text-muted text-center mt-2">Desglose de precios</p>
 

@@ -846,13 +846,13 @@
 
 <div class="container">
     <!-- Property Header -->
-    <div class="property-header" style="width: 100%; box-sizing: border-box; padding: 16px;">
+    <div class="property-header">
         <div class="d-flex justify-content-between align-items-start" style="flex-wrap: wrap; width: 100%; gap: 12px;">
             <div style="flex: 1 1 100%; min-width: 0;">
                 <h1 class="property-title" style="font-size: 24px; margin-bottom: 8px;">{{ $property->name }}</h1>
                 <p class="property-subtitle" style="font-size: 14px; margin-bottom: 0;">
                     {{ $property->max_people }} huéspedes ·
-                    {{ count($property->bedrooms) }} habitación{{ count($property->bedrooms) > true ? 'es' : '' }} ·
+                    {{ count($property->bedrooms) }} habitación{{ count($property->bedrooms) > 1 ? 'es' : '' }} ·
                     {{ $property->description }}
                 </p>
             </div>
@@ -861,9 +861,9 @@
                     <i class="fas fa-share-alt"></i> Compartir
                     <div class="tooltip">Compartir este anuncio</div>
                 </button>
-                <button class="save-button tooltip-trigger {{ $property->favorite ? 'active' : '' }}" style="background: none; border: none; padding: 4px 8px; font-size: 14px;" data-tooltip="Guardar en tu lista de deseos" data-room-id="{{ $property->id }}">
+                <button class="save-button tooltip-trigger {{ $property->favorite ? 'active' : '' }}" style="background: none; border: none; padding: 4px 8px; font-size: 14px;" data-tooltip="{{ $property->favorite ? 'Guardado en la lista de deseos' : 'Guardar en tu lista de deseos' }}" data-room-id="{{ $property->id }}">
                     <i class="fa{{ $property->favorite ? 's' : 'r' }} fa-heart"></i> Guardar
-                    <div class="tooltip">Guardar en tu lista de deseos</div>
+                    <div class="tooltip">{{ $property->favorite ? 'Guardado en la lista de deseos' : 'Guardar en tu lista de deseos' }}</div>
                 </button>
             </div>
         </div>
@@ -1046,12 +1046,12 @@
                 <div class="booking-guests">
                     <div class="guest-input">
                         <label><span class="emoji">👥</span> Número de personas</label>
-                        <input type="number" id="guest-count" name="people" min="1" max="{{ $property->max_people }}" value="1" placeholder="1">
+                        <input type="number" id="guest-count" name="people" min="1" value="1" placeholder="1">
                     </div>
                 </div>
                 <div class="booking-section">
                     @if(!empty($user_session))
-                        <a href="{{ route('booking.form', ['room' => $property->id]) }}" id="reserve-button" class="btn btn-sm booking-button" data-room-id="{{ $property->id }}" data-room-name="{{ $property->name }}">Reservar</a>
+                        <a href="#" id="reserve-button" class="btn btn-sm booking-button" data-room-id="{{ $property->id }}" data-room-name="{{ $property->name }}">Reservar</a>
                     @else
                         <a href="{{ url('Userlogin') }}" class="btn btn-sm booking-button">Reservar</a>
                     @endif
@@ -1108,24 +1108,17 @@ $(document).ready(function () {
     // Guest count validation
     $("#guest-count").on("input", function() {
         let value = parseInt($(this).val());
-        if (value < 1) {
+        if (value < 1 || isNaN(value)) {
             $(this).val(1);
             Swal.fire({
                 icon: 'warning',
                 title: 'Valor inválido',
                 text: 'El número de personas debe ser al menos 1.',
             });
-        } else if (value > {{ $property->max_people }}) {
-            $(this).val({{ $property->max_people }});
-            Swal.fire({
-                icon: 'warning',
-                title: 'Límite excedido',
-                text: 'Solo puedes ingresar hasta {{ $property->max_people }} personas.',
-            });
         }
     });
 
-    // Handle reserve button click to pass chosen values
+    // Reserve button click handler
     $("#reserve-button").click(function(e) {
         e.preventDefault();
         const roomId = $(this).data('room-id');
@@ -1134,11 +1127,13 @@ $(document).ready(function () {
         const checkInHour = $("#check-in-hour-picker").val();
         const durationOption = $("#duration-picker option:selected");
         const duration = durationOption.val(); // Hours
-        const amount = durationOption.data('amount'); // Price
-        const guestCount = $("#guest-count").val();
+        let baseAmount = durationOption.data('amount'); // Base price
+        let guestCount = parseInt($("#guest-count").val());
+        const maxPeople = {{ $property->max_people }};
+        const extraGuestFee = 50; // Fee per extra person
 
         // Validate inputs
-        if (!date || !checkInHour || !duration || !amount || !guestCount) {
+        if (!date || !checkInHour || !duration || !baseAmount || !guestCount) {
             Swal.fire({
                 icon: 'error',
                 title: 'Campos incompletos',
@@ -1147,18 +1142,64 @@ $(document).ready(function () {
             return;
         }
 
-        // Construct URL with query parameters
-        const url = `{{ route('booking.form', ['room' => ':roomId']) }}`
-            .replace(':roomId', roomId) +
-            `?date=${encodeURIComponent(date)}` +
-            `&check_in_hour=${encodeURIComponent(checkInHour)}` +
-            `&duration=${encodeURIComponent(duration)}` +
-            `&amount=${encodeURIComponent(amount)}` +
-            `&people=${encodeURIComponent(guestCount)}` +
-            `&room_name=${roomName}`;
+        if (isNaN(guestCount) || guestCount < 1) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Valor inválido',
+                text: 'El número de personas debe ser al menos 1.',
+            });
+            return;
+        }
 
-        // Redirect to booking form
-        window.location.href = url;
+        // Calculate additional guest fee
+        let extraGuests = guestCount > maxPeople ? guestCount - maxPeople : 0;
+        let extraFee = extraGuests * extraGuestFee;
+        let totalAmount = parseFloat(baseAmount) + extraFee;
+
+        // Notify user about extra charges if applicable
+        if (extraGuests > 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Cargos adicionales',
+                text: `Se cobrarán ${extraGuestFee}bs por cada persona adicional (${extraGuests} persona${extraGuests > 1 ? 's' : ''}). Total adicional: ${extraFee}bs.`,
+                showConfirmButton: true,
+                confirmButtonText: 'Continuar',
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Construct URL with query parameters
+                    const url = `{{ route('booking.form', ['room' => ':roomId']) }}`
+                        .replace(':roomId', roomId) +
+                        `?date=${encodeURIComponent(date)}` +
+                        `&check_in_hour=${encodeURIComponent(checkInHour)}` +
+                        `&duration=${encodeURIComponent(duration)}` +
+                        `&amount=${encodeURIComponent(totalAmount)}` +
+                        `&base_amount=${encodeURIComponent(baseAmount)}` +
+                        `&extra_fee=${encodeURIComponent(extraFee)}` +
+                        `&people=${encodeURIComponent(guestCount)}` +
+                        `&room_name=${roomName}`;
+
+                    // Redirect to booking form
+                    window.location.href = url;
+                }
+            });
+        } else {
+            // Construct URL with query parameters (no extra fee)
+            const url = `{{ route('booking.form', ['room' => ':roomId']) }}`
+                .replace(':roomId', roomId) +
+                `?date=${encodeURIComponent(date)}` +
+                `&check_in_hour=${encodeURIComponent(checkInHour)}` +
+                `&duration=${encodeURIComponent(duration)}` +
+                `&amount=${encodeURIComponent(totalAmount)}` +
+                `&base_amount=${encodeURIComponent(baseAmount)}` +
+                `&extra_fee=0` +
+                `&people=${encodeURIComponent(guestCount)}` +
+                `&room_name=${roomName}`;
+
+            // Redirect to booking form
+            window.location.href = url;
+        }
     });
 
     // Bedroom slider pagination
@@ -1219,11 +1260,11 @@ $(document).ready(function () {
                 console.error('Error updating favorite:', xhr);
                 $button.toggleClass('active');
                 $button.find('i').toggleClass('far fas');
-                tooltip.text('Error al actualizar');
-                tooltip.css('opacity', 1);
-                setTimeout(() => {
-                    tooltip.css('opacity', 0);
-                }, 2000);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo actualizar la lista de deseos. Por favor, intenta de nuevo.',
+                });
             }
         });
     });

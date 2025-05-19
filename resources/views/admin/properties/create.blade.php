@@ -51,64 +51,102 @@
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="name">Nombre</label>
-                                    <input type="text" name="name" id="name" class="form-control" value="{{ old('name') }}">
+                                    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}">
+                                    @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="description">Descripción</label>
-                                    <textarea name="description" id="description" class="form-control">{{ old('description') }}</textarea>
+                                    <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
+                                    @error('description')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="thumbnail">Imagen Principal</label>
-                                    <input type="file" name="thumbnail" id="thumbnail" class="form-control" onchange="previewThumbnail(event)">
+                                    <input type="file" name="thumbnail" id="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" onchange="previewThumbnail(event)">
+                                    @error('thumbnail')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                     <div id="thumbnail-preview" class="mt-3">
                                         <img id="thumbnail-img" src="#" alt="Vista Previa de la Imagen Principal" class="img-fluid" style="max-width: 300px; display: none;">
                                     </div>
                                 </div>
 
-                               <div class="mb-3">
-    <label>Precios por Hora</label>
-    <div id="price-multiple-wrapper">
-        @if(old('price_multiple'))
-            @foreach(old('price_multiple') as $i => $item)
-                <div class="row mb-2 price-group">
-                    <div class="col">
-                        <input type="number" name="price_multiple[{{ $i }}][hours]" class="form-control" placeholder="Horas" value="{{ $item['hours'] }}">
-                    </div>
-                    <div class="col">
-                        <input type="number" name="price_multiple[{{ $i }}][price]" class="form-control" placeholder="Precio" value="{{ $item['price'] }}">
-                    </div>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-danger" onclick="this.closest('.price-group').remove()">Eliminar</button>
-                    </div>
-                </div>
-            @endforeach
-        @else
-            <div class="row mb-2 price-group">
-                <div class="col">
-                    <input type="number" name="price_multiple[0][hours]" class="form-control" placeholder="Horas">
-                </div>
-                <div class="col">
-                    <input type="number" name="price_multiple[0][price]" class="form-control" placeholder="Precio">
-                </div>
-                <div class="col-auto">
-                    <button type="button" class="btn btn-danger" onclick="this.closest('.price-group').remove()">Eliminar</button>
-                </div>
-            </div>
-        @endif
-    </div>
-    <button type="button" class="btn btn-secondary" onclick="addPriceGroup()">Añadir Precio</button>
-</div>
+                                <div class="mb-3">
+                                    <label for="hourly_price">Precio por Hora</label>
+                                    <input type="number" step="0.01" name="hourly_price" id="hourly_price" class="form-control @error('hourly_price') is-invalid @enderror" value="{{ old('hourly_price') }}">
+                                    @error('hourly_price')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
+                                <div class="mb-3">
+                                    <label>Precios por Hora</label>
+                                    <div id="price-wrapper">
+                                        @if(old('price'))
+                                            @foreach(old('price') as $i => $item)
+                                                <div class="row mb-2 price-group">
+                                                    <div class="col">
+                                                        <input type="number" name="price[{{ $i }}][hours]" class="form-control @error('price.' . $i . '.hours') is-invalid @enderror" placeholder="Horas" value="{{ $item['hours'] }}">
+                                                        @error('price.' . $i . '.hours')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="col">
+                                                        <input type="number" step="0.01" name="price[{{ $i }}][amount]" class="form-control @error('price.' . $i . '.amount') is-invalid @enderror" placeholder="Monto" value="{{ $item['amount'] }}">
+                                                        @error('price.' . $i . '.amount')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <button type="button" class="btn btn-danger" onclick="this.closest('.price-group').remove()">Eliminar</button>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <div class="row mb-2 price-group">
+                                                <div class="col">
+                                                    <input type="number" name="price[0][hours]" class="form-control @error('price.0.hours') is-invalid @enderror" placeholder="Horas">
+                                                    @error('price.0.hours')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="col">
+                                                    <input type="number" step="0.01" name="price[0][amount]" class="form-control @error('price.0.amount') is-invalid @enderror" placeholder="Monto">
+                                                    @error('price.0.amount')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <div class="col-auto">
+                                                    <button type="button" class="btn btn-danger" onclick="this.closest('.price-group').remove()">Eliminar</button>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    @error('price')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                    <button type="button" class="btn btn-secondary" onclick="addPriceGroup()">Añadir Precio</button>
+                                </div>
 
                                 <div class="mb-3">
                                     <label for="max_people">Máximo de Personas</label>
-                                    <input type="number" name="max_people" id="max_people" class="form-control" value="{{ old('max_people') }}">
+                                    <input type="number" name="max_people" id="max_people" class="form-control @error('max_people') is-invalid @enderror" value="{{ old('max_people') }}">
+                                    @error('max_people')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
+
                                 <div class="mb-3">
-                                    <label for="equipment_rate">Equipamiento  Rate</label>
-                                    <input type="number" name="equipment_rate" id="equipment_rate" class="form-control" value="{{ old('equipment_rate') }}">
+                                    <label for="equipment_rate">Equipamiento Rate</label>
+                                    <input type="number" step="0.1" name="equipment_rate" id="equipment_rate" class="form-control @error('equipment_rate') is-invalid @enderror" value="{{ old('equipment_rate') }}">
+                                    @error('equipment_rate')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -122,14 +160,26 @@
                                     @if(old('bedrooms'))
                                         @foreach(old('bedrooms') as $i => $bedroom)
                                             <div class="card p-3 mb-2">
-                                                <input type="text" name="bedrooms[{{ $i }}][title]" class="form-control mb-1" placeholder="Título de la Habitación" value="{{ $bedroom['title'] }}">
-                                                <textarea name="bedrooms[{{ $i }}][description]" class="form-control mb-1" placeholder="Descripción">{{ $bedroom['description'] }}</textarea>
-                                                <input type="file" name="bedrooms[{{ $i }}][image]" class="form-control mb-1">
+                                                <input type="text" name="bedrooms[{{ $i }}][title]" class="form-control mb-1 @error('bedrooms.' . $i . '.title') is-invalid @enderror" placeholder="Título de la Habitación" value="{{ $bedroom['title'] }}">
+                                                @error('bedrooms.' . $i . '.title')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                                <textarea name="bedrooms[{{ $i }}][description]" class="form-control mb-1 @error('bedrooms.' . $i . '.description') is-invalid @enderror" placeholder="Descripción">{{ $bedroom['description'] }}</textarea>
+                                                @error('bedrooms.' . $i . '.description')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                                <input type="file" name="bedrooms[{{ $i }}][image]" class="form-control mb-1 @error('bedrooms.' . $i . '.image') is-invalid @enderror">
+                                                @error('bedrooms.' . $i . '.image')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                                 <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">Eliminar</button>
                                             </div>
                                         @endforeach
                                     @endif
                                 </div>
+                                @error('bedrooms')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                                 <button type="button" class="btn btn-secondary" onclick="addBedroom()">Añadir Habitación</button>
                             </div>
                         </div>
@@ -182,6 +232,9 @@
                                         </div>
                                     @endforeach
                                 </div>
+                                @error('amenities.*')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -190,7 +243,10 @@
                                 <h5>Imágenes de la Galería</h5>
                             </div>
                             <div class="card-body">
-                                <input type="file" name="property_images[]" class="form-control" multiple onchange="previewGalleryImages(event)">
+                                <input type="file" name="property_images[]" class="form-control @error('property_images.*') is-invalid @enderror" multiple onchange="previewGalleryImages(event)">
+                                @error('property_images.*')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                                 <div id="gallery-preview" class="mt-3"></div>
                             </div>
                         </div>
@@ -204,16 +260,16 @@
 </div>
 
 <script>
-    function addPriceGroup() {
-    const wrapper = document.getElementById('price-multiple-wrapper');
+function addPriceGroup() {
+    const wrapper = document.getElementById('price-wrapper');
     const index = wrapper.querySelectorAll('.price-group').length;
     const html = `
         <div class="row mb-2 price-group">
             <div class="col">
-                <input type="number" name="price_multiple[${index}][hours]" class="form-control" placeholder="Horas">
+                <input type="number" name="price[${index}][hours]" class="form-control" placeholder="Horas">
             </div>
             <div class="col">
-                <input type="number" name="price_multiple[${index}][price]" class="form-control" placeholder="Precio">
+                <input type="number" step="0.01" name="price[${index}][amount]" class="form-control" placeholder="Monto">
             </div>
             <div class="col-auto">
                 <button type="button" class="btn btn-danger" onclick="this.closest('.price-group').remove()">Eliminar</button>
@@ -221,6 +277,7 @@
         </div>`;
     wrapper.insertAdjacentHTML('beforeend', html);
 }
+
 function previewThumbnail(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
