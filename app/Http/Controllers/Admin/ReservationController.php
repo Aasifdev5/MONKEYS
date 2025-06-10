@@ -76,7 +76,7 @@ public function getPrices($id)
 }
 
 
-   public function store(Request $request)
+ public function store(Request $request)
 {
     $room = Property::findOrFail($request->room_id);
 
@@ -86,9 +86,10 @@ public function getPrices($id)
         'date' => 'required|date_format:Y-m-d|after_or_equal:today',
         'check_in_time' => 'required',
         'duration' => 'required|numeric|min:1',
+        'base_amount' => 'required|numeric|min:0',
+        'extra_fee' => 'required|numeric|min:0',
         'amount' => 'required|numeric|min:0',
-        'guests' => 'required|numeric|min:1|max:' . $room->max_people,
-
+        'guests' => 'required|numeric|min:1',
         'user_id' => 'required|exists:users,id',
     ]);
 
@@ -98,21 +99,36 @@ public function getPrices($id)
     $validated['email'] = $user->email;
     $validated['phone'] = $user->mobile_number ?? $validated['phone'];
 
-    // Validate duration and amount
+    // Validate duration and base_amount
     $prices = json_decode($room->price, true);
     $validPrice = collect($prices)->contains(function ($price) use ($validated) {
-        return (int)$price['hours'] === (int)$validated['duration'] && (float)$price['amount'] === (float)$validated['amount'];
+        return (int)$price['hours'] === (int)$validated['duration'] && (float)$price['amount'] === (float)$validated['base_amount'];
     });
 
     if (!$validPrice) {
-        return back()->withErrors(['fail' => 'Invalid duration or price'])->withInput();
+        return back()->withErrors(['fail' => 'Invalid duration or base price'])->withInput();
+    }
+
+    // Validate extra fee and total amount
+    $extra_guest_fee = 50; // Fee per extra person, consistent with showForm
+    $max_people = $room->max_people;
+    $extra_guests = $validated['guests'] > $max_people ? $validated['guests'] - $max_people : 0;
+    $calculated_extra_fee = $extra_guests * $extra_guest_fee;
+    $calculated_total = (float)$validated['base_amount'] + $calculated_extra_fee;
+
+    if ($validated['extra_fee'] != $calculated_extra_fee || (float)$validated['amount'] != $calculated_total) {
+        return back()->withErrors(['fail' => 'Invalid extra fee or total amount'])->withInput();
     }
 
     // Calculate check-out time
-    $checkIn = Carbon::createFromFormat('Y-m-d H:i', $validated['date'] . ' ' . $validated['check_in_time']);
-    $checkOut = $checkIn->copy()->addHours($validated['duration']);
-    $checkOutHour = $checkOut->format('H:i');
-    $checkOutDate = $checkOut->format('Y-m-d');
+    try {
+        $checkIn = Carbon::createFromFormat('Y-m-d H:i', $validated['date'] . ' ' . $validated['check_in_time']);
+        $checkOut = $checkIn->copy()->addHours($validated['duration']);
+        $checkOutHour = $checkOut->format('H:i');
+        $checkOutDate = $checkOut->format('Y-m-d');
+    } catch (\Exception $e) {
+        return back()->withErrors(['fail' => 'Invalid time format'])->withInput();
+    }
 
     // Check for conflicts
     $conflict = Reservation::where('room_id', $validated['room_id'])
